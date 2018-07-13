@@ -1,0 +1,556 @@
+import axios from 'axios';
+// import HzInterface from './config';
+var qs = require('qs');
+
+//axios 配置
+axios.defaults.timeout = 5000;
+axios.defaults.baseURL = 'http://localhost:8088'; //本地服务器
+//axios.defaults.baseURL = 'http://192.168.2.103:8088'; //本地服务器
+//axios.defaults.baseURL = 'http://47.88.171.117:8088'; //本地服务器
+
+//   /*密码修改*/
+//   modifyPassword: '/user/updatePassword',
+
+//   /*查询左侧树*/
+//   queryLeftMenu: '/menu/getUserMenu',
+
+//   /*查询短信列表接口*/
+//   querySelectTbable: '/selectTable',
+
+//   /*保存短信编辑接口*/
+//   saveMessage: '/updateMessageAll',
+
+//   /*撤销短信内容接口*/
+//   repealMessage: '/deleteData',
+
+//   /*删除短信列表接口*/
+//   deleteData: '/deleteData',
+
+//   /*短信模板下载*/
+//   downloadMsgTemplete: '/common/msgTemplateDownload',
+
+//   /*事务管理列表*/
+//   queryAffairTable: '/selectAffairTable',
+
+//   /*新增事务接口*/
+//   addAffair: '/insertAffair',
+
+//   /*修改事务接口*/
+//   modifyAffair: '/updateAffair',
+
+//   /*查询事务日志列表*/
+//   queryAfairLog: '/selectAffairLogging',
+
+//   /*删除事务日志*/
+//   deleteAfairLog: '/delectAffairLogging',
+
+//   /*事务完成*/
+//   completeAffair: '/insertAffairLogging',
+
+//   /*成员列表查询*/
+//   queryPeopleList: 'user/UserNamelist',
+
+//   /*查询用户列表*/
+//   queryUserList: '/user/list',
+
+//   /*新增用户信息*/
+//   addUserInfo: '/user/add',
+
+//   /*修改用户信息*/
+//   modifyUserInfo: '/user/update',
+
+//   /*删除用户信息*/
+//   deleteUserInfo: '/user/delete',
+
+//   /*获取用户权限*/
+//   getUserAuthority: '/role/roleNamelist',
+
+//   /*获取部门列表*/
+//   getSectionList: '/dept/deptNamelist',
+
+//   /*查询营销短信*/
+//   queryMarkMessage: '/selectMarketingMsg',
+
+//   /*查看已发送营销号码*/
+//   lookSendOperatorMsg: '/selectByMarketingMsg',
+
+//   /*发送短信*/
+//   sendOperatorMessages: '/sendMarketMsg',
+
+//   /*日志列表*/
+//   logTableSelect: '/log/list',
+
+//   /*权限列表*/
+//   roleList: '/role/list',
+
+//   /*新增权限*/
+//   addRole: '/role/add',
+
+//   /*保存新增权限*/
+//   addUserRole: '/role/Useraddlist',
+
+//   /*删除权限*/
+//   deleteRole: '/role/delete',
+
+//   /*保存删除权限*/
+//   deleteUserRole: '/role/Userdeletelist',
+
+//   /*菜单列表*/
+//   menuList: '/menu/list',
+
+//   /*用户列表*/
+//   queryUserRoleList: '/role/Userlist',
+
+//   /*修改角色权限*/
+//   editRole: '/role/getRoleMenu',
+
+//   /*保存修改角色权限*/
+//   saveEditRole: 'role/update'
+
+//   /*登录*/
+export function httpLogin(username,
+  password,
+  code = 1231,
+  rememberMe = false) {
+  let data = {
+    username,
+    password,
+    code,
+    rememberMe
+  };
+  //console.log(data);
+  return axios({
+    url: "/login",
+    method: "post",
+    headers: {
+      'Content-type': 'application/x-www-form-urlencoded'
+    },
+    data: qs.stringify(data)
+  })
+}
+
+
+// //credit 获取验证码
+// export function httpGifCode() {
+//   return axios({
+//     url: "/gifCode",
+//     method: "get",
+//     headers: {
+//         'Content-type': 'image/gif'
+//       },
+//   })
+// }
+
+//   /*注册*/
+export function httpUserRegister(username, password) {
+  let data = {
+    username,
+    password
+  };
+  //console.log(data);
+  return axios({
+    url: "/user/regist",
+    method: "post",
+    headers: {
+      'Content-type': 'application/x-www-form-urlencoded'
+    },
+    data: qs.stringify(data)
+  })
+}
+
+//   /*得到列表*/
+export function httpGetUserMenu(userName) {
+  let data = {
+    userName
+  };
+  //console.log(data);
+  return axios({
+    url: "/menu/getUserMenu",
+    method: "post",
+    headers: {
+      'Content-type': 'application/x-www-form-urlencoded'
+    },
+    data: qs.stringify(data)
+  })
+}
+
+//   /*得到事务管理*/
+export function httpSelectAffairTable(pageNum,
+  pageSize,
+  name,
+  type,
+  creatTime,
+  commissionTime) {
+  let data = {
+    pageNum,
+    pageSize,
+    name,
+    type,
+    creatTime,
+    commissionTime
+  };
+  //console.log(data);
+  return axios({
+    url: "/selectAffairTable",
+    method: "post",
+    headers: {
+      'Content-type': 'application/x-www-form-urlencoded'
+    },
+    data: qs.stringify(data)
+  })
+}
+
+//   /*得到代办人/
+export function httpUserNamelist() {
+  //console.log(data);
+  return axios({
+    url: "/user/UserNamelist",
+    method: "get",
+
+  })
+}
+
+//   /*得到日志/
+export function httpSelectAffairLogging(affairId,
+  pageNum,
+  pageSize) {
+  let data = {
+    affairId,
+    pageNum,
+    pageSize
+  };
+  return axios({
+    url: "/selectAffairLogging",
+    method: "post",
+    headers: {
+      'Content-type': 'application/x-www-form-urlencoded'
+    },
+    data: qs.stringify(data)
+  })
+}
+
+// 提交完成信息
+
+export function httpInsertAffairLogging(affairId,
+  transatorId,
+  affairName,
+  transatorName,
+  money,
+  discription) {
+  let data = {
+    affairId,
+    transatorId,
+    affairName,
+    transatorName,
+    money,
+    discription
+  };
+  return axios({
+    url: "/insertAffairLogging",
+    method: "post",
+    headers: {
+      'Content-type': 'application/x-www-form-urlencoded'
+    },
+    data: qs.stringify(data)
+  })
+}
+
+// 得到部门列表
+
+export function httpDeptNameList() {
+
+  return axios({
+    url: "/dept/deptNamelist",
+    method: "post",
+    headers: {
+      'Content-type': 'application/x-www-form-urlencoded'
+    },
+  })
+}
+
+// 得到用户
+
+export function httpUserList(pageNum,
+  pageSize,
+  Username,
+  ssex,
+  mobile, deptId) {
+  let data = {
+    pageNum,
+    pageSize,
+    Username,
+    ssex,
+    mobile,
+    deptId
+  };
+  return axios({
+    url: "/user/list",
+    method: "post",
+    headers: {
+      'Content-type': 'application/x-www-form-urlencoded'
+    },
+    data: qs.stringify(data)
+  })
+}
+
+// 新增用户
+
+export function httpUserAdd(username,
+  password,
+  email,
+  mobile,
+  ssex,
+  description,
+  roles,
+  status,
+  deptId,
+  staffName) {
+  let data = {
+    username,
+    password,
+    email,
+    mobile,
+    ssex,
+    description,
+    roles,
+    status,
+    deptId,
+    staffName
+  };
+  return axios({
+    url: "/user/add",
+    method: "post",
+    headers: {
+      'Content-type': 'application/x-www-form-urlencoded'
+    },
+    data: qs.stringify(data)
+  })
+}
+// 删除用户
+
+export function httpUserDelete(ids) {
+  let data = {
+    ids
+  };
+  return axios({
+    url: "/user/delete",
+    method: "post",
+    headers: {
+      'Content-type': 'application/x-www-form-urlencoded'
+    },
+    data: qs.stringify(data)
+  })
+}
+
+
+// 查询周期性短信
+
+export function httpGetPeriodicMessage(pageNumber, pageSize, keywords, startDate, endDate) {
+  let data = {
+    pageNumber,
+    pageSize,
+    keywords,
+    startDate,
+    endDate
+  };
+  return axios({
+    url: "/sms/getPeriodicMessage",
+    method: "post",
+    headers: {
+      'Content-type': 'application/x-www-form-urlencoded'
+    },
+    data: qs.stringify(data)
+  })
+}
+
+// 查询定时性短信
+
+export function httpSelectTable(pageNum, pageSize, mobilePhone, sendStatus, messageContent, sendPlatform) {
+  let data = {
+    pageNum,
+    pageSize,
+    mobilePhone,
+    sendStatus,
+    messageContent,
+    sendPlatform
+  };
+  return axios({
+    url: "/apmsg/selectTable",
+    method: "post",
+    headers: {
+      'Content-type': 'application/x-www-form-urlencoded'
+    },
+    data: qs.stringify(data)
+  })
+}
+
+// 查询新增定时短信
+
+export function httpUpdateMessageAll(Id, senddatetime, mobilePhone, sendTime, sendStatus, reciverName, senderName, sendDate, remarks, sendPlatform, messageContent, messageType) {
+  let data = {
+    Id,
+    senddatetime,
+    mobilePhone,
+    sendTime,
+    sendStatus,
+    reciverName,
+    senderName,
+    sendDate,
+    remarks,
+    sendPlatform,
+    messageContent,
+    messageType
+  };
+  return axios({
+    url: "/apmsg/updateMessageAll",
+    method: "post",
+    headers: {
+      'Content-type': 'application/x-www-form-urlencoded'
+    },
+    data: qs.stringify(data)
+  })
+}
+
+// 删除新增定时短信
+
+export function httpApmsgDeleteData(ids) {
+  let data = {
+    ids
+  };
+  return axios({
+    url: "/apmsg/deleteData",
+    method: "post",
+    headers: {
+      'Content-type': 'application/x-www-form-urlencoded'
+    },
+    data: qs.stringify(data)
+  })
+}
+
+// 日志管理
+
+export function httpLogList(pageNum,
+  pageSize) {
+  let data = {
+    pageNum,
+    pageSize
+  };
+  return axios({
+    url: "/log/list",
+    method: "post",
+    headers: {
+      'Content-type': 'application/x-www-form-urlencoded'
+    },
+    data: qs.stringify(data)
+  })
+}
+
+// 权限管理
+
+export function httpRoleList(pageNum,
+  pageSize) {
+  let data = {
+    pageNum,
+    pageSize
+  };
+  return axios({
+    url: "/role/list",
+    method: "post",
+    headers: {
+      'Content-type': 'application/x-www-form-urlencoded'
+    },
+    data: qs.stringify(data)
+  })
+}
+
+// 删除角色
+
+export function httpRoleDeletet(ids) {
+  let data = {
+    ids
+  };
+  return axios({
+    url: "/role/delete",
+    method: "post",
+    headers: {
+      'Content-type': 'application/x-www-form-urlencoded'
+    },
+    data: qs.stringify(data)
+  })
+}
+
+// 所有角色
+
+export function httpMenuList() {
+  return axios({
+    url: "/menu/list",
+    method: "post",
+    headers: {
+      'Content-type': 'application/x-www-form-urlencoded'
+    },
+
+  })
+}
+
+
+// 得到角色的权限
+
+export function httpRoleMenu(RoleId) {
+  let data = {
+    RoleId
+  };
+  return axios({
+    url: "/role/getRoleMenu",
+    method: "post",
+    headers: {
+      'Content-type': 'application/x-www-form-urlencoded'
+    },
+    data: qs.stringify(data)
+  })
+}
+
+//事务信息管理 / 新增周期短信接口
+
+export function httpSmsPeriodicMessage(receiverName,
+  messageType,
+  sendDate,
+  messageContent,
+  endDate,
+  signatureType,
+  mobilePhone,
+  sendTime,
+  remarks,
+  cycleType,
+  beginDate) {
+  let data = {
+    receiverName,
+    messageType,
+    sendDate,
+    messageContent,
+    endDate,
+    signatureType,
+    mobilePhone,
+    sendTime,
+    remarks,
+    cycleType,
+    beginDate
+  };
+  return axios({
+    url: "/sms/periodicMessage",
+    method: "post",
+    headers: {
+      'Content-type': 'application/x-www-form-urlencoded'
+    },
+    data: qs.stringify(data)
+  })
+}
+
+//   /*得到代办人/
+export function httpDownload() {
+  //console.log(data);
+  return axios({
+    url: "/common/download",
+    method: "post",
+
+  })
+}

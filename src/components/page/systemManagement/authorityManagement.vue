@@ -1,0 +1,311 @@
+<template>
+    <div class="container">
+        <el-row>
+            <el-alert
+              :title="title"
+              :closable="false"
+              type="info">
+            </el-alert>           
+        </el-row>  
+        <el-row class="m20" >
+            <el-col :span="2">
+                    <el-button  icon="el-icon-plus" type="primary" @click="dialogVisible1=true" >新增</el-button>
+            </el-col>
+        </el-row>        
+        <el-table
+            :data="tableData"  
+            border  
+            ref="multipleTable" 
+            tooltip-effect="dark"
+            style="width: 100%"
+            class="m20"
+            @selection-change="handleSelectionChange"
+            v-loading="loading"
+            id="eleTable"
+          >
+            <el-table-column prop="roleName" label="角色名称" align="center" width="180"  >
+   
+            </el-table-column>
+            <el-table-column prop="createTime" label="创建时间" align="center" width="220" sortable>
+   
+            </el-table-column>               
+            <el-table-column prop="remark" label="描述" align="center"  >
+   
+            </el-table-column>
+                <el-table-column prop="cz"  align="center" label="操作"   width="160">
+                    <template slot-scope="scope">
+                    <el-button
+                        size="mini"
+                        type="primary"
+                        @click="handleAllocation(scope.$index, scope.row)"
+                       >修改角色菜单</el-button>
+                    </template> 
+                </el-table-column>            
+        </el-table>     
+        <el-row class="m20" v-if="total>0">
+             <div style="float:right">
+                 <el-pagination
+                   @current-change="handleCurrentChange"
+                    @size-change="handleSizeChange"
+                   :current-page="npage"
+                    :page-sizes="[10, 20, 30, 40]"
+                     :page-size="pagesize"
+                   background
+                   layout="total,sizes,prev, pager, next,jumper"
+                   :total="total">
+                 </el-pagination>   
+             </div>
+        </el-row>  
+       <el-dialog
+          title="新增角色"
+          :visible.sync="dialogVisible1"
+          center
+          width="30%"
+          id="xzjs"
+          >
+            <el-form   :rules="rules" :model="ruleForm" status-icon  ref="ruleForm" label-width="100px" >
+              <el-form-item label="角色姓名" prop="username">
+                <el-input v-model="ruleForm.username" ></el-input>
+              </el-form-item>
+              <el-form-item label="用户描述">
+                <el-input type="textarea" v-model="ruleForm.description"></el-input>
+              </el-form-item>              
+              <el-form-item label="可选角色" prop="roles">
+                <el-checkbox-group v-model="ruleForm.roles">
+                    <el-checkbox v-for="role in MenuList" :label="role.menuId" :key="role.menuId">{{role.menuName}}</el-checkbox>
+                </el-checkbox-group>                
+              </el-form-item>                                                                                                                 
+                <el-form-item>
+                  <el-button type="primary" @click="submitForm('ruleForm')">创建</el-button>
+                  <el-button @click="resetForm('ruleForm')">重置</el-button>
+                </el-form-item>
+            </el-form>            
+        </el-dialog>
+       <el-dialog
+          title="修改角色权限"
+          :visible.sync="dialogVisible2"
+          center
+          width="30%"
+          id="xzjs"
+          >
+            <el-form   :rules="rules" :model="ruleForm2" status-icon  ref="ruleForm2" label-width="100px" >
+              <el-form-item label="角色姓名" >
+                <el-input v-model="ruleForm2.roleName" ></el-input>
+              </el-form-item>
+              <el-form-item label="用户描述">
+                <el-input type="textarea" v-model="ruleForm2.remark"></el-input>
+              </el-form-item>              
+              <el-form-item label="可选角色">
+                <el-checkbox-group v-model="ruleForm2.roles">
+                    <el-checkbox v-for="role in roles" :label="role.menuId" :key="role.menuId">{{role.menuName}}</el-checkbox>
+                </el-checkbox-group>                
+              </el-form-item>                                                                                                                 
+                <el-form-item>
+                  <el-button type="primary" @click="submitForm('ruleForm2')">修改</el-button>
+                  <el-button @click="resetForm('ruleForm2')">重置</el-button>
+                </el-form-item>
+            </el-form>            
+        </el-dialog>                                             
+    </div>
+</template>
+
+<script>
+import {
+  httpRoleList,
+  httpRoleDeletet,
+  httpMenuList,
+  httpRoleMenu
+} from "../../../service/http";
+export default {
+  data() {
+    return {
+      title: "日志列表",
+      search: {
+        input: "",
+        time: ""
+      },
+      tableData: [],
+      loading: true,
+      dialogVisible1: false,
+      dialogVisible2: false,
+      npage: 1,
+      pagesize: 10,
+      total: 0,
+      multipleSelection: [], //全部选中嘛
+      MenuList: [],
+      ruleForm: {
+        username: "",
+        roles: [],
+        description: ""
+      },
+      ruleForm2: {
+        username: "",
+        roles: [],
+        description: ""
+      },
+      rules: {
+        roles: [
+          {
+            type: "array",
+            required: true,
+            message: "请至少选择一个角色",
+            trigger: "change"
+          }
+        ]
+      },
+      roles: [],
+      rolesCheck: []
+    };
+  },
+  methods: {
+    _httpRoleMenu(id) {
+      let _this = this;
+      this.roles.length = 0;
+      httpRoleMenu(id)
+        .then(res => {
+          let data = res.data;
+          _this.roles = data;
+          _this.rolesCheck.length = 0;
+          for (let a = 0; a < data.length; a++) {
+            if (data[a].checked) {
+              _this.rolesCheck.push(data[a].menuId);
+            }
+          }
+          _this.dialogVisible2 = true;
+        })
+        .catch();
+    },
+    _httpMenuList() {
+      let _this = this;
+      httpMenuList()
+        .then(res => {
+          let data = res.data;
+          _this.MenuList = data;
+        })
+        .catch();
+    },
+    getData(pageNum, pageSize) {
+      let _this = this;
+      httpRoleList(pageNum, pageSize)
+        .then(res => {
+          let data = res.data;
+          _this.tableData = data.rows;
+          _this.total = data.total;
+          _this.loading = false;
+        })
+        .catch(err => {
+          _this.tableData = [];
+          _this.loading = false;
+        });
+    },
+    handleSearch() {
+      this.getData(this.npage, this.pagesize);
+    },
+    handleAllocation(index, row) {
+      let id = row.roleId;
+      this._httpRoleMenu(id);
+      this.ruleForm2 = Object.assign({}, row, { roles: this.rolesCheck });
+    },
+    handleCurrentChange(val) {
+      this.npage = val;
+      this.handleSearch();
+    },
+    handleSizeChange(val) {
+      this.pagesize = val;
+      this.handleSearch();
+    },
+    reset() {
+      this.search = null;
+      this.getData();
+    },
+    handleSelectionChange(val) {
+      this.multipleSelection = val;
+    },
+    onSubmit(formName) {
+      let _this = this;
+      if (formName == "ruleForm") {
+        this.$jQuery.ajax({
+          type: "post",
+          url: "http://localhost:8088/role/add",
+          data: {
+            roleName: this.ruleForm.username,
+            remark: this.ruleForm.description,
+            menuId: this.ruleForm.roles
+          },
+          success: function(data) {
+            console.log(data);
+            _this.resetForm("ruleForm");
+            if (data.code == 200) {
+              _this.$message({
+                message: data.msg,
+                type: "success"
+              });
+              _this.dialogVisible1 = false;
+              _this.getData(this.npage, this.pagesize);
+            } else {
+              _this.$message.error(data.msg);
+            }
+          },
+          error: function() {
+            _this.$message.error("网络错误");
+            _this.resetForm("ruleForm");
+            _this.dialogVisible1 = false;
+          }
+        });
+      } else {
+        this.$jQuery.ajax({
+          type: "post",
+          url: "http://localhost:8088/role/update",
+          data: {
+            roleId: this.ruleForm2.roleId,
+            roleName: this.ruleForm2.roleName,
+            remark: this.ruleForm2.remark,
+            menuId: this.ruleForm2.roles
+          },
+          success: function(data) {
+            console.log(data);
+            _this.resetForm("ruleForm2");
+            if (data.code == 200) {
+              _this.$message({
+                message: data.msg,
+                type: "success"
+              });
+              _this.dialogVisible2 = false;
+            } else {
+              _this.$message.error(data.msg);
+            }
+          },
+          error: function() {
+            _this.$message.error("网络错误");
+            _this.resetForm("ruleForm2");
+            _this.dialogVisible2 = false;
+          }
+        });
+      }
+    },
+    submitForm(formName) {
+      let _this = this;
+      this.$refs[formName].validate(valid => {
+        if (valid) {
+          _this.onSubmit(formName);
+        } else {
+          return false;
+        }
+      });
+    },
+    resetForm(formName) {
+      this.$refs[formName].resetFields();
+    }
+  },
+  mounted() {
+    this.getData(this.npage, this.pagesize);
+    this._httpMenuList();
+  }
+};
+</script>
+
+<style>
+#xzjs .el-checkbox-group label {
+  margin-left: 20px;
+}
+</style>

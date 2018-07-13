@@ -1,0 +1,843 @@
+<template>
+    <div class="container">
+        <el-row>
+            <el-alert
+              :title="title"
+              :closable="false"
+              type="info">
+            </el-alert>           
+        </el-row>   
+        <el-row class="m20" >
+            <el-col :span="2">
+                    <el-button  icon="el-icon-plus" type="primary" @click="dialogVisible1=true" >新增</el-button>
+            </el-col>
+            <el-col :span="2" >
+                  <el-button  type="danger" @click="_httpDownload()" >下载模板</el-button>
+            </el-col>  
+            <el-col :span="4" >                            
+                  <el-upload
+                    class="upload-demo"
+                    ref="upload"
+                    action="123"
+                    :before-upload="beforeAvatarUpload"
+                    :on-preview="handlePreview"
+                    :on-remove="handleRemove"
+                    :file-list="fileList"
+                    :auto-upload="false">
+                    <el-button slot="trigger" size="small" type="primary">选取文件</el-button>
+                    <el-button style="margin-left: 10px;" size="small" type="success" @click="submitUpload">上传到服务器</el-button>
+                    <!-- <div slot="tip" class="el-upload__tip">上传格式为"txt"或"xsl"文件</div> -->
+                  </el-upload>                
+            </el-col>
+            <el-col :span="16"   class="col-flex-end">
+                    <el-button  type="primary" @click="reset">重置</el-button>
+                    <div class="l20">
+                        <el-input
+                        style="padding:0px 10px 0px 0px"
+                          placeholder="请输入关键字"
+                          v-model="search.keywords"
+                          clearable>
+                        </el-input> 
+                    </div>
+                    <el-date-picker
+                    style="width:340px"
+                    class="l20"
+                      v-model="search.time"
+                      type="daterange"
+                      value-format="yyyy-MM-dd"
+                      range-separator="至"
+                      start-placeholder="开始日期"
+                      end-placeholder="结束日期">
+                    </el-date-picker>                
+                    <el-button @click="handleSearch" class="l20" style="margin-left:20px" icon="el-icon-search"  type="success" circle></el-button>                                                                  
+            </el-col>             
+        </el-row>
+        <el-table
+            :data="tableData"  
+            border  
+            ref="multipleTable" 
+            tooltip-effect="dark"
+            style="width: 100%"
+            class="m20"
+                v-loading="loading"
+          >
+                     <el-table-column prop="id" label="序号" align="center" width="70"  sortable></el-table-column>
+
+            <el-table-column prop="senddatetime" label="发送时间" align="center" width="140" ></el-table-column>
+<el-table-column prop="beginDate" label="开始日期" align="center" width="140" ></el-table-column>
+<el-table-column prop="endDate" label="结束日期" align="center" width="140" ></el-table-column>            
+            <el-table-column prop="mobilePhone" label="电话" align="center" width="120" ></el-table-column>
+            <el-table-column prop="sendStatus" label="状态" align="center" width="100" 
+             :filters="[{ text: '已发送', value: '1' }, { text: '未发送', value: '2' }, { text: '发送失败', value: '3' }]" :filter-method="filterStatus" filter-placement="bottom-end"
+                    >
+                    <template slot-scope="scope">
+                        <el-tag style="margin-left: 10px" :type="scope.row.sendStatus ===1?'success':scope.row.sendStatus ===2?'info':'danger'">
+                          {{ scope.row.sendStatus ===1?'已发送':scope.row.sendStatus ===2?'未发送':'发送失败' }}
+                        </el-tag>
+                    </template> 
+              
+            </el-table-column>
+            <el-table-column prop="reciverName" label="接收人姓名" align="center" width="100" ></el-table-column>
+            <el-table-column prop="senderName" label="发送人" align="center" width="100" ></el-table-column>
+            <el-table-column prop="senderName" label="备注" align="center" ></el-table-column>
+            <!-- <el-table-column prop="sendPlatform" label="发送平台" align="center"  width="100" 
+             :filters="[{ text: '华信', value: '1' }, { text: '创南', value: '2' }]" :filter-method="filterSendPlatform" filter-placement="bottom-end"
+                    >
+                    <template slot-scope="scope">
+                        <el-tag style="margin-left: 10px" :type="scope.row.sendStatus ===1?'success':'danger'">
+                          {{ scope.row.sendPlatform ===1?'华信':'创南' }}
+                        </el-tag>
+                    </template> 
+
+            </el-table-column> -->
+            <!-- <el-table-column prop="sendPlatform" label="签名" align="center"  width="100" 
+             :filters="[{ text: '华信', value: '1' }, { text: '创南', value: '2' }]" :filter-method="filterSendPlatform" filter-placement="bottom-end"
+                    >
+                    <template slot-scope="scope">
+                        <el-tag style="margin-left: 10px" :type="scope.row.sendStatus ===1?'success':'danger'">
+                          {{ scope.row.sendPlatform ===1?'华信':'创南' }}
+                        </el-tag>
+                    </template> 
+
+            </el-table-column>            -->
+            <el-table-column prop="messageContent" label="消息内容" align="center" ></el-table-column>
+            <el-table-column prop="messageType" label="短信类型" align="center" width="100"
+             :filters="[{ text: '下款', value: '1' }, { text: '还款', value: '2' }, { text: '还本', value: '3' }]" :filter-method="filterMessageType" filter-placement="bottom-end"
+                    >
+                    <template slot-scope="scope">
+                        <el-tag style="margin-left: 10px" :type="scope.row.messageType ===1?'success':scope.row.messageType===2?'info':'danger'">
+                          {{ scope.row.messageType ===1?'下款':scope.row.messageType ===2?'还款':'还本' }}
+                        </el-tag>
+                    </template> 
+              
+            </el-table-column>
+            <el-table-column prop="cz"  align="center" label="操作" width="200"  >
+                <template slot-scope="scope">
+                <el-button
+                    size="mini"
+                    type="primary"
+                    @click="handleEdit(scope.$index, scope.row)"
+                   >编辑</el-button>
+                <el-button
+                    size="mini"
+                    type="danger"
+                    @click="handleDelete(scope.$index, scope.row)"
+                   >撤销</el-button>                   
+                </template> 
+            </el-table-column>  
+        </el-table>  
+       <el-row class="m20" v-if="total>0">
+             <div style="float:right">
+                 <el-pagination
+                   @current-change="handleCurrentChange"
+                    @size-change="handleSizeChange"
+                   :current-page="npage"
+                    :page-sizes="[10, 20, 30, 40]"
+                     :page-size="pagesize"
+                   background
+                   layout="total,sizes,prev, pager, next,jumper"
+                   :total="total">
+                 </el-pagination>   
+             </div>
+        </el-row>  
+       <el-dialog
+          title="新增短信"
+          :visible.sync="dialogVisible1"
+          center
+          width="30%"
+          >
+            <el-form :rules="rules" :model="ruleForm3" status-icon  ref="ruleForm3" label-width="100px" >
+              <el-form-item label="接受人姓名" prop='receiverName'>
+                <el-input v-model="ruleForm3.receiverName" ></el-input>
+              </el-form-item>
+              <el-form-item label="接受人电话" prop='mobilePhone'>
+                <el-input v-model="ruleForm3.mobilePhone"></el-input>
+              </el-form-item>  
+              <el-form-item label="周期类型">
+                <el-switch
+                  v-model="ruleForm3.now"
+                  active-text="月"
+                  inactive-text="周">
+                </el-switch>                
+              </el-form-item>  
+              <el-form-item  prop='sendDate' >
+                  <el-radio-group v-model="ruleForm3.sendDate" v-if="!ruleForm3.now">
+                    <el-radio-button label="周一">周一</el-radio-button>
+                    <el-radio-button label="周二">周二</el-radio-button>
+                    <el-radio-button label="周三">周三</el-radio-button>
+                    <el-radio-button label="周四">周四</el-radio-button>
+                    <el-radio-button label="周五">周五</el-radio-button>
+                  </el-radio-group>
+                  <el-radio-group v-model="ruleForm3.sendDate" id='rq' v-if="ruleForm3.now">
+                    <el-row class="m20">
+                      <el-radio-button label="1"> 1</el-radio-button>
+                      <el-radio-button label="2"> 2</el-radio-button>
+                      <el-radio-button label="3"> 3</el-radio-button>
+                      <el-radio-button label="4"> 4</el-radio-button>
+                      <el-radio-button label="5"> 5</el-radio-button>
+                      <el-radio-button label="6"> 6</el-radio-button>
+                      <el-radio-button label="7"> 7</el-radio-button>
+                      
+                    </el-row>
+                    <el-row class="m20">
+                      <el-radio-button label="8"> 8</el-radio-button>
+                      <el-radio-button label="9"> 9</el-radio-button>
+                      <el-radio-button label="10">10</el-radio-button>
+                      <el-radio-button label="11">11</el-radio-button>
+                      <el-radio-button label="12">12</el-radio-button>
+                      <el-radio-button label="13">13</el-radio-button>
+                      <el-radio-button label="14">14</el-radio-button>
+                
+                    </el-row>
+                    <el-row class="m20">
+                            <el-radio-button label="15">15</el-radio-button>
+                      <el-radio-button label="16">16</el-radio-button>
+                      <el-radio-button label="17">17</el-radio-button>
+                      <el-radio-button label="18">18</el-radio-button>
+                      <el-radio-button label="19">19</el-radio-button>
+                      <el-radio-button label="20">20</el-radio-button>
+                      <el-radio-button label="21">21</el-radio-button>
+                  
+                    </el-row>
+                    <el-row class="m20">
+                          <el-radio-button label="22">22</el-radio-button>
+                      <el-radio-button label="23">23</el-radio-button>
+                      <el-radio-button label="24">24</el-radio-button>
+                      <el-radio-button label="25">25</el-radio-button>
+                      <el-radio-button label="26">26</el-radio-button>
+                      <el-radio-button label="27">27</el-radio-button>
+                      <el-radio-button label="28">28</el-radio-button>
+                  
+                    </el-row>                                                            
+                    <el-row class="m20">
+        <el-radio-button label="29">29</el-radio-button>
+                      <el-radio-button label="30">30</el-radio-button>
+                      <el-radio-button label="31">31</el-radio-button>
+                    </el-row>
+                  </el-radio-group>                  
+              </el-form-item>
+              <el-form-item label="发送时间" prop="sendTime">
+                <el-time-picker
+                 value-format="hh:mm:ss"
+                  v-model="ruleForm3.sendTime"
+                  placeholder="发送时间">
+                </el-time-picker>                           
+              </el-form-item>  
+              <el-form-item label="时间区间" prop="time">
+                 <el-date-picker
+                   v-model="ruleForm3.time"
+                   value-format="yyyy-MM-dd"
+                   type="daterange"
+                   range-separator="至"
+                   start-placeholder="开始日期"
+                   end-placeholder="结束日期">
+                 </el-date-picker>                
+              </el-form-item>
+              <!-- <el-form-item label="发送状态" prop="status" >
+                    <el-select  v-model="ruleForm3.status" placeholder="发送状态">
+                      <el-option
+                        v-for="item in sendStatus"
+                        :key="item.value"
+                        :label="item.label"
+                        :value="item.value">
+                      </el-option>
+                    </el-select> 
+              </el-form-item>                -->
+              <el-form-item label="短信类型" prop="messageType">
+                    <el-select  v-model="ruleForm3.messageType" placeholder="短信类型">
+                      <el-option
+                        v-for="item in messageType"
+                        :key="item.value"
+                        :label="item.label"
+                        :value="item.value">
+                      </el-option>
+                    </el-select> 
+              </el-form-item>                
+              <!-- <el-form-item label="发送人" prop="senderName">
+                <el-input v-model="ruleForm3.senderName" ></el-input>
+              </el-form-item>    -->
+              <el-form-item label="备注" prop="remarks">
+                <el-input type="textarea" v-model="ruleForm3.remarks"></el-input>
+              </el-form-item>
+              <el-form-item label="发送签名" prop="signatureType">
+                    <el-select  v-model="ruleForm3.signatureType" placeholder="发送签名">
+                      <el-option
+                        v-for="item in signatureType"
+                        :key="item.value"
+                        :label="item.label"
+                        :value="item.value">
+                      </el-option>
+                    </el-select> 
+              </el-form-item>  
+              <el-form-item label="消息内容" prop="messageContent">
+                <el-input type="textarea" v-model="ruleForm3.messageContent"></el-input>
+              </el-form-item>              
+              <!-- <el-form-item label="短信类型" prop="messageType">
+                    <el-select  v-model="ruleForm3.messageType" placeholder="短信类型">
+                      <el-option
+                        v-for="item in messageType"
+                        :key="item.value"
+                        :label="item.label"
+                        :value="item.value">
+                      </el-option>
+                    </el-select> 
+              </el-form-item>                              -->
+                <el-form-item>
+                  <el-button type="primary" @click="submitForm('ruleForm3')">提交</el-button>
+                  <el-button @click="resetForm('ruleForm3')">重置</el-button>
+                </el-form-item>
+            </el-form>       
+      </el-dialog>    
+       <el-dialog
+          title="新增短信"
+          :visible.sync="dialogVisible2"
+          center
+          width="30%"
+          >
+            <el-form :rules="rules" :model="ruleForm" status-icon  ref="ruleForm" label-width="100px" >
+              <el-form-item label="接受人姓名" prop='receiverName'>
+                <el-input v-model="ruleForm.receiverName" ></el-input>
+              </el-form-item>
+              <el-form-item label="接受人电话" prop='mobilePhone'>
+                <el-input v-model="ruleForm.mobilePhone"></el-input>
+              </el-form-item>  
+              <el-form-item label="周期类型">
+                <el-switch
+                  v-model="ruleForm.now"
+                  active-text="月"
+                  inactive-text="周">
+                </el-switch>                
+              </el-form-item>  
+              <el-form-item  prop='sendDate' >
+                  <el-radio-group v-model="ruleForm.sendDate" v-if="!ruleForm3.now">
+                    <el-radio-button label="周一">周一</el-radio-button>
+                    <el-radio-button label="周二">周二</el-radio-button>
+                    <el-radio-button label="周三">周三</el-radio-button>
+                    <el-radio-button label="周四">周四</el-radio-button>
+                    <el-radio-button label="周五">周五</el-radio-button>
+                  </el-radio-group>
+                  <el-radio-group v-model="ruleForm.sendDate" id='rq' v-if="ruleForm3.now">
+                    <el-row class="m20">
+                      <el-radio-button label="1"> 1</el-radio-button>
+                      <el-radio-button label="2"> 2</el-radio-button>
+                      <el-radio-button label="3"> 3</el-radio-button>
+                      <el-radio-button label="4"> 4</el-radio-button>
+                      <el-radio-button label="5"> 5</el-radio-button>
+                      <el-radio-button label="6"> 6</el-radio-button>
+                      <el-radio-button label="7"> 7</el-radio-button>
+                      
+                    </el-row>
+                    <el-row class="m20">
+                      <el-radio-button label="8"> 8</el-radio-button>
+                      <el-radio-button label="9"> 9</el-radio-button>
+                      <el-radio-button label="10">10</el-radio-button>
+                      <el-radio-button label="11">11</el-radio-button>
+                      <el-radio-button label="12">12</el-radio-button>
+                      <el-radio-button label="13">13</el-radio-button>
+                      <el-radio-button label="14">14</el-radio-button>
+                
+                    </el-row>
+                    <el-row class="m20">
+                            <el-radio-button label="15">15</el-radio-button>
+                      <el-radio-button label="16">16</el-radio-button>
+                      <el-radio-button label="17">17</el-radio-button>
+                      <el-radio-button label="18">18</el-radio-button>
+                      <el-radio-button label="19">19</el-radio-button>
+                      <el-radio-button label="20">20</el-radio-button>
+                      <el-radio-button label="21">21</el-radio-button>
+                  
+                    </el-row>
+                    <el-row class="m20">
+                          <el-radio-button label="22">22</el-radio-button>
+                      <el-radio-button label="23">23</el-radio-button>
+                      <el-radio-button label="24">24</el-radio-button>
+                      <el-radio-button label="25">25</el-radio-button>
+                      <el-radio-button label="26">26</el-radio-button>
+                      <el-radio-button label="27">27</el-radio-button>
+                      <el-radio-button label="28">28</el-radio-button>
+                  
+                    </el-row>                                                            
+                    <el-row class="m20">
+        <el-radio-button label="29">29</el-radio-button>
+                      <el-radio-button label="30">30</el-radio-button>
+                      <el-radio-button label="31">31</el-radio-button>
+                    </el-row>
+                  </el-radio-group>                  
+              </el-form-item>
+              <el-form-item label="发送时间" prop="sendTime">
+                <el-time-picker
+                 value-format="hh:mm:ss"
+                  v-model="ruleForm.sendTime"
+                  placeholder="发送时间">
+                </el-time-picker>                           
+              </el-form-item>  
+              <el-form-item label="时间区间" prop="time">
+                 <el-date-picker
+                   v-model="ruleForm.time"
+                   value-format="yyyy-MM-dd"
+                   type="daterange"
+                   range-separator="至"
+                   start-placeholder="开始日期"
+                   end-placeholder="结束日期">
+                 </el-date-picker>                
+              </el-form-item>
+              <!-- <el-form-item label="发送状态" prop="status" >
+                    <el-select  v-model="ruleForm3.status" placeholder="发送状态">
+                      <el-option
+                        v-for="item in sendStatus"
+                        :key="item.value"
+                        :label="item.label"
+                        :value="item.value">
+                      </el-option>
+                    </el-select> 
+              </el-form-item>                -->
+              <el-form-item label="短信类型" prop="messageType">
+                    <el-select  v-model="ruleForm.messageType" placeholder="短信类型">
+                      <el-option
+                        v-for="item in messageType"
+                        :key="item.value"
+                        :label="item.label"
+                        :value="item.value">
+                      </el-option>
+                    </el-select> 
+              </el-form-item>                
+              <!-- <el-form-item label="发送人" prop="senderName">
+                <el-input v-model="ruleForm3.senderName" ></el-input>
+              </el-form-item>    -->
+              <el-form-item label="备注" prop="remarks">
+                <el-input type="textarea" v-model="ruleForm.remarks"></el-input>
+              </el-form-item>
+              <el-form-item label="发送签名" prop="signatureType">
+                    <el-select  v-model="ruleForm.signatureType" placeholder="发送签名">
+                      <el-option
+                        v-for="item in signatureType"
+                        :key="item.value"
+                        :label="item.label"
+                        :value="item.value">
+                      </el-option>
+                    </el-select> 
+              </el-form-item>  
+              <el-form-item label="消息内容" prop="messageContent">
+                <el-input type="textarea" v-model="ruleForm.messageContent"></el-input>
+              </el-form-item>              
+              <!-- <el-form-item label="短信类型" prop="messageType">
+                    <el-select  v-model="ruleForm3.messageType" placeholder="短信类型">
+                      <el-option
+                        v-for="item in messageType"
+                        :key="item.value"
+                        :label="item.label"
+                        :value="item.value">
+                      </el-option>
+                    </el-select> 
+              </el-form-item>                              -->
+                <el-form-item>
+                  <el-button type="primary" @click="submitForm('ruleForm')">提交</el-button>
+                  <el-button @click="resetForm('ruleForm')">重置</el-button>
+                </el-form-item>
+            </el-form>       
+      </el-dialog>                                             
+    </div>
+</template>
+
+<script>
+import axios from "axios";
+import { timeFormat } from "../../../config/time";
+import {
+  httpGifCode,
+  httpGetPeriodicMessage,
+  httpSmsPeriodicMessage,
+  httpDownload
+} from "../../../service/http";
+export default {
+  data() {
+    var validateUsername = (rule, value, callback) => {
+      if (value != null && value != "") {
+        var reg = /^[a-zA-Z0-9_-]{4,16}$/;
+        if (!reg.test(value)) {
+          return callback(
+            new Error("请输入4-16位包含大小写字母和数字的用户名！")
+          );
+        } else {
+          callback();
+        }
+      } else {
+        return callback(
+          new Error("请输入4-16位包含大小写字母和数字的用户名！")
+        );
+      }
+    };
+
+    var validatePassword = (rule, value, callback) => {
+      if (value != null && value != "") {
+        var reg = /^[A-Za-z]+[0-9]+[A-Za-z0-9]*|[0-9]+[A-Za-z]+[A-Za-z0-9]*$/g;
+        if (!reg.test(value)) {
+          return callback(
+            new Error("密码必须由6-16个英文字母和数字的字符串组成！")
+          );
+        } else {
+          callback();
+        }
+      } else {
+        return callback(
+          new Error("密码必须由6-16个英文字母和数字的字符串组成！")
+        );
+      }
+    };
+
+    var validateEmail = (rule, value, callback) => {
+      if (value != null && value != "") {
+        var reg = /^([a-zA-Z0-9_-])+@([a-zA-Z0-9_-])+(.[a-zA-Z0-9_-])+/;
+        if (!reg.test(value)) {
+          return callback(new Error("请输入正确邮箱！"));
+        } else {
+          callback();
+        }
+      } else {
+        return callback(new Error("请输入正确邮箱！"));
+      }
+    };
+
+    var validateMobile = (rule, value, callback) => {
+      var reg = /^(13[0-9]|14[5|7]|15[0|1|2|3|5|6|7|8|9]|18[0|1|2|3|5|6|7|8|9])\d{8}$/;
+      console.log(value);
+      if (value == "") {
+        callback(new Error("请输入正确手机号码！"));
+      } else if (!reg.test(value)) {
+        callback(new Error("请输入正确手机号码！"));
+      } else {
+        callback();
+      }
+    };
+    return {
+      title: "周期短信",
+      search: {
+        time: [],
+        keywords: ""
+      },
+      dialogVisible1: false,
+      dialogVisible2: false,
+      fileList: [],
+      tableData: [],
+      loading: false,
+      npage: 1,
+      pagesize: 10,
+      total: 0,
+      ruleForm3: {},
+      ruleForm: {},
+      messageType: [
+        { label: "下款", value: 1 },
+        { label: "还款", value: 2 },
+        { label: "还本", value: 3 }
+      ],
+      signatureType: [
+        { label: "恒舜金融", value: 1 },
+        { label: "恒舜普融", value: 2 },
+        { label: "恒舜财富", value: 3 }
+      ],
+      rules: {
+        receiverName: [
+          { required: true, message: "请输入接收姓名", trigger: "blur" }
+        ],
+        staffName: [
+          { required: true, message: "请输入真实姓名", trigger: "blur" }
+        ],
+        sendTime: [
+          { required: true, message: "请输入发送时间", trigger: "blur" }
+        ],
+        sendDate: [
+          { required: true, message: "请选择一个日期", trigger: "blur" }
+        ],
+        remarks: [{ required: true, message: "请选择备注", trigger: "blur" }],
+        messageContent: [
+          { required: true, message: "请选择备注", trigger: "blur" }
+        ],
+        time: [{ required: true, message: "请选择发送区间", trigger: "blur" }],
+        reciverName: [
+          { required: true, message: "请输入真实姓名", trigger: "blur" }
+        ],
+        senderName: [
+          { required: true, message: "请输入真实姓名", trigger: "blur" }
+        ],
+        senderName: [
+          { required: true, message: "请输入真实姓名", trigger: "blur" }
+        ],
+        username: [
+          { require: true, validator: validateUsername, trigger: "blur" }
+        ],
+        username: [
+          { require: true, validator: validateUsername, trigger: "blur" }
+        ],
+        password: [
+          { require: true, validator: validatePassword, trigger: "blur" }
+        ],
+        mobilePhone: [
+          { require: true, validator: validateMobile, trigger: "blur" }
+        ],
+        email: [{ require: true, validator: validateEmail, trigger: "blur" }],
+        mobilePhone: [
+          { require: true, validator: validateMobile, trigger: "blur" }
+        ],
+        roles: [
+          {
+            type: "array",
+            required: true,
+            message: "请至少选择一个角色",
+            trigger: "change"
+          }
+        ],
+        signatureType: [
+          {
+            required: true,
+            message: "请选择发送签名",
+            trigger: "change"
+          }
+        ],
+        ssex: [{ required: true, message: "请选择性别", trigger: "change" }],
+        deptId: [{ required: true, message: "请选择部门", trigger: "change" }],
+        sendStatus: [
+          { required: true, message: "请选择状态", trigger: "change" }
+        ],
+        sendPlatform: [
+          { required: true, message: "请选择发送平台", trigger: "change" }
+        ],
+        messageType: [
+          { required: true, message: "请选择发送平台", trigger: "change" }
+        ]
+      }
+    };
+  },
+  methods: {
+    _httpDownload() {
+      httpDownload()
+        .then()
+        .catch();
+    },
+    _httpSmsPeriodicMessage(
+      receiverName,
+      messageType,
+      sendDate,
+      messageContent,
+      endDate,
+      signatureType,
+      mobilePhone,
+      sendTime,
+      remarks,
+      cycleType,
+      beginDate
+    ) {
+      httpSmsPeriodicMessage(
+        receiverName,
+        messageType,
+        sendDate,
+        messageContent,
+        endDate,
+        signatureType,
+        mobilePhone,
+        sendTime,
+        remarks,
+        cycleType,
+        beginDate
+      )
+        .then(res => {
+          let data = res.data;
+          if (data.code == "SUCCESS") {
+            this.$message({
+              message: data.messager,
+              type: "success"
+            });
+            this.resetForm("ruleForm3");
+            this.resetForm("ruleForm2");
+            this.dialogVisible2 = false;
+            this.dialogVisible1 = false;
+            this.init(this.npage, this.pagesize);
+          } else {
+            this.$message.error(data.messager);
+          }
+        })
+        .catch(err => {
+          this.$message.error("网络错误请联系管理员");
+        });
+    },
+    init(pageNumber, pageSize, keywords, startDate, endDate) {
+      let _this = this;
+      this.loading = true;
+      httpGetPeriodicMessage(pageNumber, pageSize, keywords, startDate, endDate)
+        .then(res => {
+          let data = res.data;
+          if (data.code == 200) {
+            _this.tableData = data.data.list;
+            _this.total = data.data.total;
+          } else {
+            _this.$message.error(data.msg);
+          }
+          _this.loading = false;
+        })
+        .catch(err => {
+          _this.$message.error("网络错误");
+        });
+    },
+    submitUpload() {
+      this.$refs.upload.submit();
+    },
+    handleRemove(file, fileList) {
+      console.log(file, fileList);
+    },
+    handlePreview(file) {
+      console.log(file);
+    },
+    beforeAvatarUpload(file) {
+      //将文件 的所有的内容都添加在这一起上传
+      let fd = new FormData();
+      fd.append("excel", file);
+      // fd.append("realMoney", Number(this.editForm.realMoney)); //其他参数
+      // fd.append("withdrawId", Number(this.editForm.withdrawId)); //其他参数
+      // fd.append("discountAmt", Number(this.editForm.discountAmt)); //其他参数
+      // fd.append("mustPayBackAmt", Number(this.editForm.mustPayBackAmt)); //其他参数
+      // fd.append("actualPayBackAmt", Number(this.editForm.actualPayBackAmt)); //其他参数
+      // fd.append("remark", this.editForm.remark); //其他参数
+      // console.log(fd);
+      // const isJPG = /image\/\w+/.test(file.type);
+      // const isLt2M = file.size / 1024 / 1024 < 4;
+
+      // if (!isJPG) {
+      //   this.$message.error("必须上传图片!");
+      // }
+      // if (!isLt2M) {
+      //   this.$message.error("上传头像图片大小不能超过 4MB!");
+      // }
+      // return isJPG && isLt2M;
+      console.log(file);
+      var re = /\w+\.(txt|xlsx)/;
+      const isJPG = re.test(file.name);
+      console.log(isJPG);
+      const isLt2M = file.size / 1024 / 1024 < 4;
+
+      // if (!isJPG) {
+      //   return this.$message.error("上传头像图片只能是 txt和xlsx格式!");
+      // }
+      if (!isLt2M) {
+        return this.$message.error("上传头像图片大小不能超过 2MB!");
+      }
+      if (!file) {
+        return this.$message.error("请上传文本");
+      }
+      this.$message({
+        message: "申请提交成功等待审核",
+        type: "success"
+      });
+      axios.post("/sms/uploadExcel", fd, {});
+      return isJPG && isLt2M;
+    },
+    reset() {
+      this.search = {};
+      this.init();
+    },
+    handleSearch() {
+      if (this.search.time && this.search.time.length) {
+        this.init(
+          this.npage,
+          this.pagesize,
+          this.search.keywords,
+          this.search.time[0] + " 00:00:00",
+          timeFormat(this.search.time[1], 1) + " 00:00:00"
+        );
+      } else {
+        this.init(this.npage, this.pagesize, this.search.keywords, "", "");
+      }
+    },
+    handleCurrentChange(val) {
+      this.npage = val;
+      this.handleSearch();
+    },
+    handleSizeChange(val) {
+      this.pagesize = val;
+      this.handleSearch();
+    },
+    submitForm(formName) {
+      let _this = this;
+      this.$refs[formName].validate(valid => {
+        if (valid) {
+          _this.onSubmit(formName);
+        } else {
+          return false;
+        }
+      });
+    },
+    resetForm(formName) {
+      this.$refs[formName].resetFields();
+    },
+    //提交更新修改
+    onSubmit(formName) {
+      console.log(this.ruleForm3.time);
+      if (formName == "ruleForm3") {
+        this._httpSmsPeriodicMessage(
+          this.ruleForm3.receiverName,
+          this.ruleForm3.messageType,
+          this.ruleForm3.sendDate,
+          this.ruleForm3.messageContent,
+          this.ruleForm3.time[1],
+          this.ruleForm3.signatureType,
+          this.ruleForm3.mobilePhone,
+          this.ruleForm3.sendTime,
+          this.ruleForm3.remarks,
+          this.ruleForm3.now ? "月" : "周",
+          this.ruleForm3.time[0]
+        );
+      }
+      // this.resetForm("ruleForm3");
+    },
+    handleDelete(index, row) {
+      let id = row.id;
+      let _this = this;
+      this.$confirm("此操作将永久删除该短信, 是否继续?", "提示", {
+        confirmButtonText: "确定",
+        cancelButtonText: "取消",
+        type: "warning"
+      })
+        .then(() => {
+          _this._httpApmsgDeleteData(id);
+        })
+        .catch(() => {
+          this.$message({
+            type: "info",
+            message: "网络错误已取消删除"
+          });
+        });
+    },
+    handleEdit(index, row) {
+      let id = row.id;
+      this.ruleForm = {};
+      this.ruleForm = {
+        receiverName: row.receiverName,
+        messageType: "",
+        messageContent: row.messageContent,
+        time: [row.beginDate, row.endDate],
+        signatureType: "",
+        mobilePhone: row.mobilePhone,
+        sendTime: row.sendTime,
+        remarks: "",
+        now: ""
+      };
+      this.dialogVisible2 = true;
+    },
+    filterStatus(value, row, column) {
+      return row.sendStatus == value;
+    },
+    filterSendPlatform(value, row, column) {
+      return row.sendPlatform == value;
+    },
+    filterMessageType(value, row, column) {
+      return row.messageType == value;
+    }
+  },
+  mounted() {
+    this.init(this.npage, this.pagesize);
+  }
+};
+</script>
+
+<style>
+#rq span {
+  width: 45px;
+}
+</style>
