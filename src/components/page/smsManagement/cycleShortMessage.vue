@@ -63,10 +63,12 @@
           >
                      <el-table-column prop="id" label="序号" align="center" width="70"  sortable></el-table-column>
 
-            <el-table-column prop="senddatetime" label="发送时间" align="center" width="140" ></el-table-column>
-<el-table-column prop="beginDate" label="开始日期" align="center" width="140" ></el-table-column>
-<el-table-column prop="endDate" label="结束日期" align="center" width="140" ></el-table-column>            
+            <el-table-column prop="sendTime" label="发送时间" align="center" width="120" ></el-table-column>
+            <el-table-column prop="sendDate" label="发送日期" align="center" width="120" ></el-table-column>
+            <el-table-column prop="beginDate" label="开始日期" align="center" width="120" ></el-table-column>
+              <el-table-column prop="endDate" label="结束日期" align="center" width="120" ></el-table-column>            
             <el-table-column prop="mobilePhone" label="电话" align="center" width="120" ></el-table-column>
+              <el-table-column prop="cycleTypeStr" label="周期类型" align="center" width="120" ></el-table-column>            
             <el-table-column prop="sendStatus" label="状态" align="center" width="100" 
              :filters="[{ text: '已发送', value: '1' }, { text: '未发送', value: '2' }, { text: '发送失败', value: '3' }]" :filter-method="filterStatus" filter-placement="bottom-end"
                     >
@@ -77,9 +79,9 @@
                     </template> 
               
             </el-table-column>
-            <el-table-column prop="reciverName" label="接收人姓名" align="center" width="100" ></el-table-column>
-            <el-table-column prop="senderName" label="发送人" align="center" width="100" ></el-table-column>
-            <el-table-column prop="senderName" label="备注" align="center" ></el-table-column>
+            <el-table-column prop="receiverName" label="接收人姓名" align="center" width="100" ></el-table-column>
+            <el-table-column prop="uploader" label="上传人" align="center" width="100" ></el-table-column>
+            <!-- <el-table-column prop="senderName" label="备注" align="center" ></el-table-column> -->
             <!-- <el-table-column prop="sendPlatform" label="发送平台" align="center"  width="100" 
              :filters="[{ text: '华信', value: '1' }, { text: '创南', value: '2' }]" :filter-method="filterSendPlatform" filter-placement="bottom-end"
                     >
@@ -111,13 +113,19 @@
                     </template> 
               
             </el-table-column>
+            <el-table-column prop="signatureTypeStr" label="签名" align="center" ></el-table-column>            
             <el-table-column prop="cz"  align="center" label="操作" width="200"  >
                 <template slot-scope="scope">
-                <el-button
+                <!-- <el-button
                     size="mini"
                     type="primary"
                     @click="handleEdit(scope.$index, scope.row)"
-                   >编辑</el-button>
+                   >编辑</el-button> -->
+               <el-button
+                    size="mini"
+                    type="primary"
+                    @click="handleEdit(scope.$index, scope.row)"
+                   >详情</el-button> 
                 <el-button
                     size="mini"
                     type="danger"
@@ -147,10 +155,10 @@
           width="30%"
           >
             <el-form :rules="rules" :model="ruleForm3" status-icon  ref="ruleForm3" label-width="100px" >
-              <el-form-item label="接受人姓名" prop='receiverName'>
+              <el-form-item label="接收人姓名" prop='receiverName'>
                 <el-input v-model="ruleForm3.receiverName" ></el-input>
               </el-form-item>
-              <el-form-item label="接受人电话" prop='mobilePhone'>
+              <el-form-item label="接收人电话" prop='mobilePhone'>
                 <el-input v-model="ruleForm3.mobilePhone"></el-input>
               </el-form-item>  
               <el-form-item label="周期类型">
@@ -160,7 +168,7 @@
                   inactive-text="周">
                 </el-switch>                
               </el-form-item>  
-              <el-form-item  prop='sendDate' >
+              <el-form-item label="发送日期" prop='sendDate' >
                   <el-radio-group v-model="ruleForm3.sendDate" v-if="!ruleForm3.now">
                     <el-radio-button label="周一">周一</el-radio-button>
                     <el-radio-button label="周二">周二</el-radio-button>
@@ -223,7 +231,7 @@
                   placeholder="发送时间">
                 </el-time-picker>                           
               </el-form-item>  
-              <el-form-item label="时间区间" prop="time">
+              <el-form-item label="启始区间" prop="time">
                  <el-date-picker
                    v-model="ruleForm3.time"
                    value-format="yyyy-MM-dd"
@@ -256,9 +264,7 @@
               <!-- <el-form-item label="发送人" prop="senderName">
                 <el-input v-model="ruleForm3.senderName" ></el-input>
               </el-form-item>    -->
-              <el-form-item label="备注" prop="remarks">
-                <el-input type="textarea" v-model="ruleForm3.remarks"></el-input>
-              </el-form-item>
+ 
               <el-form-item label="发送签名" prop="signatureType">
                     <el-select  v-model="ruleForm3.signatureType" placeholder="发送签名">
                       <el-option
@@ -271,7 +277,10 @@
               </el-form-item>  
               <el-form-item label="消息内容" prop="messageContent">
                 <el-input type="textarea" v-model="ruleForm3.messageContent"></el-input>
-              </el-form-item>              
+              </el-form-item>   
+             <el-form-item label="备注" prop="remarks">
+                <el-input type="textarea" v-model="ruleForm3.remarks"></el-input>
+              </el-form-item>                         
               <!-- <el-form-item label="短信类型" prop="messageType">
                     <el-select  v-model="ruleForm3.messageType" placeholder="短信类型">
                       <el-option
@@ -295,10 +304,10 @@
           width="30%"
           >
             <el-form :rules="rules" :model="ruleForm" status-icon  ref="ruleForm" label-width="100px" >
-              <el-form-item label="接受人姓名" prop='receiverName'>
+              <el-form-item label="接收人姓名" prop='receiverName'>
                 <el-input v-model="ruleForm.receiverName" ></el-input>
               </el-form-item>
-              <el-form-item label="接受人电话" prop='mobilePhone'>
+              <el-form-item label="接收人电话" prop='mobilePhone'>
                 <el-input v-model="ruleForm.mobilePhone"></el-input>
               </el-form-item>  
               <el-form-item label="周期类型">
@@ -371,7 +380,7 @@
                   placeholder="发送时间">
                 </el-time-picker>                           
               </el-form-item>  
-              <el-form-item label="时间区间" prop="time">
+              <el-form-item label="启始区间" prop="time">
                  <el-date-picker
                    v-model="ruleForm.time"
                    value-format="yyyy-MM-dd"
@@ -404,9 +413,7 @@
               <!-- <el-form-item label="发送人" prop="senderName">
                 <el-input v-model="ruleForm3.senderName" ></el-input>
               </el-form-item>    -->
-              <el-form-item label="备注" prop="remarks">
-                <el-input type="textarea" v-model="ruleForm.remarks"></el-input>
-              </el-form-item>
+
               <el-form-item label="发送签名" prop="signatureType">
                     <el-select  v-model="ruleForm.signatureType" placeholder="发送签名">
                       <el-option
@@ -419,7 +426,10 @@
               </el-form-item>  
               <el-form-item label="消息内容" prop="messageContent">
                 <el-input type="textarea" v-model="ruleForm.messageContent"></el-input>
-              </el-form-item>              
+              </el-form-item>     
+              <el-form-item label="备注" prop="remarks">
+                <el-input type="textarea" v-model="ruleForm.remarks"></el-input>
+              </el-form-item>                       
               <!-- <el-form-item label="短信类型" prop="messageType">
                     <el-select  v-model="ruleForm3.messageType" placeholder="短信类型">
                       <el-option
@@ -547,7 +557,7 @@ export default {
         sendDate: [
           { required: true, message: "请选择一个日期", trigger: "blur" }
         ],
-        remarks: [{ required: true, message: "请选择备注", trigger: "blur" }],
+        remarks: [{ message: "请选择备注", trigger: "blur" }],
         messageContent: [
           { required: true, message: "请选择备注", trigger: "blur" }
         ],
@@ -725,7 +735,14 @@ export default {
         message: "申请提交成功等待审核",
         type: "success"
       });
-      axios.post("/sms/uploadExcel", fd, {});
+      axios
+        .post("/sms/uploadExcel", fd, {})
+        .then(res => {
+          console.log(res);
+        })
+        .catch(err => {
+          this.$message.error("上传失败或网络错误请联系管理员");
+        });
       return isJPG && isLt2M;
     },
     reset() {
@@ -780,7 +797,7 @@ export default {
           this.ruleForm3.mobilePhone,
           this.ruleForm3.sendTime,
           this.ruleForm3.remarks,
-          this.ruleForm3.now ? "月" : "周",
+          this.ruleForm3.now ? 2 : 1,
           this.ruleForm3.time[0]
         );
       }

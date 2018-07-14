@@ -546,11 +546,76 @@ export function httpSmsPeriodicMessage(receiverName,
 }
 
 //   /*得到代办人/
-export function httpDownload() {
+// export function httpDownload() {
+//   //console.log(data);
+//   return axios({
+//     url: "/common/download",
+//     method: "post",
+
+//   })
+// }
+
+//事务信息管理 / 营销短信
+
+export function httpSelectMarketingMsg(pageNumber, pageSize, messageContent, sendPlatform, sendDate, Id) {
+  let data = {
+    pageNumber,
+    pageSize,
+    messageContent,
+    sendPlatform,
+    sendDate,
+    Id
+  };
+  return axios({
+    url: "/selectMarketingMsg",
+    method: "post",
+    headers: {
+      'Content-type': 'application/x-www-form-urlencoded'
+    },
+    data: qs.stringify(data)
+  })
+}
+
+//事务信息管理 / 短信详情营销短信
+
+export function httpFindMessageRecording(pageNum, pageSize, messagerId) {
+  let data = {
+    pageNum,
+    pageSize,
+    messagerId
+  };
+  return axios({
+    url: "/apmsg/findMessageRecording",
+    method: "post",
+    headers: {
+      'Content-type': 'application/x-www-form-urlencoded'
+    },
+    data: qs.stringify(data)
+  })
+}
+
+//   /*得到代办人/
+export function httpFindAllSignature() {
   //console.log(data);
+  return axios({
+    url: "/apmsg/findAllSignature",
+    method: "get",
+
+  })
+}
+
+//事务信息管理 / 短信详情营销短信
+
+export function httpDownload(messageTemplate='fileName') {
+  let data = {
+    messageTemplate
+  };
   return axios({
     url: "/common/download",
     method: "post",
-
+    headers: {
+      'Content-type': 'application/x-www-form-urlencoded'
+    },
+    data: qs.stringify(data)
   })
 }

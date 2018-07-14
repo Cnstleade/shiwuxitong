@@ -86,12 +86,22 @@
 
             <el-table-column prop="senddatetime" label="发送时间" align="center" width="140" ></el-table-column>
             <el-table-column prop="mobilePhone" label="电话" align="center" width="120" ></el-table-column>
-            <el-table-column prop="sendStatus" label="状态" align="center" width="100" 
+            <el-table-column prop="recordStatus" label="短信状态" align="center" width="100" 
+             :filters="[{ text: '正常', value: '1' }, { text: '更新', value: '2' }, { text: '撤销', value: '3' }]" :filter-method="filterRecordStatus" filter-placement="bottom-end"
+                    >
+                    <template slot-scope="scope">
+                        <el-tag style="margin-left: 10px" :type="scope.row.recordStatus ==1?'success':scope.row.recordStatus ==2?'info':'danger'">
+                          {{ scope.row.recordStatus ==1?'正常':scope.row.recordStatus ==2?'更新':'撤销' }}
+                        </el-tag>
+                    </template> 
+              
+            </el-table-column>            
+            <el-table-column prop="sendStatus" label="发送状态" align="center" width="100" 
              :filters="[{ text: '已发送', value: '1' }, { text: '未发送', value: '2' }, { text: '发送失败', value: '3' }]" :filter-method="filterStatus" filter-placement="bottom-end"
                     >
                     <template slot-scope="scope">
-                        <el-tag style="margin-left: 10px" :type="scope.row.sendStatus ===1?'success':scope.row.sendStatus ===2?'info':'danger'">
-                          {{ scope.row.sendStatus ===1?'已发送':scope.row.sendStatus ===2?'未发送':'发送失败' }}
+                        <el-tag style="margin-left: 10px" :type="scope.row.sendStatus ==1?'success':scope.row.sendStatus ==2?'info':'danger'">
+                          {{ scope.row.sendStatus ==1?'已发送':scope.row.sendStatus ==2?'未发送':'发送失败' }}
                         </el-tag>
                     </template> 
               
@@ -103,7 +113,7 @@
              :filters="[{ text: '华信', value: '1' }, { text: '创南', value: '2' }]" :filter-method="filterSendPlatform" filter-placement="bottom-end"
                     >
                     <template slot-scope="scope">
-                        <el-tag style="margin-left: 10px" :type="scope.row.sendStatus ===1?'success':'danger'">
+                        <el-tag style="margin-left: 10px" :type="scope.row.sendPlatform ===1?'success':'danger'">
                           {{ scope.row.sendPlatform ===1?'华信':'创南' }}
                         </el-tag>
                     </template> 
@@ -120,8 +130,13 @@
                     </template> 
               
             </el-table-column>
-            <el-table-column prop="cz"  align="center" label="操作" width="200"  >
+            <el-table-column prop="cz"  align="center" label="操作" width="240"  >
                 <template slot-scope="scope">
+                <el-button
+                    size="mini"
+                    type="success"
+                    @click="handleShow(scope.$index, scope.row)"
+                   >详情</el-button>                  
                 <el-button
                     size="mini"
                     type="primary"
@@ -215,7 +230,17 @@
                         :value="item.value">
                       </el-option>
                     </el-select> 
-              </el-form-item>                             
+              </el-form-item> 
+              <el-form-item label="发送签名" prop="signatureType">
+                    <el-select  v-model="ruleForm3.signatureType" placeholder="发送签名">
+                      <el-option
+                        v-for="item in signatureType"
+                        :key="item.value"
+                        :label="item.label"
+                        :value="item.value">
+                      </el-option>
+                    </el-select> 
+              </el-form-item>                                           
                 <el-form-item>
                   <el-button type="primary" @click="submitForm('ruleForm3')">提交</el-button>
                   <el-button @click="resetForm('ruleForm3')">重置</el-button>
@@ -288,13 +313,95 @@
                         :value="item.value">
                       </el-option>
                     </el-select> 
-              </el-form-item>                             
+              </el-form-item> 
+              <el-form-item label="发送签名" prop="signatureType">
+                    <el-select  v-model="ruleForm2.signatureType" placeholder="发送签名">
+                      <el-option
+                        v-for="item in signatureType"
+                        :key="item.value"
+                        :label="item.label"
+                        :value="item.value">
+                      </el-option>
+                    </el-select> 
+              </el-form-item>                                           
                 <el-form-item>
                   <el-button type="primary" @click="submitForm('ruleForm2')">提交</el-button>
                   <el-button @click="resetForm('ruleForm2')">重置</el-button>
                 </el-form-item>
             </el-form>       
-        </el-dialog>                                             
+      </el-dialog> 
+      <el-dialog
+          title="短信详情"
+          :visible.sync="dialogVisible3"
+          center
+          width="60%"
+        >
+        <!-- <el-row>
+            <el-alert
+              :title="showTitle"
+              :closable="false"
+              type="error">
+            </el-alert>           
+        </el-row>          -->
+        <el-row>
+          <el-button  icon="el-icon-plus" type="primary" @click="open" >短信来源</el-button>
+        </el-row>
+        <el-table
+            :data="showData"  
+            border  
+            style="width: 100%"
+            class="m20"
+          >
+            <el-table-column prop="id" label="编号" align="center" width="100" ></el-table-column>            
+            <el-table-column prop="sendstatus" label="短信类型" align="center" width="100"
+             :filters="[{ text: '成功', value: '1' }, { text: '失败', value: '2' }]" :filter-method="filterSendstatus" filter-placement="bottom-end"
+                    >
+                    <template slot-scope="scope">
+                        <el-tag style="margin-left: 10px" :type="scope.row.sendstatus ===1?'success':'danger'">
+                          {{ scope.row.sendstatus ===1?'成功':'失败' }}
+                        </el-tag>
+                    </template> 
+              
+            </el-table-column>           
+            <el-table-column prop="sendTime" label="发送时间" align="center" width="160" ></el-table-column>            
+            <el-table-column prop="message" label="短信内容" align="center"  ></el-table-column>            
+            <el-table-column prop="type" label="短信类型" align="center" width="100"
+             :filters="[{ text: '周期短信', value: '1' }, { text: '定时短信', value: '2' }]" :filter-method="filterType" filter-placement="bottom-end"
+                    >
+                    <template slot-scope="scope">
+                        <el-tag style="margin-left: 10px" :type="scope.row.type ===1?'success':'danger'">
+                          {{ scope.row.type ===1?'周期短信':'定时短信' }}
+                        </el-tag>
+                    </template> 
+              
+            </el-table-column>          
+            <el-table-column prop="sendPlatform" label="发送平台" align="center"  width="100" 
+             :filters="[{ text: '华信', value: '1' }, { text: '创南', value: '2' }]" :filter-method="filterSendPlatform" filter-placement="bottom-end"
+                    >
+                    <template slot-scope="scope">
+                        <el-tag style="margin-left: 10px" :type="scope.row.sendStatus ===1?'success':'danger'">
+                          {{ scope.row.sendPlatform ===1?'华信':'创南' }}
+                        </el-tag>
+                    </template> 
+
+            </el-table-column>         
+        </el-table>
+       <el-row class="m20" v-if="showTotal>0">
+            <!-- <el-button type="primary" style="float:left" @click="handelConfigAll" :disabled="multipleSelection.length==0">批量删除</el-button> -->
+             <div style="float:right">
+                 <el-pagination
+                   @current-change="handleCurrentChangeS"
+                    @size-change="handleSizeChangeS"
+                   :current-page="showNpage"
+                    :page-sizes="[10, 20, 30, 40]"
+                     :page-size="pagesize"
+                   background
+                   layout="total,sizes,prev, pager, next,jumper"
+                   :total="showTotal">
+                 </el-pagination>   
+             </div>
+        </el-row>         
+      </el-dialog>                                            
     </div>
 </template>
 
@@ -304,7 +411,10 @@ import { timeFormat } from "../../../config/time";
 import {
   httpSelectTable,
   httpUpdateMessageAll,
-  httpApmsgDeleteData
+  httpApmsgDeleteData,
+  httpFindMessageRecording,
+  httpFindAllSignature,
+  httpDownload
 } from "../../../service/http";
 export default {
   data() {
@@ -367,6 +477,12 @@ export default {
       }
     };
     return {
+      url: "",
+      signatureType: [
+        { label: "恒舜金融", value: 1 },
+        { label: "恒舜普融", value: 2 },
+        { label: "恒舜财富", value: 3 }
+      ],
       title: "定时短信",
       multipleSelection: [],
       search: {
@@ -385,6 +501,13 @@ export default {
         { label: "还本", value: 3 }
       ],
       dialogVisible1: false,
+      dialogVisible3: false,
+      showData: [],
+      currentId: "",
+      showNpage: 0,
+      showPageSize: 10,
+      showTotal: 0,
+      showTitle: "",
       fileList: [],
       tableData: [],
       loading: false,
@@ -423,6 +546,13 @@ export default {
             trigger: "change"
           }
         ],
+        signatureType: [
+          {
+            required: true,
+            message: "请选择发送签名",
+            trigger: "change"
+          }
+        ],
         ssex: [{ required: true, message: "请选择性别", trigger: "change" }],
         deptId: [{ required: true, message: "请选择部门", trigger: "change" }],
         sendStatus: [
@@ -438,6 +568,29 @@ export default {
     };
   },
   methods: {
+    _httpFindAllSignature() {
+      httpFindAllSignature()
+        .then(res => {
+          console.log(res);
+        })
+        .catch(err => {
+          this.$message.error("网络错误请联系管理员");
+        });
+    },
+    //得到短信详情
+    _httpFindMessageRecording(id) {
+      this.dialogVisible3 = false;
+      httpFindMessageRecording(this.showNpage, this.showPageSize, id)
+        .then(res => {
+          let data = res.data;
+          this.showTotal = data.total;
+          this.showData = data.rows;
+          this.dialogVisible3 = true;
+        })
+        .catch(err => {
+          this.$message.error("网络错误请联系管理员");
+        });
+    },
     //新增修改用户
     _httpUpdateMessageAll(
       Id,
@@ -509,7 +662,6 @@ export default {
           let data = res.data;
 
           _this.tableData = data.rows;
-          console.log(JSON.stringify(_this.tableData));
           _this.total = data.total;
 
           _this.loading = false;
@@ -522,12 +674,8 @@ export default {
     submitUpload() {
       this.$refs.upload.submit();
     },
-    handleRemove(file, fileList) {
-      console.log(file, fileList);
-    },
-    handlePreview(file) {
-      console.log(file);
-    },
+    handleRemove(file, fileList) {},
+    handlePreview(file) {},
     beforeAvatarUpload(file) {
       //将文件 的所有的内容都添加在这一起上传
       let fd = new FormData();
@@ -568,7 +716,14 @@ export default {
         message: "申请提交成功等待审核",
         type: "success"
       });
-      axios.post("/readExcel", fd, {});
+      axios
+        .post("/readExcel", fd, {})
+        .then(res => {
+          console.log(res);
+        })
+        .catch(err => {
+          this.$message.error("上传失败或网络错误请联系管理员");
+        });
       return isJPG && isLt2M;
     },
     reset() {
@@ -592,6 +747,14 @@ export default {
     handleSizeChange(val) {
       this.pagesize = val;
       this.handleSearch();
+    },
+    handleCurrentChangeS(val) {
+      this.showNpage = val;
+      this._httpFindMessageRecording(this.currentId);
+    },
+    handleSizeChangeS(val) {
+      this.showPageSize = val;
+      this._httpFindMessageRecording(this.currentId);
     },
     //提交更新修改
     onSubmit(formName) {
@@ -694,7 +857,7 @@ export default {
         .catch(() => {
           this.$message({
             type: "info",
-            message: "网络错误已取消删除"
+            message: "已取消删除"
           });
         });
     },
@@ -750,11 +913,37 @@ export default {
     filterMessageType(value, row, column) {
       return row.messageType == value;
     },
+    filterType(value, row, column) {
+      return row.Type == value;
+    },
+    filterSendstatus(value, row, column) {
+      return row.sendstatus == value;
+    },
+    filterRecordStatus(value, row, column) {
+      return row.recordStatus == value;
+    },
     //download
-    download() {}
+    download() {
+      httpDownload()
+    },
+    handleShow(index, row) {
+      this.currentId = "";
+      this.showTitle = "";
+      this.url = "";
+      let id = row.id;
+      this.currentId = id;
+      this.url = row.url;
+      // this.url = "https://www.baidu.com/?tn=02003390_2_hao_pg";
+      this.showTitle = row.messageContent;
+      this._httpFindMessageRecording(id);
+    },
+    open() {
+      window.open(this.url);
+    }
   },
   mounted() {
     this.init(this.npage, this.pagesize);
+    this._httpFindAllSignature();
   }
 };
 </script>

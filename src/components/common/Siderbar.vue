@@ -1,7 +1,7 @@
 <template>
-    <div class="sidebar" id="sidebar">
-        <el-menu class="sidebar-el-menu" :default-active="onRoutes" :collapse="collapse" background-color="#324157"
-                 text-color="#bfcbd9" active-text-color="#20a0ff" unique-opened router>
+    <div class="sidebar" id="sidebar" v-if="items">
+        <!-- <el-menu class="sidebar-el-menu"  :default-active="onRoutes" :collapse="collapse" background-color="#324157"
+                 text-color="#bfcbd9" active-text-color="#20a0ff" unique-opened="true" router default-openeds="['url1','url2','affair']">
             <template v-for="item in items">
                 <template v-if="item.children">
                     <el-submenu :index="item.url" :key="item.id">
@@ -14,12 +14,75 @@
                     </el-submenu>
                 </template>
                 <template v-else>
-                    <el-menu-item :index="item.id" :key="item.id">
+                    <el-menu-item :index="item.url" :key="item.id">
                         <i class="iconfont" :class="item.icon"></i><span slot="title">{{ item.text }}</span>
                     </el-menu-item>
                 </template>
             </template>
-        </el-menu>
+        </el-menu> -->
+    <el-menu
+    class="sidebar-el-menu"
+    :collapse="collapse"
+      @open="handleOpen"
+      @close="handleClose"
+      background-color="#324157"
+      text-color="#bfcbd9" active-text-color="#20a0ff" 
+      :default-active="onRoutes"
+      router
+      :default-openeds="arr"
+      >
+      <template v-for="item in items">
+        <template v-if="item.children.length">
+            <el-submenu :index="item.url" :key="item.id">
+              <template slot="title">
+                <i :class="item.icon"></i>
+                <span>{{item.text}}</span>
+              </template>
+              <el-menu-item-group>
+                  <el-menu-item v-for="(subItem,i) in item.children" :key="i" :index="subItem.url">
+                      <i :class="subItem.icon"></i><span slot="title">{{subItem.text}}</span>
+                  </el-menu-item>                
+              </el-menu-item-group>
+            </el-submenu>
+        </template>
+        <template v-else-if="item.children.length == 0">
+          <el-menu-item :index="item.url" :key="item.id">
+            <i :class="item.icon" ></i>
+            <span slot="title">{{item.text}}</span>
+          </el-menu-item>          
+        </template>
+      </template>
+      <!-- <el-submenu index="1">
+        <template slot="title">
+          <i class="el-icon-location"></i>
+          <span>导航一</span>
+        </template>
+        <el-menu-item-group>
+          <template slot="title">分组一</template>
+          <el-menu-item index="1-1">选项1</el-menu-item>
+          <el-menu-item index="1-2">选项2</el-menu-item>
+        </el-menu-item-group>
+        <el-menu-item-group title="分组2">
+          <el-menu-item index="1-3">选项3</el-menu-item>
+        </el-menu-item-group>
+        <el-submenu index="1-4">
+          <template slot="title">选项4</template>
+          <el-menu-item index="1-4-1">选项1</el-menu-item>
+        </el-submenu>
+      </el-submenu>
+      <el-menu-item index="2">
+        <i class="el-icon-menu"></i>
+        <span slot="title">导航二</span>
+      </el-menu-item>
+      <el-menu-item index="3" disabled>
+        <i class="el-icon-document"></i>
+        <span slot="title">导航三</span>
+      </el-menu-item>
+      <el-menu-item index="4">
+        <i class="el-icon-setting"></i>
+        <span slot="title">导航四</span>
+      </el-menu-item> -->
+    </el-menu>        
     </div>
 </template>
 
@@ -31,56 +94,8 @@ export default {
     return {
       collapse: false,
       items: [
-        {
-          icon: "icon-gongzuotai",
-          nurl: "smsManagement",
-          mname: "短信管理",
-          list: [
-            {
-              nurl: "cycleShortMessage",
-              mname: "周期短信"
-            },
-            {
-              nurl: "marketingMessages",
-              mname: "营销短信"
-            },
-            {
-              nurl: "timingMessages",
-              mname: "定时短信"
-            }
-          ]
-        },
-        {
-          icon: "icon-yonhu",
-          nurl: "transactionManagement",
-          mname: "事务管理",
-          list: [
-            {
-              nurl: "transactionManagement",
-              mname: "事务管理"
-            }
-          ]
-        },
-        {
-          icon: "icon-zuanshi",
-          nurl: "systemManagement",
-          mname: "系统管理",
-          list: [
-            {
-              nurl: "userManagement",
-              mname: "用户管理"
-            },
-            {
-              nurl: "managementLog",
-              mname: "日志管理"
-            },
-            {
-              nurl: "authorityManagement",
-              mname: "权限管理"
-            }
-          ]
-        }
-      ]
+      ],
+      arr:['url1','url2','affair']
     };
   },
   computed: {
@@ -104,14 +119,21 @@ export default {
     },
     getHttpGetCreditMenuList() {
       let _this = this;
-    }
+    },
+      handleOpen(key, keyPath) {
+        console.log(key, keyPath);
+      },
+      handleClose(key, keyPath) {
+        console.log(key, keyPath);
+      }    
   },
   mounted() {
     // this.getHttpGetCreditMenuList();
-    this.init();
+    
   },
   created() {
     // 通过 Event Bus 进行组件间通信，来折叠侧边栏
+    this.init();
     bus.$on("collapse", msg => {
       this.collapse = msg;
     });
@@ -131,6 +153,9 @@ export default {
   line-height: 36px;
   padding-left: 20px;
   min-width: 160px;
+}
+#sidebar .el-menu-item-group__title{
+  display:none;
 }
 #sidebar .el-upload--text {
   height: 36px;

@@ -32,9 +32,16 @@ export default new Router({
           meta: {
             title: '定时短信'
           }
-        },        
+        }, 
         {
-          path: '/transactionManagement',
+          path: '/marketing',
+          component: resolve => require(['../components/page/smsManagement/marketingMessages.vue'], resolve),
+          meta: {
+            title: '营销短信'
+          }
+        },                
+        {
+          path: '/affair',
           component: resolve => require(['../components/page/transactionManagement/transactionManagement.vue'], resolve),
           meta: {
             title: '事务管理'
