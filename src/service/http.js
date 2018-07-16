@@ -386,7 +386,7 @@ export function httpSelectTable(pageNum, pageSize, mobilePhone, sendStatus, mess
 
 // 查询新增定时短信
 
-export function httpUpdateMessageAll(Id, senddatetime, mobilePhone, sendTime, sendStatus, reciverName, senderName, sendDate, remarks, sendPlatform, messageContent, messageType) {
+export function httpUpdateMessageAll(Id, senddatetime, mobilePhone, sendTime, sendStatus, reciverName, senderName, sendDate, remarks, sendPlatform, messageContent, messageType, signature) {
   let data = {
     Id,
     senddatetime,
@@ -399,7 +399,8 @@ export function httpUpdateMessageAll(Id, senddatetime, mobilePhone, sendTime, se
     remarks,
     sendPlatform,
     messageContent,
-    messageType
+    messageType,
+    signature
   };
   return axios({
     url: "/apmsg/updateMessageAll",
@@ -606,9 +607,9 @@ export function httpFindAllSignature() {
 
 //事务信息管理 / 短信详情营销短信
 
-export function httpDownload(messageTemplate='fileName') {
+export function httpDownload(fileName = 'messageTemplate') {
   let data = {
-    messageTemplate
+    fileName
   };
   return axios({
     url: "/common/download",
@@ -619,3 +620,81 @@ export function httpDownload(messageTemplate='fileName') {
     data: qs.stringify(data)
   })
 }
+
+//事务信息管理 / 查看周期短信详情接口
+
+export function httpSmsDetails(id) {
+  let data = {
+    id
+  };
+  return axios({
+    url: "/sms/details",
+    method: "post",
+    headers: {
+      'Content-type': 'application/x-www-form-urlencoded'
+    },
+    data: qs.stringify(data)
+  })
+}
+
+//事务信息管理 / 撤销
+
+export function httpSmsDelete(id) {
+  let data = {
+    id
+  };
+  return axios({
+    url: "/sms/delete",
+    method: "post",
+    headers: {
+      'Content-type': 'application/x-www-form-urlencoded'
+    },
+    data: qs.stringify(data)
+  })
+}
+
+//事务信息管理 / 更新事务
+
+export function httpInsertAffair(id, name, commissionUser, commissionUserId, commissionTime, sendTime, type, stop, commissionAddres) {
+  let data = {
+    id, name, commissionUser, commissionUserId, commissionTime, sendTime, type, stop, commissionAddres
+  };
+  return axios({
+    url: "/insertAffair",
+    method: "post",
+    headers: {
+      'Content-type': 'application/x-www-form-urlencoded'
+    },
+    data: qs.stringify(data)
+  })
+}
+
+
+
+// //credit /user/UserNamelist
+// export function httpUserName() {
+//   return axios({
+//     url: "/user/UserNamelist",
+//     method: "get",
+//   })
+// }
+
+
+//事务信息管理 / 更新事务
+
+export function httpUpdateAffair(id, name, commissionUser, commissionUserId, commissionTime, sendTime, type, stop, commissionAddres) {
+  let data = {
+    id, name, commissionUser, commissionUserId, commissionTime, sendTime, type, stop, commissionAddres
+  };
+  return axios({
+    url: "/updateAffair",
+    method: "post",
+    headers: {
+      'Content-type': 'application/x-www-form-urlencoded'
+    },
+    data: qs.stringify(data)
+  })
+}
+
+//事务信息管理 / 获取事务日志
+

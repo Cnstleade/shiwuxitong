@@ -30,7 +30,7 @@
             <el-checkbox v-model="ruleForm.rememberMe">记住我</el-checkbox>
           </el-col>
           <el-col :span="12" style="text-align:center">
-            <el-button type="primary"  @click="changeShow('ruleForm')">去注册</el-button>
+            <!-- <el-button type="primary"  @click="changeShow('ruleForm')">去注册</el-button> -->
           </el-col>
         </el-form-item>               
         <div class="login-btn">

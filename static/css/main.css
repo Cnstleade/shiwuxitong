@@ -19,9 +19,12 @@ body {
 a {
   text-decoration: none
 }
-ul,li{
+
+ul,
+li {
   list-style: none;
 }
+
 .container {
   padding: 30px;
   background: #fff;
@@ -39,6 +42,7 @@ ul,li{
 .m20 {
   margin-top: 20px;
 }
+
 .m10 {
   margin-top: 10px;
 }
@@ -51,8 +55,14 @@ ul,li{
   display: flex;
   justify-content: flex-start;
 }
+
 .col-flex-end {
   display: flex;
   justify-content: flex-end;
 }
 
+.text {
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  overflow: hidden;
+}

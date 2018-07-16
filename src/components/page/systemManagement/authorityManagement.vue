@@ -32,14 +32,21 @@
             <el-table-column prop="remark" label="描述" align="center"  >
    
             </el-table-column>
-                <el-table-column prop="cz"  align="center" label="操作"   width="160">
+                <el-table-column prop="cz"  align="center" label="操作"   width="260">
                     <template slot-scope="scope">
                     <el-button
                         size="mini"
                         type="primary"
                         @click="handleAllocation(scope.$index, scope.row)"
                        >修改角色菜单</el-button>
-                    </template> 
+                                        <el-button
+                        size="mini"
+                        type="danger"
+                        @click="handleDlete(scope.$index, scope.row)"
+                       >删除</el-button>
+                 
+   
+                    </template>                     
                 </el-table-column>            
         </el-table>     
         <el-row class="m20" v-if="total>0">
@@ -158,6 +165,25 @@ export default {
     };
   },
   methods: {
+    _httpRoleDeletet(ids) {
+      let _this = this;
+      httpRoleDeletet(ids)
+        .then(res => {
+          let data = res.data;
+          if (data.code==200) {
+            _this.$message({
+              message: data.msg,
+              type: "success"
+            });
+          } else {
+            _this.$message.error(data.msg);
+          }
+          _this.getData(this.npage, this.pagesize);
+        })
+        .catch(err => {
+          _this.$message.error("网络错误");
+        });
+    },
     _httpRoleMenu(id) {
       let _this = this;
       this.roles.length = 0;
@@ -282,6 +308,25 @@ export default {
           }
         });
       }
+    },
+    handleDlete(index, row) {
+      let id = row.roleId;
+      let _this = this;
+      this.$confirm("此操作将永久删除该角色, 是否继续?", "提示", {
+        confirmButtonText: "确定",
+        cancelButtonText: "取消",
+        type: "warning"
+      })
+        .then(() => {
+          _this._httpRoleDeletet(id);
+          // _this.getData(this.npage, this.pagesize);
+        })
+        .catch(() => {
+          this.$message({
+            type: "info",
+            message: "网络错误已取消删除"
+          });
+        });
     },
     submitForm(formName) {
       let _this = this;

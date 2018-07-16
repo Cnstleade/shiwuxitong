@@ -9,7 +9,7 @@
         </el-row>   
         <el-row class="m20" >
             <el-col :span="2">
-                    <el-button  icon="el-icon-plus" type="primary" @click="dialogVisible1=true,resetForm('ruleForm3')" >新增</el-button>
+                    <el-button  icon="el-icon-plus" type="primary" @click="dialogVisible1=true,resetForm" >新增</el-button>
             </el-col>
             <el-col :span="2" >
                   <el-button  type="danger" @click="download">下载模板</el-button>
@@ -75,6 +75,7 @@
             class="m20"
             v-loading="loading"
             @selection-change="handleSelectionChange"
+            id="text"
           >
             <el-table-column
               type="selection"
@@ -86,7 +87,7 @@
 
             <el-table-column prop="senddatetime" label="发送时间" align="center" width="140" ></el-table-column>
             <el-table-column prop="mobilePhone" label="电话" align="center" width="120" ></el-table-column>
-            <el-table-column prop="recordStatus" label="短信状态" align="center" width="100" 
+            <!-- <el-table-column prop="recordStatus" label="短信状态" align="center" width="100" 
              :filters="[{ text: '正常', value: '1' }, { text: '更新', value: '2' }, { text: '撤销', value: '3' }]" :filter-method="filterRecordStatus" filter-placement="bottom-end"
                     >
                     <template slot-scope="scope">
@@ -95,21 +96,22 @@
                         </el-tag>
                     </template> 
               
-            </el-table-column>            
-            <el-table-column prop="sendStatus" label="发送状态" align="center" width="100" 
-             :filters="[{ text: '已发送', value: '1' }, { text: '未发送', value: '2' }, { text: '发送失败', value: '3' }]" :filter-method="filterStatus" filter-placement="bottom-end"
+            </el-table-column>             -->
+            <el-table-column prop="sendStatus" label="短信状态" align="center" width="100" 
+             :filters="[{ text: '发送成功', value: '1' }, { text: '待发送', value: '2' }, { text: '发送失败', value: '3' }, { text: '失败重发中', value: '4' }, { text: '撤销', value: '5' }]" :filter-method="filterStatus" filter-placement="bottom-end"
                     >
                     <template slot-scope="scope">
-                        <el-tag style="margin-left: 10px" :type="scope.row.sendStatus ==1?'success':scope.row.sendStatus ==2?'info':'danger'">
-                          {{ scope.row.sendStatus ==1?'已发送':scope.row.sendStatus ==2?'未发送':'发送失败' }}
+                        <el-tag style="margin-left: 10px" :type="scope.row.sendStatus ==1?'success':scope.row.sendStatus ==2?'info':scope.row.sendStatus ==3?'danger':scope.row.sendStatus ==4?'primay':'warning'">
+                          {{ scope.row.sendStatus ==1?'发送成功':scope.row.sendStatus ==2?'待发送':scope.row.sendStatus ==3?'发送失败':scope.row.sendStatus ==4?'失败重发中':'撤销' }}
                         </el-tag>
                     </template> 
               
             </el-table-column>
             <el-table-column prop="reciverName" label="接收人姓名" align="center" width="100" ></el-table-column>
-            <el-table-column prop="senderName" label="发送人" align="center" width="100" ></el-table-column>
-            <el-table-column prop="senderName" label="备注" align="center" ></el-table-column>
-            <el-table-column prop="sendPlatform" label="发送平台" align="center"  width="100" 
+            <!-- <el-table-column prop="senderName" label="创建人" align="center" width="100" ></el-table-column> -->
+          <el-table-column prop="messageContent" label="消息内容" align="center" min-width='300' ></el-table-column>            
+            <el-table-column prop="senderName" label="备注" align="center" width='200' ></el-table-column>
+            <!-- <el-table-column prop="sendPlatform" label="发送平台" align="center"  width="100" 
              :filters="[{ text: '华信', value: '1' }, { text: '创南', value: '2' }]" :filter-method="filterSendPlatform" filter-placement="bottom-end"
                     >
                     <template slot-scope="scope">
@@ -118,8 +120,8 @@
                         </el-tag>
                     </template> 
 
-            </el-table-column>
-            <el-table-column prop="messageContent" label="消息内容" align="center" ></el-table-column>
+            </el-table-column> -->
+  
             <el-table-column prop="messageType" label="短信类型" align="center" width="100"
              :filters="[{ text: '下款', value: '1' }, { text: '还款', value: '2' }, { text: '还本', value: '3' }]" :filter-method="filterMessageType" filter-placement="bottom-end"
                     >
@@ -130,6 +132,16 @@
                     </template> 
               
             </el-table-column>
+            <!-- <el-table-column prop="sendStatus" label="发送状态" align="center" width="100" 
+             :filters="[{ text: '已发送', value: '1' }, { text: '未发送', value: '2' }, { text: '发送失败', value: '3' }]" :filter-method="filterStatus" filter-placement="bottom-end"
+                    >
+                    <template slot-scope="scope">
+                        <el-tag style="margin-left: 10px" :type="scope.row.sendStatus ==1?'success':scope.row.sendStatus ==2?'info':'danger'">
+                          {{ scope.row.sendStatus ==1?'已发送':scope.row.sendStatus ==2?'未发送':'发送失败' }}
+                        </el-tag>
+                    </template> 
+              
+            </el-table-column>             -->
             <el-table-column prop="cz"  align="center" label="操作" width="240"  >
                 <template slot-scope="scope">
                 <el-button
@@ -151,7 +163,7 @@
             </el-table-column>            
         </el-table>  
        <el-row class="m20" v-if="total>0">
-            <el-button type="primary" style="float:left" @click="handelConfigAll" :disabled="multipleSelection.length==0">批量删除</el-button>
+            <el-button type="primary" style="float:left" @click="handelConfigAll" :disabled="multipleSelection.length==0">批量撤销</el-button>
              <div style="float:right">
                  <el-pagination
                    @current-change="handleCurrentChange"
@@ -169,13 +181,13 @@
           title="新增短信"
           :visible.sync="dialogVisible1"
           center
-          width="30%"
+          width="35%"
           >
             <el-form :rules="rules" :model="ruleForm3" status-icon  ref="ruleForm3" label-width="100px" >
               <!-- <el-form-item label="发送时间" >
                 <el-input v-model="ruleForm3.username" ></el-input>
               </el-form-item> -->
-              <el-form-item label="电话" prop='mobile'>
+              <el-form-item label="手机号码" prop='mobile'>
                 <el-input v-model="ruleForm3.mobile"></el-input>
               </el-form-item>  
               <el-form-item label="立即发送">
@@ -202,12 +214,29 @@
               <el-form-item label="接收人姓名" prop="reciverName">
                 <el-input v-model="ruleForm3.reciverName" ></el-input>
               </el-form-item>  
-              <el-form-item label="发送人" prop="senderName">
-                <el-input v-model="ruleForm3.senderName" ></el-input>
+              <el-form-item label="创建人" prop="senderName">
+                <el-input v-model="ruleForm3.senderName" :disabled="true"></el-input>
               </el-form-item>   
-              <el-form-item label="备注">
-                <el-input type="textarea" v-model="ruleForm3.remarks"></el-input>
-              </el-form-item>
+              <el-form-item label="短信类型" prop="messageType">
+                    <el-select  v-model="ruleForm3.messageType" placeholder="短信类型">
+                      <el-option
+                        v-for="item in messageType"
+                        :key="item.value"
+                        :label="item.label"
+                        :value="item.value">
+                      </el-option>
+                    </el-select> 
+              </el-form-item> 
+              <el-form-item label="发送签名" prop="signature">
+                    <el-select  v-model="ruleForm3.signature" placeholder="发送签名">
+                      <el-option
+                        v-for="item in signatureType"
+                        :key="item.value"
+                        :label="item.label"
+                        :value="item.value">
+                      </el-option>
+                    </el-select> 
+              </el-form-item>  
               <el-form-item label="发送平台" prop="sendPlatform">
                     <el-select  v-model="ruleForm3.sendPlatform" placeholder="发送平台">
                       <el-option
@@ -221,26 +250,10 @@
               <el-form-item label="消息内容">
                 <el-input type="textarea" v-model="ruleForm3.messageContent"></el-input>
               </el-form-item>              
-              <el-form-item label="短信类型" prop="messageType">
-                    <el-select  v-model="ruleForm3.messageType" placeholder="短信类型">
-                      <el-option
-                        v-for="item in messageType"
-                        :key="item.value"
-                        :label="item.label"
-                        :value="item.value">
-                      </el-option>
-                    </el-select> 
-              </el-form-item> 
-              <el-form-item label="发送签名" prop="signatureType">
-                    <el-select  v-model="ruleForm3.signatureType" placeholder="发送签名">
-                      <el-option
-                        v-for="item in signatureType"
-                        :key="item.value"
-                        :label="item.label"
-                        :value="item.value">
-                      </el-option>
-                    </el-select> 
-              </el-form-item>                                           
+ 
+              <el-form-item label="备注">
+                <el-input type="textarea" v-model="ruleForm3.remarks"></el-input>
+              </el-form-item>                                                      
                 <el-form-item>
                   <el-button type="primary" @click="submitForm('ruleForm3')">提交</el-button>
                   <el-button @click="resetForm('ruleForm3')">重置</el-button>
@@ -251,13 +264,13 @@
           title="编辑短信"
           :visible.sync="dialogVisible2"
           center
-          width="30%"
+          width="35%"
           >
             <el-form :rules="rules" :model="ruleForm2" status-icon  ref="ruleForm2" label-width="100px" >
               <!-- <el-form-item label="发送时间" >
                 <el-input v-model="ruleForm3.username" ></el-input>
               </el-form-item> -->
-              <el-form-item label="电话" prop='mobilePhone'>
+              <el-form-item label="手机号码" prop='mobilePhone'>
                 <el-input v-model="ruleForm2.mobilePhone"></el-input>
               </el-form-item>  
               <el-form-item label="立即发送">
@@ -285,8 +298,8 @@
               <el-form-item label="接收人姓名" prop="reciverName">
                 <el-input v-model="ruleForm2.reciverName" ></el-input>
               </el-form-item>  
-              <el-form-item label="发送人" prop="senderName">
-                <el-input v-model="ruleForm2.senderName" ></el-input>
+              <el-form-item label="创建人" prop="senderName">
+                <el-input v-model="ruleForm2.senderName" :disabled="true"></el-input>
               </el-form-item>   
               <el-form-item label="备注">
                 <el-input type="textarea" v-model="ruleForm2.remarks"></el-input>
@@ -314,8 +327,8 @@
                       </el-option>
                     </el-select> 
               </el-form-item> 
-              <el-form-item label="发送签名" prop="signatureType">
-                    <el-select  v-model="ruleForm2.signatureType" placeholder="发送签名">
+              <el-form-item label="发送签名" prop="signature">
+                    <el-select  v-model="ruleForm2.signature" placeholder="发送签名">
                       <el-option
                         v-for="item in signatureType"
                         :key="item.value"
@@ -334,7 +347,7 @@
           title="短信详情"
           :visible.sync="dialogVisible3"
           center
-          width="60%"
+          width="58%"
         >
         <!-- <el-row>
             <el-alert
@@ -347,13 +360,118 @@
           <el-button  icon="el-icon-plus" type="primary" @click="open" >短信来源</el-button>
         </el-row>
         <el-table
+            :data="DetailtableData"  
+            border  
+            ref="multipleTable" 
+            tooltip-effect="dark"
+            style="width: 100%"
+            class="m20"
+            v-loading="loading"
+            @selection-change="handleSelectionChange"
+          >
+       
+        
+            <el-table-column prop="id" label="序号" align="center" width="70"  sortable></el-table-column>
+
+            <el-table-column prop="senddatetime" label="发送时间" align="center" width="140" ></el-table-column>
+            <el-table-column prop="mobilePhone" label="电话" align="center" width="120" ></el-table-column>
+            <!-- <el-table-column prop="recordStatus" label="短信状态" align="center" width="100" 
+             :filters="[{ text: '正常', value: '1' }, { text: '更新', value: '2' }, { text: '撤销', value: '3' }]" :filter-method="filterRecordStatus" filter-placement="bottom-end"
+                    >
+                    <template slot-scope="scope">
+                        <el-tag style="margin-left: 10px" :type="scope.row.recordStatus ==1?'success':scope.row.recordStatus ==2?'info':'danger'">
+                          {{ scope.row.recordStatus ==1?'正常':scope.row.recordStatus ==2?'更新':'撤销' }}
+                        </el-tag>
+                    </template> 
+              
+            </el-table-column>             -->
+            <el-table-column prop="sendStatus" label="短信状态" align="center" width="100" 
+             :filters="[{ text: '发送成功', value: '1' }, { text: '待发送', value: '2' }, { text: '发送失败', value: '3' }, { text: '失败重发中', value: '4' }, { text: '撤销', value: '5' }]" :filter-method="filterStatus" filter-placement="bottom-end"
+                    >
+                    <template slot-scope="scope">
+                        <el-tag style="margin-left: 10px" :type="scope.row.sendStatus ==1?'success':scope.row.sendStatus ==2?'info':scope.row.sendStatus ==3?'danger':scope.row.sendStatus ==4?'primay':'warning'">
+                          {{ scope.row.sendStatus ==1?'发送成功':scope.row.sendStatus ==2?'待发送':scope.row.sendStatus ==3?'发送失败':scope.row.sendStatus ==4?'失败重发中':'撤销' }}
+                        </el-tag>
+                    </template> 
+              
+            </el-table-column>
+            <el-table-column prop="reciverName" label="接收人姓名" align="center" width="100" ></el-table-column>
+            <el-table-column prop="senderName" label="创建人" align="center" width="100" ></el-table-column>
+          <!-- <el-table-column prop="messageContent" label="消息内容" align="center" width='300'></el-table-column>    -->
+          <el-table-column prop="sendTimes" label="发送次数" align="center" width='80'></el-table-column>                    
+            <!-- <el-table-column prop="senderName" label="备注" align="center" ></el-table-column> -->
+            <el-table-column prop="sendPlatform" label="发送平台" align="center"   
+             :filters="[{ text: '华信', value: '1' }, { text: '创南', value: '2' }]" :filter-method="filterSendPlatform" filter-placement="bottom-end"
+                    >
+                    <template slot-scope="scope">
+                        <el-tag style="margin-left: 10px" :type="scope.row.sendPlatform ===1?'success':'danger'">
+                          {{ scope.row.sendPlatform ===1?'华信':'创南' }}
+                        </el-tag>
+                    </template> 
+
+            </el-table-column>
+  
+            <el-table-column prop="messageType" label="短信类型" align="center" width="100"
+             :filters="[{ text: '下款', value: '1' }, { text: '还款', value: '2' }, { text: '还本', value: '3' }]" :filter-method="filterMessageType" filter-placement="bottom-end"
+                    >
+                    <template slot-scope="scope">
+                        <el-tag style="margin-left: 10px" :type="scope.row.messageType ===1?'success':scope.row.messageType===2?'info':'danger'">
+                          {{ scope.row.messageType ===1?'下款':scope.row.messageType ===2?'还款':'还本' }}
+                        </el-tag>
+                    </template> 
+              
+            </el-table-column>
+            <!-- <el-table-column prop="sendStatus" label="发送状态" align="center" width="100" 
+             :filters="[{ text: '发送成功', value: '1' }, { text: '待发送', value: '2' }, { text: '发送失败', value: '3' }, { text: '失败重发中', value: '4' }, { text: '撤销', value: '5' }]" :filter-method="filterStatus" filter-placement="bottom-end"
+                    >
+                    <template slot-scope="scope">
+                        <el-tag style="margin-left: 10px" :type="scope.row.sendStatus ==1?'success':scope.row.sendStatus ==2?'info':scope.row.sendStatus ==3?'danger':scope.row.sendStatus ==4?'primay':'warning'">
+                          {{ scope.row.sendStatus ==1?'发送成功':scope.row.sendStatus ==2?'待发送':scope.row.sendStatus ==3?'发送失败':scope.row.sendStatus ==4?'失败重发中':'撤销' }}
+                        </el-tag>
+                    </template> 
+              
+            </el-table-column>               -->
+            <!-- <el-table-column prop="cz"  align="center" label="操作" width="240"  >
+                <template slot-scope="scope">
+                <el-button
+                    size="mini"
+                    type="success"
+                    @click="handleShow(scope.$index, scope.row)"
+                   >详情</el-button>                  
+                <el-button
+                    size="mini"
+                    type="primary"
+                    @click="handleEdit(scope.$index, scope.row)"
+                   >编辑</el-button>
+                <el-button
+                    size="mini"
+                    type="danger"
+                    @click="handleDelete(scope.$index, scope.row)"
+                   >撤销</el-button>                   
+                </template> 
+            </el-table-column>             -->
+        </el-table>  
+            <el-card shadow="hover" class="m20" v-if="DetailtableData[0]">
+                 <strong style="display:inline-block;width:60px;margin-right:20px">消息内容:</strong> <i>{{DetailtableData[0].messageContent}}</i> 
+            </el-card> 
+            <el-card shadow="hover" class="m20" v-if="DetailtableData[0]">
+                 <strong style="display:inline-block;width:60px;margin-right:20px">备注:</strong><i>{{DetailtableData[0].senderName}}</i> 
+            </el-card>               
+            <!-- <el-card shadow="hover" class="m20">
+                 <strong style="margin-right:20px">备注:</strong> {{DetailtableData[0].messageContent}}
+            </el-card>                     -->
+        <el-table
             :data="showData"  
             border  
             style="width: 100%"
             class="m20"
           >
-            <el-table-column prop="id" label="编号" align="center" width="100" ></el-table-column>            
-            <el-table-column prop="sendstatus" label="短信类型" align="center" width="100"
+               <el-table-column
+      type="index"
+      label="序号"
+      width="50">
+    </el-table-column>          
+            <el-table-column prop="sendstatus" label="发送状态" align="center"
              :filters="[{ text: '成功', value: '1' }, { text: '失败', value: '2' }]" :filter-method="filterSendstatus" filter-placement="bottom-end"
                     >
                     <template slot-scope="scope">
@@ -363,9 +481,8 @@
                     </template> 
               
             </el-table-column>           
-            <el-table-column prop="sendTime" label="发送时间" align="center" width="160" ></el-table-column>            
-            <el-table-column prop="message" label="短信内容" align="center"  ></el-table-column>            
-            <el-table-column prop="type" label="短信类型" align="center" width="100"
+            <el-table-column prop="sendTime" label="发送时间" align="center"  ></el-table-column>            
+            <!-- <el-table-column prop="type" label="短信类型" align="center" width="100"
              :filters="[{ text: '周期短信', value: '1' }, { text: '定时短信', value: '2' }]" :filter-method="filterType" filter-placement="bottom-end"
                     >
                     <template slot-scope="scope">
@@ -374,8 +491,8 @@
                         </el-tag>
                     </template> 
               
-            </el-table-column>          
-            <el-table-column prop="sendPlatform" label="发送平台" align="center"  width="100" 
+            </el-table-column>           -->
+            <el-table-column prop="sendPlatform" label="发送平台" align="center"  
              :filters="[{ text: '华信', value: '1' }, { text: '创南', value: '2' }]" :filter-method="filterSendPlatform" filter-placement="bottom-end"
                     >
                     <template slot-scope="scope">
@@ -417,6 +534,17 @@ import {
   httpDownload
 } from "../../../service/http";
 export default {
+  computed: {
+    username() {
+      let username = localStorage.getItem("hsjr_username");
+      if (username != "" && username != null && username != "undefined") {
+        this.name = username ? username : "";
+        return username ? username : "";
+      } else {
+        this.$router.push("/login");
+      }
+    }
+  },
   data() {
     var validateUsername = (rule, value, callback) => {
       if (value != null && value != "") {
@@ -466,7 +594,7 @@ export default {
     };
 
     var validateMobile = (rule, value, callback) => {
-      var reg = /^(13[0-9]|14[5|7]|15[0|1|2|3|5|6|7|8|9]|18[0|1|2|3|5|6|7|8|9])\d{8}$/;
+      var reg = /^(13[0-9]|14[5|7]|15[0|1|2|3|5|6|7|8|9]|18[0|1|2|3|5|6|7|8|9]|19[0|1|2|3|5|6|7|8|9])\d{8}$/;
       console.log(value);
       if (value == "") {
         callback(new Error("请输入正确手机号码！"));
@@ -477,12 +605,14 @@ export default {
       }
     };
     return {
+      name: "",
       url: "",
       signatureType: [
         { label: "恒舜金融", value: 1 },
         { label: "恒舜普融", value: 2 },
         { label: "恒舜财富", value: 3 }
       ],
+      DetailtableData: [],
       title: "定时短信",
       multipleSelection: [],
       search: {
@@ -515,7 +645,7 @@ export default {
       pagesize: 10,
       total: 0,
       dialogVisible2: false,
-      ruleForm3: { now: false },
+      ruleForm3: { now: false, sendPlatform: 1, senderName: this._getName() },
       ruleForm2: {},
       rules: {
         staffName: [
@@ -524,9 +654,7 @@ export default {
         reciverName: [
           { required: true, message: "请输入真实姓名", trigger: "blur" }
         ],
-        senderName: [
-          { required: true, message: "请输入真实姓名", trigger: "blur" }
-        ],
+        senderName: [{ message: "请输入真实姓名", trigger: "blur" }],
         username: [
           { require: true, validator: validateUsername, trigger: "blur" }
         ],
@@ -546,7 +674,7 @@ export default {
             trigger: "change"
           }
         ],
-        signatureType: [
+        signature: [
           {
             required: true,
             message: "请选择发送签名",
@@ -568,6 +696,14 @@ export default {
     };
   },
   methods: {
+    _getName() {
+      let username = localStorage.getItem("hsjr_username");
+      if (username != "" && username != null && username != "undefined") {
+        return username ? username : "";
+      } else {
+        this.$router.push("/login");
+      }
+    },
     _httpFindAllSignature() {
       httpFindAllSignature()
         .then(res => {
@@ -604,8 +740,10 @@ export default {
       remarks,
       sendPlatform,
       messageContent,
-      messageType
+      messageType,
+      signature
     ) {
+      console.log("+++++++++++++");
       httpUpdateMessageAll(
         Id,
         senddatetime,
@@ -618,7 +756,8 @@ export default {
         remarks,
         sendPlatform,
         messageContent,
-        messageType
+        messageType,
+        signature
       )
         .then(res => {
           let data = res.data;
@@ -627,8 +766,6 @@ export default {
               message: data.messager,
               type: "success"
             });
-            this.resetForm("ruleForm3");
-            this.resetForm("ruleForm2");
             this.dialogVisible2 = false;
             this.dialogVisible1 = false;
             this.init(this.npage, this.pagesize);
@@ -637,6 +774,7 @@ export default {
           }
         })
         .catch(err => {
+          console.log(err);
           this.$message.error("网络错误请联系管理员");
         });
     },
@@ -719,15 +857,24 @@ export default {
       axios
         .post("/readExcel", fd, {})
         .then(res => {
-          console.log(res);
+          if (data.code == 200) {
+            this.$message({
+              message: data.msg,
+              type: "success"
+            });
+          } else {
+            this.$message.error("上传文件有误请先下载模板");
+          }
+          this.init(this.npage, this.pagesize);
         })
         .catch(err => {
-          this.$message.error("上传失败或网络错误请联系管理员");
+          this.$message.error("上传文件有误请先下载模板");
         });
       return isJPG && isLt2M;
     },
     reset() {
       this.search = {};
+
       this.init(this.npage, this.pagesize);
     },
     handleSearch() {
@@ -772,7 +919,8 @@ export default {
             this.ruleForm3.remarks,
             this.ruleForm3.sendPlatform,
             this.ruleForm3.messageContent,
-            this.ruleForm3.messageType
+            this.ruleForm3.messageType,
+            this.ruleForm3.signature
           );
         } else {
           this._httpUpdateMessageAll(
@@ -787,7 +935,8 @@ export default {
             this.ruleForm3.remarks,
             this.ruleForm3.sendPlatform,
             this.ruleForm3.messageContent,
-            this.ruleForm3.messageType
+            this.ruleForm3.messageType,
+            this.ruleForm3.signature
           );
         }
       } else {
@@ -804,7 +953,8 @@ export default {
             this.ruleForm2.remarks,
             this.ruleForm2.sendPlatform,
             this.ruleForm2.messageContent,
-            this.ruleForm2.messageType
+            this.ruleForm2.messageType,
+            this.ruleForm2.signature
           );
         } else {
           this._httpUpdateMessageAll(
@@ -819,7 +969,8 @@ export default {
             this.ruleForm2.remarks,
             this.ruleForm2.sendPlatform,
             this.ruleForm2.messageContent,
-            this.ruleForm2.messageType
+            this.ruleForm2.messageType,
+            this.ruleForm2.signature
           );
         }
       }
@@ -836,10 +987,17 @@ export default {
     },
     resetForm(formName) {
       this.$refs[formName].resetFields();
+      this.ruleForm3 = {
+        now: false,
+        sendPlatform: 1,
+        senderName: "admin"
+      };
+      console.log(this.ruleForm3);
     },
     handleEdit(index, row) {
       let id = row.id;
       let _this = this;
+
       this.ruleForm2 = Object.assign({}, row, { now: false });
       this.dialogVisible2 = true;
     },
@@ -874,6 +1032,7 @@ export default {
           } else {
             _this.$message.error(data.messager);
           }
+          _this.init(this.npage, this.pagesize);
         })
         .catch(err => {
           _this.$message.error("网络错误");
@@ -896,6 +1055,7 @@ export default {
       })
         .then(() => {
           _this._httpApmsgDeleteData(ids.join(","));
+          _this.init(this.npage, this.pagesize);
         })
         .catch(() => {
           this.$message({
@@ -924,7 +1084,7 @@ export default {
     },
     //download
     download() {
-      httpDownload()
+      window.open("http://paxfivrd0.bkt.clouddn.com/AperiodicMessage.xls");
     },
     handleShow(index, row) {
       this.currentId = "";
@@ -933,6 +1093,8 @@ export default {
       let id = row.id;
       this.currentId = id;
       this.url = row.url;
+      this.DetailtableData.length = 0;
+      this.DetailtableData.push(JSON.parse(JSON.stringify(row)));
       // this.url = "https://www.baidu.com/?tn=02003390_2_hao_pg";
       this.showTitle = row.messageContent;
       this._httpFindMessageRecording(id);
@@ -949,4 +1111,9 @@ export default {
 </script>
 
 <style>
+#text .cell {
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  overflow: hidden;
+}
 </style>
