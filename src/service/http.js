@@ -179,14 +179,14 @@ export function httpSelectAffairTable(pageNum,
   pageSize,
   name,
   type,
-  creatTime,
+  createTime,
   commissionTime) {
   let data = {
     pageNum,
     pageSize,
     name,
     type,
-    creatTime,
+    createTime,
     commissionTime
   };
   //console.log(data);
@@ -234,14 +234,14 @@ export function httpSelectAffairLogging(affairId,
 export function httpInsertAffairLogging(affairId,
   transatorId,
   affairName,
-  transatorName,
+  transatorTime,
   money,
   discription) {
   let data = {
     affairId,
     transatorId,
     affairName,
-    transatorName,
+    transatorTime,
     money,
     discription
   };
@@ -558,17 +558,15 @@ export function httpSmsPeriodicMessage(receiverName,
 
 //事务信息管理 / 营销短信
 
-export function httpSelectMarketingMsg(pageNumber, pageSize, messageContent, sendPlatform, sendDate, Id) {
+export function httpSelectMarketingMsg(sendDate, pageNumber, pageSize, keywords) {
   let data = {
+    sendDate,
     pageNumber,
     pageSize,
-    messageContent,
-    sendPlatform,
-    sendDate,
-    Id
+    keywords
   };
   return axios({
-    url: "/selectMarketingMsg",
+    url: "/sms/selectMarketingMsg",
     method: "post",
     headers: {
       'Content-type': 'application/x-www-form-urlencoded'
@@ -655,9 +653,17 @@ export function httpSmsDelete(id) {
 
 //事务信息管理 / 更新事务
 
-export function httpInsertAffair(id, name, commissionUser, commissionUserId, commissionTime, sendTime, type, stop, commissionAddres) {
+export function httpInsertAffair(name, commissionUser, commissionUserId, commissionTime, sendTime, type, stop, commissionAddres, mobile) {
   let data = {
-    id, name, commissionUser, commissionUserId, commissionTime, sendTime, type, stop, commissionAddres
+    name,
+    commissionUser,
+    commissionUserId,
+    commissionTime,
+    sendTime,
+    type,
+    stop,
+    commissionAddres,
+    mobile
   };
   return axios({
     url: "/insertAffair",
@@ -682,9 +688,18 @@ export function httpInsertAffair(id, name, commissionUser, commissionUserId, com
 
 //事务信息管理 / 更新事务
 
-export function httpUpdateAffair(id, name, commissionUser, commissionUserId, commissionTime, sendTime, type, stop, commissionAddres) {
+export function httpUpdateAffair(id, name, commissionUser, commissionUserId, commissionTime, sendTime, type, stop, commissionAddres, mobile) {
   let data = {
-    id, name, commissionUser, commissionUserId, commissionTime, sendTime, type, stop, commissionAddres
+    id,
+    name,
+    commissionUser,
+    commissionUserId,
+    commissionTime,
+    sendTime,
+    type,
+    stop,
+    commissionAddres,
+    mobile
   };
   return axios({
     url: "/updateAffair",
@@ -696,5 +711,23 @@ export function httpUpdateAffair(id, name, commissionUser, commissionUserId, com
   })
 }
 
-//事务信息管理 / 获取事务日志
+//事务完成
 
+// export function httpInsertAffairLogging(affairId, transatorId, affairName, affairName, money, discription) {
+//   let data = {
+//     affairId,
+//     transatorId,
+//     affairName,
+//     affairName,
+//     money,
+//     discription
+//   };
+//   return axios({
+//     url: "/insertAffairLogging",
+//     method: "post",
+//     headers: {
+//       'Content-type': 'application/x-www-form-urlencoded'
+//     },
+//     data: qs.stringify(data)
+//   })
+// }

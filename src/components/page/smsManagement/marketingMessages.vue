@@ -8,7 +8,25 @@
             </el-alert>           
         </el-row>  
         <el-row class="m20" >
-            <el-col   class="col-flex-end">
+            <el-col :span="4" >                            
+                  <el-upload
+                    class="upload-demo"
+                    ref="upload"
+                    action="123"
+                    :before-upload="beforeAvatarUpload"
+                    :on-preview="handlePreview"
+                    :on-remove="handleRemove"
+                    :file-list="fileList"
+                    :auto-upload="false">
+                    <el-button slot="trigger" size="small" type="primary">选取文件</el-button>
+                    <el-button style="margin-left: 10px;" size="small" type="success" @click="submitUpload">上传到服务器</el-button>
+                    <!-- <div slot="tip" class="el-upload__tip">上传格式为"txt"或"xsl"文件</div> -->
+                  </el-upload>                
+            </el-col>   
+            <el-col :span="4">
+                    <el-button style="margin-left: 10px;" size="small" type="success" @click="dialogVisible1=true">批量发送短信</el-button>
+            </el-col>        
+            <el-col :span="16"  class="col-flex-end">
                     <!-- <el-button-group>
                       <el-button :type="execeedtimeType==0?'info':''" @click="changeExeceedtimeType(0)">重置</el-button>
                       <el-button :type="execeedtimeType==1?'primary':''" @click="changeExeceedtimeType(1)">M1</el-button>
@@ -25,14 +43,22 @@
                           clearable>
                         </el-input> 
                     </div>   
-                    <el-select class="l20" v-model="search.sendPlatform" placeholder="发送平台">
+                    <el-date-picker
+                      v-model="search.time1"
+                       value-format="yyyy-MM-dd"
+                      style="width:160px"
+                    class="l20"
+                      type="date"
+                      placeholder="发送日期">
+                    </el-date-picker>                     
+                    <!-- <el-select class="l20" v-model="search.sendPlatform" placeholder="发送平台">
                       <el-option
                         v-for="item in sendPlatform"
                         :key="item.value"
                         :label="item.label"
                         :value="item.value">
                       </el-option>
-                    </el-select>                                                      
+                    </el-select>                                                       -->
                     <!-- <el-date-picker
                     style="width:340px"
                     class="l20"
@@ -100,16 +126,27 @@
                    :total="total">
                  </el-pagination>   
              </div>
-        </el-row>                               
+        </el-row>   
+                <el-dialog
+          title="批量发送短信"
+          :visible.sync="dialogVisible1"
+          center
+          width="30%"
+          >
+        
+          
+        </el-dialog>                              
     </div>
 </template>
 
 <script>
+import axios from "axios";
 import { httpSelectMarketingMsg } from "../../../service/http";
 import { timeFormat } from "../../../config/time";
 export default {
   data() {
     return {
+      dialogVisible1: false,
       title: "营销短信",
       search: {
         input: "",
@@ -117,6 +154,7 @@ export default {
         time: ""
       },
       tableData: [],
+      fileList: [],
       sendPlatform: [{ label: "华信", value: 2 }, { label: "创南", value: 1 }],
       loading: true,
       npage: 1,
@@ -126,26 +164,26 @@ export default {
     };
   },
   methods: {
-    getData(pageNumber, pageSize, messageContent, sendPlatform, sendDate, Id) {
+    getData(sendDate, pageNumber, pageSize, keywords) {
       let _this = this;
       this.loading = true;
-      httpSelectMarketingMsg(
-        pageNumber,
-        pageSize,
-        messageContent,
-        sendPlatform,
-        sendDate,
-        Id
-      )
+      httpSelectMarketingMsg(sendDate, pageNumber, pageSize, keywords)
         .then(res => {
           let data = res.data;
-          _this.tableData = data.rows;
-          _this.total = data.total;
-          _this.loading = false;
+          if (data.code == 200) {
+            // this.$message({
+            //   message: data.msg,
+            //   type: "success"
+            // });
+            _this.tableData = data.data.list;
+            _this.total = data.data.total;
+            _this.loading = false;
+          } else {
+            this.$message.error(data.msg);
+          }
         })
         .catch(err => {
-          _this.tableData = [];
-          _this.loading = false;
+          this.$message.error("网络错误请联系管理员");
         });
     },
 
@@ -185,15 +223,74 @@ export default {
     },
     filterSendPlatform(value, row, column) {
       return row.sendPlatform == value;
+    },
+    beforeAvatarUpload(file) {
+      //将文件 的所有的内容都添加在这一起上传
+      let fd = new FormData();
+      fd.append("file", file);
+      // fd.append("realMoney", Number(this.editForm.realMoney)); //其他参数
+      // fd.append("withdrawId", Number(this.editForm.withdrawId)); //其他参数
+      // fd.append("discountAmt", Number(this.editForm.discountAmt)); //其他参数
+      // fd.append("mustPayBackAmt", Number(this.editForm.mustPayBackAmt)); //其他参数
+      // fd.append("actualPayBackAmt", Number(this.editForm.actualPayBackAmt)); //其他参数
+      // fd.append("remark", this.editForm.remark); //其他参数
+      // console.log(fd);
+      // const isJPG = /image\/\w+/.test(file.type);
+      // const isLt2M = file.size / 1024 / 1024 < 4;
+
+      // if (!isJPG) {
+      //   this.$message.error("必须上传图片!");
+      // }
+      // if (!isLt2M) {
+      //   this.$message.error("上传头像图片大小不能超过 4MB!");
+      // }
+      // return isJPG && isLt2M;
+      // console.log(file);
+      // var re = /\w+\.(txt|xlsx)/;
+      // const isJPG = re.test(file.name);
+      // console.log(isJPG);
+      // const isLt2M = file.size / 1024 / 1024 < 4;
+
+      // if (!isJPG) {
+      //   return this.$message.error("上传头像图片只能是 txt和xlsx格式!");
+      // }
+      // if (!isLt2M) {
+      //   return this.$message.error("上传头像图片大小不能超过 2MB!");
+      // }
+      // if (!file) {
+      //   return this.$message.error("请上传文本");
+      // }
+      // this.$message({
+      //   message: "申请提交成功等待审核",
+      //   type: "success"
+      // });
+      axios
+        .post("/sms/uploadTxt", fd, {})
+        .then(res => {
+          let data = res.data;
+          if (data.code == 200) {
+            this.$message({
+              message: data.msg,
+              type: "success"
+            });
+          } else {
+            this.$message.error(data.msg);
+          }
+          this.getData("", this.npage, this.pagesize);
+        })
+        .catch(err => {
+          this.$message.error("上传文件有误请先下载模板");
+        });
+      return;
+    },
+    handleRemove(file, fileList) {},
+    handlePreview(file) {},
+    submitUpload() {
+      this.$refs.upload.submit();
     }
   },
   mounted() {
-    this.getData(
-      this.npage,
-      this.pagesize,
-      this.search.input,
-      this.search.sendPlatform
-    );
+    this.getData("", this.npage, this.pagesize);
   }
 };
 </script>

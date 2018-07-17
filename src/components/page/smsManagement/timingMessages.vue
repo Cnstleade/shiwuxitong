@@ -110,7 +110,7 @@
             <el-table-column prop="reciverName" label="接收人姓名" align="center" width="100" ></el-table-column>
             <!-- <el-table-column prop="senderName" label="创建人" align="center" width="100" ></el-table-column> -->
           <el-table-column prop="messageContent" label="消息内容" align="center" min-width='300' ></el-table-column>            
-            <el-table-column prop="senderName" label="备注" align="center" width='200' ></el-table-column>
+            <el-table-column prop="remarks" label="备注" align="center" width='200' ></el-table-column>
             <!-- <el-table-column prop="sendPlatform" label="发送平台" align="center"  width="100" 
              :filters="[{ text: '华信', value: '1' }, { text: '创南', value: '2' }]" :filter-method="filterSendPlatform" filter-placement="bottom-end"
                     >
@@ -452,10 +452,10 @@
             </el-table-column>             -->
         </el-table>  
             <el-card shadow="hover" class="m20" v-if="DetailtableData[0]">
-                 <strong style="display:inline-block;width:60px;margin-right:20px">消息内容:</strong> <i>{{DetailtableData[0].messageContent}}</i> 
+                 <strong style="display:inline-block;width:80px;margin-right:20px">消息内容:</strong> <i>{{DetailtableData[0].messageContent}}</i> 
             </el-card> 
             <el-card shadow="hover" class="m20" v-if="DetailtableData[0]">
-                 <strong style="display:inline-block;width:60px;margin-right:20px">备注:</strong><i>{{DetailtableData[0].senderName}}</i> 
+                 <strong style="display:inline-block;width:80px;margin-right:20px">备注:</strong><i>{{DetailtableData[0].senderName}}</i> 
             </el-card>               
             <!-- <el-card shadow="hover" class="m20">
                  <strong style="margin-right:20px">备注:</strong> {{DetailtableData[0].messageContent}}
@@ -469,7 +469,7 @@
                <el-table-column
       type="index"
       label="序号"
-      width="50">
+      width="100">
     </el-table-column>          
             <el-table-column prop="sendstatus" label="发送状态" align="center"
              :filters="[{ text: '成功', value: '1' }, { text: '失败', value: '2' }]" :filter-method="filterSendstatus" filter-placement="bottom-end"
@@ -492,7 +492,7 @@
                     </template> 
               
             </el-table-column>           -->
-            <el-table-column prop="sendPlatform" label="发送平台" align="center"  
+            <!-- <el-table-column prop="sendPlatform" label="发送平台" align="center"  
              :filters="[{ text: '华信', value: '1' }, { text: '创南', value: '2' }]" :filter-method="filterSendPlatform" filter-placement="bottom-end"
                     >
                     <template slot-scope="scope">
@@ -501,7 +501,7 @@
                         </el-tag>
                     </template> 
 
-            </el-table-column>         
+            </el-table-column>          -->
         </el-table>
        <el-row class="m20" v-if="showTotal>0">
             <!-- <el-button type="primary" style="float:left" @click="handelConfigAll" :disabled="multipleSelection.length==0">批量删除</el-button> -->
@@ -620,9 +620,11 @@ export default {
         keywords: ""
       },
       sendStatus: [
-        { label: "已发送", value: 1 },
-        { label: "未发送", value: 2 },
-        { label: "发送失败", value: 3 }
+        { label: "发送成功", value: 1 },
+        { label: "待发送", value: 2 },
+        { label: "发送失败", value: 3 },
+        { label: "失败重发中", value: 4 },
+        { label: "撤销", value: 5 }
       ],
       sendPlatform: [{ label: "华信", value: 1 }, { label: "创南", value: 2 }],
       messageType: [
@@ -645,7 +647,12 @@ export default {
       pagesize: 10,
       total: 0,
       dialogVisible2: false,
-      ruleForm3: { now: false, sendPlatform: 1, senderName: this._getName() },
+      ruleForm3: {
+        now: false,
+        sendPlatform: 1,
+        senderName: this._getName(),
+        signature: 1
+      },
       ruleForm2: {},
       rules: {
         staffName: [
@@ -990,9 +997,9 @@ export default {
       this.ruleForm3 = {
         now: false,
         sendPlatform: 1,
-        senderName: "admin"
+        senderName: "admin",
+        signature: 1
       };
-      console.log(this.ruleForm3);
     },
     handleEdit(index, row) {
       let id = row.id;
@@ -1084,7 +1091,7 @@ export default {
     },
     //download
     download() {
-      window.open("http://paxfivrd0.bkt.clouddn.com/AperiodicMessage.xls");
+      window.open("http://paxfivrd0.bkt.clouddn.com/AperiodiMessage.xls");
     },
     handleShow(index, row) {
       this.currentId = "";

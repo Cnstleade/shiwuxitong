@@ -311,21 +311,17 @@
             class="m20"
                 v-loading="loading"
           >
-            <el-table-column prop="id" label="序号" align="center" width="70"  ></el-table-column>
+  <el-table-column prop="id" label="序号" align="center" width="70"  sortable></el-table-column>
             <el-table-column prop="sendTime" label="发送时间" align="center" width="100" ></el-table-column>
             <el-table-column prop="sendDate" label="发送日期" align="center" width="70" ></el-table-column>
             <el-table-column prop="beginDate" label="开始日期" align="center" width="120" ></el-table-column>
               <el-table-column prop="endDate" label="结束日期" align="center" width="120" ></el-table-column>            
             <el-table-column prop="mobilePhone" label="手机" align="center" width="120" ></el-table-column>
               <el-table-column prop="cycleTypeStr" label="周期" align="center" width="60" ></el-table-column>            
-            <el-table-column prop="sendStatus" label="状态" align="center" width="100" 
-             :filters="[{ text: '已发送', value: '1' }, { text: '未发送', value: '2' }, { text: '发送失败', value: '3' }]" :filter-method="filterStatus" filter-placement="bottom-end"
+            <el-table-column prop="sendStatusStr" label="状态" align="center" width="100" 
                     >
-                    <template slot-scope="scope">
-                        <el-tag style="margin-left: 10px" :type="scope.row.sendStatus ===1?'success':scope.row.sendStatus ===2?'info':'danger'">
-                          {{ scope.row.sendStatus ===1?'已发送':scope.row.sendStatus ===2?'未发送':'发送失败' }}
-                        </el-tag>
-                    </template> 
+        
+                   
               
             </el-table-column>
             <el-table-column prop="receiverName" label="接收人姓名" align="center" width="100" ></el-table-column>
@@ -351,26 +347,25 @@
                     </template> 
 
             </el-table-column>            -->
-            <!-- <el-table-column prop="messageContent" label="消息内容" align="center"  min-width="240"></el-table-column> -->
-            <el-table-column prop="messageType" label="短信类型" align="center" width="100"
-             :filters="[{ text: '下款', value: '1' }, { text: '还款', value: '2' }, { text: '还本', value: '3' }]" :filter-method="filterMessageType" filter-placement="bottom-end"
+            <!-- <el-table-column prop="messageContent" label="消息内容" align="center"  width="240"></el-table-column> -->
+            <el-table-column prop="messageTypeStr" label="短信类型" align="center" width="100"
                     >
-                    <template slot-scope="scope">
+                    <!-- <template slot-scope="scope">
                         <el-tag style="margin-left: 10px" :type="scope.row.messageType ===1?'success':scope.row.messageType===2?'info':'danger'">
                           {{ scope.row.messageType ===1?'下款':scope.row.messageType ===2?'还款':'还本' }}
                         </el-tag>
-                    </template> 
+                    </template>  -->
               
             </el-table-column>
-            <el-table-column prop="signatureTypeStr" label="签名" align="center" min-width="100"></el-table-column>     
+            <el-table-column prop="signatureTypeStr" label="签名" align="center" ></el-table-column>        
 
                     
         </el-table>  
                     <el-card shadow="hover" class="m20" v-if="ruleFormData[0]">
-                 <strong style="display:inline-block;width:60px;margin-right:20px">消息内容:</strong> <i>{{ruleFormData[0].messageContent}}</i> 
+                 <strong style="display:inline-block;width:80px;margin-right:20px">消息内容:</strong> <i>{{ruleFormData[0].messageContent}}</i> 
             </el-card> 
             <el-card shadow="hover" class="m20" v-if="ruleFormData[0]">
-                 <strong style="display:inline-block;width:60px;margin-right:20px">备注:</strong><i>{{ruleFormData[0].senderName}}</i> 
+                 <strong style="display:inline-block;width:80px;margin-right:20px">备注:</strong><i>{{ruleFormData[0].senderName}}</i> 
             </el-card>    
                <el-alert
                   title="发送记录详情"
@@ -391,7 +386,7 @@
                <el-table-column
 
       label="任务批次"
-      prop="apriodicMessageId"
+      prop="number"
       align=center
       width="100">
     </el-table-column>  
@@ -401,12 +396,12 @@
            <!-- <el-table-column prop="uploader" label="创建人" align="center"  ></el-table-column> -->
            <!-- <el-table-column prop="createTime" label="创建时间" align="center"   width="140"></el-table-column> -->
            <!-- <el-table-column prop="signatureTypeStr" label="签名类型" align="center"  ></el-table-column> -->
-           <el-table-column prop="sendTime" label="发送时间" align="center"  width="140" ></el-table-column>
+           <el-table-column prop="planSendTime" label="计划发送时间" align="center"  width="140" ></el-table-column>
+           <el-table-column prop="actualSendTime" label="实际发送时间" align="center"  width="140" ></el-table-column>
            <!-- <el-table-column prop="signatureTypeStr" label="短信类型" align="center"   ></el-table-column> -->
            <el-table-column prop="sendStatusStr" label="发送状态" align="center"  width="100" ></el-table-column>
    
-           <el-table-column prop="sendTimes" label="发送次数" align="center"   width="140"></el-table-column>
-              <el-table-column prop="sendPlatformStr" label="发送平台" align="center"  width="120" ></el-table-column>
+           <!-- <el-table-column prop="" label="发送次数" align="center"   width="140"></el-table-column> -->
            <el-table-column prop="message" label="返回信息" align="center"   ></el-table-column>
                 
            <!--  <el-table-column type="expand" label="短信详情" width="80" >
@@ -693,7 +688,7 @@ export default {
       npage: 1,
       pagesize: 10,
       total: 0,
-      ruleForm3: { signatureTyp: 1 },
+      ruleForm3: { signatureType: 1 },
       ruleForm: [],
       ruleFormData: [],
       messageType: [
@@ -978,7 +973,9 @@ export default {
               type: "success"
             });
             this.resetForm("ruleForm3");
-            this.ruleForm3.signatureType = 1;
+            this.ruleForm3 = {
+              signatureType: 1
+            };
             this.dialogVisible2 = false;
             this.dialogVisible1 = false;
           } else {
