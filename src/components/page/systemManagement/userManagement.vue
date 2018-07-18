@@ -87,7 +87,7 @@
 
             </el-table-column>                                                                        
 
-                <el-table-column prop="cz"  align="center" label="操作"   >
+                <el-table-column prop="cz"  align="center" label="操作" min-width="200"  >
                     <template slot-scope="scope">
                     <el-button
                         size="mini"
@@ -125,7 +125,7 @@
           id="xzjs"
           >
             <el-form :rules="rules" :model="ruleForm2" status-icon  ref="ruleForm2" label-width="100px" >
-              <el-form-item label="用户姓名" prop="username">
+              <el-form-item label="用户名" prop="username">
                 <el-input v-model="ruleForm2.username" ></el-input>
               </el-form-item>
               <el-form-item label="真实姓名" prop="staffName">
@@ -137,13 +137,13 @@
               <el-form-item label="手机号" prop="mobile">
                 <el-input v-model="ruleForm2.mobile" ></el-input>
               </el-form-item>  
-              <el-form-item label="邮件" prop="email">
+              <!-- <el-form-item label="邮件" >
                 <el-input v-model="ruleForm2.email" ></el-input>
-              </el-form-item>   
+              </el-form-item>    -->
               <el-form-item label="用户状态" >
                 <el-input   disabled placeholder="激活"></el-input>
               </el-form-item> 
-              <el-form-item label="用户性别" prop="ssex">
+              <!-- <el-form-item label="用户性别" prop="ssex">
                     <el-select  v-model="ruleForm2.ssex" placeholder="性别">
                       <el-option
                         v-for="item in age"
@@ -152,7 +152,7 @@
                         :value="item.value">
                       </el-option>
                     </el-select> 
-              </el-form-item>   
+              </el-form-item>    -->
               <el-form-item label="部门名称" prop="deptId">
                     <el-select  v-model="ruleForm2.deptId" placeholder="部门名称">
                       <el-option
@@ -185,25 +185,25 @@
           id="xzjs"
           >
             <el-form :rules="rules" :model="ruleForm3" status-icon  ref="ruleForm3" label-width="100px" >
-              <el-form-item label="用户姓名" prop="username">
+              <el-form-item label="用户名" prop="username">
                 <el-input v-model="ruleForm3.username" ></el-input>
               </el-form-item>
               <el-form-item label="真实姓名" prop="staffName">
                 <el-input v-model="ruleForm3.staffName"></el-input>
               </el-form-item>  
-              <el-form-item label="用户密码" prop="password">
+              <!-- <el-form-item label="用户密码" prop="password">
                 <el-input v-model="ruleForm3.password" ></el-input>
-              </el-form-item>  
+              </el-form-item>   -->
               <el-form-item label="手机号" prop="mobile">
                 <el-input v-model="ruleForm3.mobile" ></el-input>
               </el-form-item>  
-              <el-form-item label="邮件" prop="email">
+              <el-form-item label="邮件" >
                 <el-input v-model="ruleForm3.email" ></el-input>
               </el-form-item>   
               <el-form-item label="用户状态" >
                 <el-input   disabled placeholder="激活"></el-input>
               </el-form-item> 
-              <el-form-item label="用户性别" prop="ssex">
+              <el-form-item label="用户性别" >
                     <el-select  v-model="ruleForm3.ssex" placeholder="性别">
                       <el-option
                         v-for="item in age"
@@ -233,7 +233,7 @@
               </el-form-item>
                 <el-form-item>
                   <el-button type="primary" @click="submitForm('ruleForm3')">提交</el-button>
-                  <el-button @click="resetForm('ruleForm3')">重置</el-button>
+                  <el-button @click="dialogVisible2=false">取消</el-button>
                 </el-form-item>
             </el-form>       
         </el-dialog>                                           
@@ -241,12 +241,14 @@
 </template>
 
 <script>
+import { mapState, mapMutations } from "vuex";
 import {
   httpDeptNameList,
   httpUserList,
   httpUserAdd,
   httpUserDelete,
-  httpRoleList
+  httpRoleList,
+  httpUserRoleList
 } from "../../../service/http";
 export default {
   data() {
@@ -383,48 +385,147 @@ export default {
         ssex: [{ required: true, message: "请选择性别", trigger: "change" }],
         deptId: [{ required: true, message: "请选择部门", trigger: "change" }]
       },
-      MenuList: [],
-      
+      roleList: [],
+      MenuList: []
     };
   },
+  computed: {
+    ...mapState(["userInfo"])
+  },
   methods: {
+    hasUser() {
+      if (
+        this.userInfo == "" &&
+        this.userInfo == null &&
+        this.userInfo == "undefined"
+      ) {
+        this.$message.error("当前登陆用户已失效，请重新登陆");
+        this.$router.push("/login");
+        return;
+      }
+    },
+    //用户角色
+    _httpUserRoleList(userId, row) {
+      httpUserRoleList(userId, row)
+        .then(res => {
+          let data = res.data;
+          if (data.code == 200) {
+            let list = data.rows;
+            let roles = list.filter((v, i, a) => {
+              return v.checked;
+            });
+            let roleList = [];
+            roles.forEach((v, i, a) => {
+              roleList.push(v.roleId);
+            });
+            this.roleList = roleList;
+            this.ruleForm3 = Object.assign({}, row, {
+              roles: roleList
+            });
+            this.dialogVisible2 = true;
+          } else if (data.code == 500) {
+            this.$message.error(data.msg);
+            this.$router.push("/login");
+          }
+        })
+        .catch(err => {
+          let data = err.response ? err.response.data : {};
+
+          if (data.message == "当前登陆用户已失效，请重新登陆") {
+            this.$message.error(data.message);
+            this.$router.push("/login");
+          } else {
+            this.$message.error("网络错误请联系管理员");
+          }
+        });
+    },
     //可选角色
     _httpMenuList() {
+      this.hasUser();
       let _this = this;
       httpRoleList(1, 10000)
+        .then(res => {
+          let data = res.data;
+          if (data.code == 200) {
+     
+          _this.MenuList = data.data.rows;
+
+          } else if (data.code == 500) {
+            this.$message.error(data.msg);
+            this.$router.push("/login");
+          } else {
+            this.$message.error(data.msg);
+          }
+          this.init(this.npage, this.pagesize);
+        })      
         .then(res => {
           let data = res.data;
           _this.MenuList = data.rows;
         })
         .catch(err => {
+          let data = err.response ? err.response.data : {};
+
+          if (data.message == "当前登陆用户已失效，请重新登陆") {
+            this.$message.error(data.message);
+            this.$router.push("/login");
+          } else {
+            this.$message.error("网络错误请联系管理员");
+          }
           _this.tableData = [];
           _this.loading = false;
         });
     },
     init(pageNum, pageSize, Username, ssex, mobile, deptId) {
+      this.hasUser();
       let _this = this;
       this.loading = true;
       httpUserList(pageNum, pageSize, Username, ssex, mobile, deptId)
         .then(res => {
           let data = res.data;
-          _this.tableData = data.rows;
-          _this.total = data.total;
-          _this.loading = false;
+          if (data.code == 200) {
+            _this.tableData = data.data.rows;
+            _this.total = data.data.total;
+            _this.loading = false;
+          } else if (data.code == 500) {
+            this.$message.error(data.msg);
+            this.$router.push("/login");
+          } else {
+            _this.loading = false;
+            this.$message.error(data.msg);
+          }
         })
         .catch(err => {
+          let data = err.response ? err.response.data : {};
+
+          if (data.message == "当前登陆用户已失效，请重新登陆") {
+            this.$message.error(data.message);
+            this.$router.push("/login");
+          } else {
+            this.$message.error("网络错误请联系管理员");
+          }
           _this.tableData = [];
           _this.loading = false;
         });
     },
     //得到部门列表
     _httpDeptNameList() {
+      this.hasUser();
       let _this = this;
       httpDeptNameList()
         .then(res => {
           let data = res.data;
           _this.DeptNameList = data;
         })
-        .catch();
+        .catch(err => {
+          let data = err.response ? err.response.data : {};
+
+          if (data.message == "当前登陆用户已失效，请重新登陆") {
+            this.$message.error(data.message);
+            this.$router.push("/login");
+          } else {
+            this.$message.error("网络错误请联系管理员");
+          }
+        });
     },
     handleSearch() {
       this.init(
@@ -452,10 +553,10 @@ export default {
     handleSelectionChange(val) {
       this.multipleSelection = val;
     },
-    resetForm(formName) {
-      console.log(this.$refs[formName]);
-      formName = {};
-    },
+    // resetForm(formName) {
+    //   console.log(this.$refs[formName]);
+    //   formName = {};
+    // },
     onSubmit(formName) {
       let _this = this;
       if (formName == "ruleForm2") {
@@ -483,12 +584,23 @@ export default {
                 type: "success"
               });
               _this.dialogVisible1 = false;
+            } else if (data.code == 500) {
+              this.$message.error(data.msg);
+              this.$router.push("/login");
             } else {
               _this.$message.error(data.msg);
             }
           },
-          error: function() {
-            _this.$message.error("网络错误");
+          error: response => {
+            let data = response ? response.responseJSON : {};
+            console.log(JSON.stringify(response));
+            if (data.message == "当前登陆用户已失效，请重新登陆") {
+              _this.$message.error(data.message);
+              _this.$router.push("/login");
+            } else {
+              _this.$message.error("网络错误请联系管理员");
+            }
+
             _this.resetForm("ruleForm2");
             _this.dialogVisible1 = false;
           }
@@ -498,6 +610,7 @@ export default {
           type: "post",
           url: "http://localhost:8088/user/update",
           data: {
+            id: _this.ruleForm3.id,
             username: _this.ruleForm3.username,
             password: _this.ruleForm3.password,
             email: _this.ruleForm3.email,
@@ -510,7 +623,6 @@ export default {
             staffName: _this.ruleForm3.staffName
           },
           success: function(data) {
-            console.log(data);
             _this.resetForm("ruleForm3");
             if (data.code == 200) {
               _this.$message({
@@ -518,13 +630,23 @@ export default {
                 type: "success"
               });
               _this.dialogVisible2 = false;
-               _this.init(this.npage, this.pagesize);
+              _this.init(this.npage, this.pagesize);
+            } else if (data.code == 500) {
+              this.$message.error(data.msg);
+              this.$router.push("/login");
             } else {
               _this.$message.error(data.msg);
             }
           },
-          error: function() {
-            _this.$message.error("网络错误");
+          error: response => {
+            let data = response ? response.responseJSON : {};
+            console.log(JSON.stringify(response));
+            if (data.message == "当前登陆用户已失效，请重新登陆") {
+              _this.$message.error(data.message);
+              _this.$router.push("/login");
+            } else {
+              _this.$message.error("网络错误请联系管理员");
+            }
             _this.resetForm("ruleForm3");
             _this.dialogVisible2 = false;
           }
@@ -547,10 +669,14 @@ export default {
     handleDeit(index, row) {
       let _this = this;
       let id = row.id;
-      this.ruleForm3 = Object.assign({}, row, { roles: [1] });
-      this.dialogVisible2 = true;
+      this._httpUserRoleList(id, row);
+      // this.ruleForm3 = Object.assign({}, row, {
+      //   roles: [11]
+      // });
+      // this.dialogVisible2 = true;
     },
     handleDelete(index, row) {
+      this.hasUser();
       let id = row.id;
       let _this = this;
       this.$confirm("此操作将永久删除该用户, 是否继续?", "提示", {
@@ -560,7 +686,6 @@ export default {
       })
         .then(() => {
           _this._httpUserDelete(id);
-
         })
         .catch(() => {
           this.$message({
@@ -570,6 +695,7 @@ export default {
         });
     },
     _httpUserDelete(ids) {
+      this.hasUser();
       let _this = this;
       httpUserDelete(ids)
         .then(res => {
@@ -580,12 +706,22 @@ export default {
               type: "success"
             });
             _this.init(this.npage, this.pagesize);
+          } else if (data.code == 500) {
+            this.$message.error(data.msg);
+            this.$router.push("/login");
           } else {
             _this.$message.error(data.msg);
           }
         })
         .catch(err => {
-          _this.$message.error("网络错误");
+          let data = err.response ? err.response.data : {};
+
+          if (data.message == "当前登陆用户已失效，请重新登陆") {
+            this.$message.error(data.message);
+            this.$router.push("/login");
+          } else {
+            this.$message.error("网络错误请联系管理员");
+          }
         });
     }
   },

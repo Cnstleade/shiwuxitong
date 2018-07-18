@@ -92,6 +92,7 @@
 </template>
 
 <script>
+import { mapState,mapMutations } from "vuex";
 import { httpLogin, httpUserRegister } from "../../service/http";
 // import {config} from "../../util/config";
 import { Message } from "element-ui";
@@ -127,6 +128,7 @@ export default {
     };
   },
   methods: {
+    ...mapMutations(["RECORD_USERINFO"]),
     //得到gif
     _httpGifCode() {
       // httpGifCode()
@@ -144,20 +146,32 @@ export default {
         .then(res => {
           let data = res.data;
           if (data.code == 200) {
-            console.log(1)
             this.$message({
               message: data.msg,
               type: "success"
             });
-            localStorage.setItem("hsjr_username", username);
-            this.resetForm('ruleForm');
+            let userInfo =  username
+            this.RECORD_USERINFO(userInfo);
+            // sessionStorage.setItem("hsjr_username", username);
+            this.resetForm("ruleForm");
             this.$router.push("/message");
-          } else {
+          } else if (data.code == 500) {
+            this.$message.error(data.msg);
+            this.$router.push("/login");
+          }else {
             this.$message.error(data.msg);
           }
         })
         .catch(err => {
-          this.$message.error("网络错误请联系管理员");
+          let data = err.response ? err.response.data : {};
+
+          if (data.message == "当前登陆用户已失效，请重新登陆") {
+            this.$message.error(data.message);
+            this.$router.push("/login");
+          } else {
+            console.log(err)
+            this.$message.error("网络错误请联系管理员");
+          }
         });
     },
     _httpUserRegister(username, password) {
@@ -170,12 +184,22 @@ export default {
               type: "success"
             });
             this.changeShow("ruleForm");
-          } else {
+          } else if (data.code == 500) {
+            this.$message.error(data.msg);
+            this.$router.push("/login");
+          }else {
             this.$message.error(data.msg);
           }
         })
         .catch(err => {
-          this.$message.error("网络错误请联系管理员");
+          let data = err.response ? err.response.data : {};
+
+          if (data.message == "当前登陆用户已失效，请重新登陆") {
+            this.$message.error(data.message);
+            this.$router.push("/login");
+          } else {
+            this.$message.error("网络错误请联系管理员");
+          }
         });
     },
     //清空数据
@@ -192,7 +216,6 @@ export default {
             null,
             this.ruleForm.rememberMe
           );
-          
         } else {
           return false;
         }

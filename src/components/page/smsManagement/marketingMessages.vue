@@ -133,19 +133,72 @@
           center
           width="30%"
           >
-        
-          
+            <el-form  :rules="rules" :model="ruleForm" status-icon  ref="ruleForm" label-width="100px" >
+              <el-form-item label="服务商" prop="oprator">
+                <el-select v-model="ruleForm.oprator" placeholder="请选择活动区域">
+                    <el-option
+                       v-for="item in oprator"
+                       :key="item.value"
+                       :label="item.label"
+                       :value="item.value">
+                    </el-option>
+                </el-select>
+              </el-form-item>
+              <el-form-item label="发送数量" prop='number'>
+                <el-input v-model="ruleForm.number"></el-input>
+              </el-form-item>  
+           
+
+         
+              <el-form-item label="发送时间" prop="sendDate">
+                <el-col :span="11">
+                  <el-date-picker type="date" 
+                  value-format="yyyy-MM-dd"
+                  placeholder="选择日期" 
+                  v-model="ruleForm.sendDate" 
+                  style="width: 100%;"></el-date-picker>
+                </el-col>
+              </el-form-item>
+        <el-form-item label="发送内容">
+                <el-input type="textarea" v-model="ruleForm.messageContent"></el-input>
+              </el-form-item>    
+               <el-form-item>
+                  <el-button type="primary" @click="onSubmit">提交</el-button>
+                  <el-button @click="resetForm('ruleForm')">重置</el-button>
+                </el-form-item>                        
+            </el-form>
         </el-dialog>                              
     </div>
 </template>
 
 <script>
+import { mapState, mapMutations } from "vuex";
 import axios from "axios";
-import { httpSelectMarketingMsg } from "../../../service/http";
+import {
+  httpSelectMarketingMsg,
+  httpSendMarketMsg
+} from "../../../service/http";
 import { timeFormat } from "../../../config/time";
 export default {
   data() {
+    var validateMoney = (rule, value, callback) => {
+      if (value != null && value != "") {
+        var reg = /^\d+$/;
+        if (!reg.test(value) || value < 500 || value > 20000) {
+          return callback(new Error("最少发送500次且最多发送20000次！"));
+        } else {
+          callback();
+        }
+      } else {
+        return callback(new Error("最少发送500次且最多发送20000次！"));
+      }
+    };
     return {
+      oprator: [
+        { label: "中国移动", value: 1 },
+        { label: "中国联通 ", value: 2 },
+        { label: "中国电信", value: 3 }
+      ],
       dialogVisible1: false,
       title: "营销短信",
       search: {
@@ -153,6 +206,7 @@ export default {
         sendPlatform: "",
         time: ""
       },
+      ruleForm: {},
       tableData: [],
       fileList: [],
       sendPlatform: [{ label: "华信", value: 2 }, { label: "创南", value: 1 }],
@@ -160,11 +214,89 @@ export default {
       npage: 1,
       pagesize: 10,
       total: 0,
-      multipleSelection: [] //全部选中嘛
+      multipleSelection: [], //全部选中嘛
+      rules: {
+        sendDate: [{ required: true, message: "请输入时间", trigger: "blur" }],
+        name: [{ required: true, message: "请输入事务名称", trigger: "blur" }],
+        reciverName: [
+          { required: true, message: "请输入真实姓名", trigger: "blur" }
+        ],
+        senderName: [{ message: "请输入真实姓名", trigger: "blur" }],
+        number: [{ require: true, validator: validateMoney, trigger: "blur" }],
+        roles: [
+          {
+            type: "array",
+            required: true,
+            message: "请至少选择一个角色",
+            trigger: "change"
+          }
+        ],
+        signature: [
+          {
+            required: true,
+            message: "请选择发送签名",
+            trigger: "change"
+          }
+        ],
+        ssex: [{ required: true, message: "请选择性别", trigger: "change" }],
+        deptId: [{ required: true, message: "请选择部门", trigger: "change" }],
+        sendStatus: [
+          { required: true, message: "请选择状态", trigger: "change" }
+        ],
+        oprator: [
+          { required: true, message: "请选择服务商", trigger: "change" }
+        ],
+        messageType: [
+          { required: true, message: "请选择发送平台", trigger: "change" }
+        ]
+      }
     };
   },
+  computed: {
+    ...mapState(["userInfo"])
+  },
   methods: {
+    hasUser() {
+      if (
+      this.userInfo == "" &&
+        this.userInfo == null &&
+        this.userInfo == "undefined"
+      ) {
+        this.$message.error("当前登陆用户已失效，请重新登陆");
+        this.$router.push("/login");
+        return;
+      }
+    },
+    _httpSendMarketMsg(oprator, sendDate, number, messageContent) {
+      httpSendMarketMsg(oprator, sendDate, number, messageContent)
+        .then(res => {
+          let data = res.data;
+          if (data.code == 200) {
+            this.$message({
+              message: data.msg,
+              type: "success"
+            });
+            this.getData("", this.npage, this.pagesize);
+          } else if (data.code == 500) {
+            this.$message.error(data.msg);
+            this.$router.push("/login");
+          }else {
+            this.$message.error(data.msg);
+          }
+        })
+        .catch(err => {
+          let data = err.response ? err.response.data : {};
+
+          if (data.message == "当前登陆用户已失效，请重新登陆") {
+            this.$message.error(data.message);
+            this.$router.push("/login");
+          } else {
+            this.$message.error("网络错误请联系管理员");
+          }
+        });
+    },
     getData(sendDate, pageNumber, pageSize, keywords) {
+      this.hasUser();
       let _this = this;
       this.loading = true;
       httpSelectMarketingMsg(sendDate, pageNumber, pageSize, keywords)
@@ -178,12 +310,22 @@ export default {
             _this.tableData = data.data.list;
             _this.total = data.data.total;
             _this.loading = false;
-          } else {
+          } else if (data.code == 500) {
+            this.$message.error(data.msg);
+            this.$router.push("/login");
+          }else {
             this.$message.error(data.msg);
           }
         })
         .catch(err => {
-          this.$message.error("网络错误请联系管理员");
+          let data = err.response ? err.response.data : {};
+
+          if (data.message == "当前登陆用户已失效，请重新登陆") {
+            this.$message.error(data.message);
+            this.$router.push("/login");
+          } else {
+            this.$message.error("网络错误请联系管理员");
+          }
         });
     },
 
@@ -273,13 +415,23 @@ export default {
               message: data.msg,
               type: "success"
             });
+          }else if (data.code == 500) {
+            this.$message.error(data.msg);
+            this.$router.push("/login");
           } else {
             this.$message.error(data.msg);
           }
           this.getData("", this.npage, this.pagesize);
         })
         .catch(err => {
-          this.$message.error("上传文件有误请先下载模板");
+          let data = err.response ? err.response.data : {};
+
+          if (data.message == "当前登陆用户已失效，请重新登陆") {
+            this.$message.error(data.message);
+            this.$router.push("/login");
+          } else {
+            this.$message.error("网络错误请联系管理员");
+          }
         });
       return;
     },
@@ -287,6 +439,25 @@ export default {
     handlePreview(file) {},
     submitUpload() {
       this.$refs.upload.submit();
+    },
+    resetForm(formName) {
+      this.$refs[formName].resetFields();
+    },
+    onSubmit() {
+      this.hasUser();
+      let _this = this;
+      this.$refs["ruleForm"].validate(valid => {
+        if (valid) {
+          _this._httpSendMarketMsg(
+            this.ruleForm.oprator,
+            this.ruleForm.sendDate,
+            this.ruleForm.number,
+            this.ruleForm.messageContent
+          );
+        } else {
+          return false;
+        }
+      });
     }
   },
   mounted() {

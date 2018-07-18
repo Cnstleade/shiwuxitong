@@ -8,26 +8,29 @@
             </el-alert>           
         </el-row>   
         <el-row class="m20 " >
-            <el-col :span="2">
-                    <el-button  icon="el-icon-plus" type="primary" @click="dialogVisible1=true" >新增</el-button>
-            </el-col>
-            <el-col :span="2" >
-                  <el-button  type="danger" @click="download" >下载模板</el-button>
-            </el-col>  
-            <el-col :span="4"   >                            
-                  <el-upload
-                    class="upload-demo"
-                    ref="upload"
-                    action="123"
-                    :before-upload="beforeAvatarUpload"
-                    :on-preview="handlePreview"
-                    :on-remove="handleRemove"
-                    :file-list="fileList"
-                    :auto-upload="false">
-                    <el-button slot="trigger" size="small" type="primary">选取文件</el-button>
-                    <el-button style="margin-left: 10px;" size="small" type="success" @click="submitUpload">上传到服务器</el-button>
-                    <!-- <div slot="tip" class="el-upload__tip">上传格式为"txt"或"xsl"文件</div> -->
-                  </el-upload>                
+            <el-col :span="8" class="flex" >
+                    <el-button  icon="el-icon-plus" type="primary" size="small" @click="dialogVisible1=true" >新增</el-button>
+     
+                  <el-button  type="danger" @click="download" size="small" >下载模板</el-button>
+                  <div class="l20 " >
+                    <el-upload
+              
+                      class="upload-demo flex"
+                      ref="upload"
+                      action="123"
+                      :before-upload="beforeAvatarUpload"
+                      :on-preview="handlePreview"
+                      :on-remove="handleRemove"
+                      :file-list="fileList"
+                      :auto-upload="false">
+
+                      <el-button class="l20" slot="trigger" size="small" type="primary">选取文件</el-button>
+
+                      <el-button class="l20" size="small" type="success" @click="submitUpload">上传到服务器</el-button>
+                      <!-- <div slot="tip" class="el-upload__tip">上传格式为"txt"或"xsl"文件</div> -->
+                    </el-upload> 
+                  </div>
+               
             </el-col>
             <el-col :span="16"   class="col-flex-end">
                     <el-button  type="primary" @click="reset">重置</el-button>
@@ -63,6 +66,7 @@
                 id="text"
           >
             <el-table-column prop="id" label="序号" align="center" width="70"  sortable></el-table-column>
+             <el-table-column prop="createTime" label="创建时间" align="center" width="100" ></el-table-column>
             <el-table-column prop="sendTime" label="发送时间" align="center" width="100" ></el-table-column>
             <el-table-column prop="sendDate" label="发送日期" align="center" width="70" ></el-table-column>
             <el-table-column prop="beginDate" label="开始日期" align="center" width="120" ></el-table-column>
@@ -124,8 +128,9 @@
                 <el-button
                     size="mini"
                     type="danger"
+                    :disabled="scope.row.recordStatusStr=='已删除'"
                     @click="handleDelete(scope.$index, scope.row)"
-                   >撤销</el-button>                   
+                   >{{scope.row.recordStatusStr=='已删除'?'已撤销':'撤销'}}</el-button>                   
                 </template> 
             </el-table-column>  
         </el-table>  
@@ -400,6 +405,7 @@
            <el-table-column prop="actualSendTime" label="实际发送时间" align="center"  width="140" ></el-table-column>
            <!-- <el-table-column prop="signatureTypeStr" label="短信类型" align="center"   ></el-table-column> -->
            <el-table-column prop="sendStatusStr" label="发送状态" align="center"  width="100" ></el-table-column>
+           <el-table-column prop="sendTimes" label="发送次数" align="center"  width="100" ></el-table-column>
    
            <!-- <el-table-column prop="" label="发送次数" align="center"   width="140"></el-table-column> -->
            <el-table-column prop="message" label="返回信息" align="center"   ></el-table-column>
@@ -603,6 +609,7 @@
 </template>
 
 <script>
+import { mapState, mapMutations } from "vuex";
 import axios from "axios";
 import { timeFormat, sFormat } from "../../../config/time";
 import {
@@ -770,20 +777,42 @@ export default {
         messageType: [
           { required: true, message: "请选择发送平台", trigger: "change" }
         ]
-      }
+      },
+      chbname: ""
     };
   },
   computed: {
     username() {
-      let username = localStorage.getItem("hsjr_username");
+      let username = sessionStorage.getItem("hsjr_username");
       if (username != "" && username != null && username != "undefined") {
         return username ? username : "";
       } else {
         this.$router.push("/login");
       }
+    },
+
+    ...mapState(["userInfo"])
+  },
+  watch: {
+    userInfo(a, b) {
+      // while (a == "" && a == null && a == "undefined") {
+      //   this.$router.push("/login");
+      // }
+      console.log(a, b);
     }
   },
   methods: {
+    hasUser() {
+      if (
+        this.userInfo == "" &&
+        this.userInfo == null &&
+        this.userInfo == "undefined"
+      ) {
+        this.$message.error("当前登陆用户已失效，请重新登陆");
+        this.$router.push("/login");
+        return;
+      }
+    },
     //撤销短信
     _httpSmsDelete(id) {
       let _this = this;
@@ -795,13 +824,23 @@ export default {
               message: data.msg,
               type: "success"
             });
+          } else if (data.code == 500) {
+            this.$message.error(data.msg);
+            this.$router.push("/login");
           } else {
             this.$message.error(data.msg);
           }
           this.init(this.npage, this.pagesize);
         })
         .catch(err => {
-          this.$message.error("网络错误请联系管理员");
+          let data = err.response ? err.response.data : {};
+
+          if (data.message == "当前登陆用户已失效，请重新登陆") {
+            this.$message.error(data.message);
+            this.$router.push("/login");
+          } else {
+            this.$message.error("网络错误请联系管理员");
+          }
         });
     },
     //获取短信详情接口
@@ -836,104 +875,22 @@ export default {
             //   SMSmessage: data.messagerRecordings.message
             // };
             this.dialogVisible2 = true;
+          } else if (data.code == 500) {
+            this.$message.error(data.msg);
+            this.$router.push("/login");
           } else {
             this.$message.error(data.msg);
           }
         })
         .catch(err => {
-          // let th = {
-          //   code: 200,
-          //   msg: "",
-          //   data: [
-          //     {
-          //       receiverName: "root",
-          //       code: "200",
-          //       message: "操作成功",
-          //       mobilePhone: "13888888888",
-          //       sendTime: "10:25:47",
-          //       sendStatusStr: "未发送",
-          //       messageContent: "陈红波是个小2B",
-          //       uploader: "root",
-          //       createTime: "2018-01-01 22:25:58",
-          //       remarks: "陈红波是个小2逼",
-          //       signatureTypeStr: "恒舜金融",
-          //       recordStatusStr: "正常",
-          //       messageTypeStr: "周",
-          //       sendTimes: "0",
-          //       messagerRecordings: {
-          //         sendstatus: "",
-          //         sendTime: "",
-          //         sendPlatform: "",
-          //         message: "Success"
-          //       }
-          //     },
-          //     {
-          //       receiverName: "root",
-          //       code: "200",
-          //       message: "操作成功",
-          //       mobilePhone: "13888888888",
-          //       sendTime: "10:25:47",
-          //       sendStatusStr: "未发送",
-          //       messageContent: "陈红波是个小2B",
-          //       uploader: "root",
-          //       createTime: "2018-01-01 22:25:58",
-          //       remarks: "陈红波是个小2逼",
-          //       signatureTypeStr: "恒舜金融",
-          //       recordStatusStr: "正常",
-          //       messageTypeStr: "周",
-          //       sendTimes: "0",
-          //       messagerRecordings: {
-          //         sendstatus: "",
-          //         sendTime: "",
-          //         sendPlatform: "",
-          //         message: "Success"
-          //       }
-          //     }
-          //   ]
-          // };
-          // let data = {
-          //   receiverName: "root",
-          //   code: "200",
-          //   message: "操作成功",
-          //   mobilePhone: "13888888888",
-          //   sendTime: "10:25:47",
-          //   sendStatusStr: "未发送",
-          //   messageContent: "陈红波是个小2B",
-          //   uploader: "root",
-          //   createTime: "2018-01-01 22:25:58",
-          //   remarks: "陈红波是个小2逼",
-          //   signatureTypeStr: "恒舜金融",
-          //   recordStatusStr: "正常",
-          //   messageTypeStr: "周",
-          //   sendTimes: "0",
-          //   messagerRecordings: {
-          //     sendstatus: "",
-          //     sendTime: "",
-          //     sendPlatform: "",
-          //     message: "Success"
-          //   }
-          // };
-          // this.ruleForm = data.data;
-          // this.ruleForm = {};
-          // this.ruleForm = {
-          //   receiverName: data.receiverName,
-          //   mobilePhone: data.mobilePhone,
-          //   sendTime: data.sendTime,
-          //   sendStatusStr: data.sendStatusStr,
-          //   messageContent: data.messageContent,
-          //   uploader: data.uploader,
-          //   createTime: data.createTime,
-          //   remarks: data.remarks,
-          //   signatureTypeStr: data.signatureTypeStr,
-          //   recordStatusStr: data.recordStatusStr,
-          //   messageTypeStr: data.messageTypeStr,
-          //   sendTimes: data.sendTimes,
-          //   SMSsendstatus: data.messagerRecordings.messagerRecordings,
-          //   SMSsendTime: data.messagerRecordings.sendTime,
-          //   SMSsendPlatform: data.messagerRecordings.sendPlatform,
-          //   SMSmessage: data.messagerRecordings.message
-          // };
-          this.$message.error("网络错误请联系管理员");
+          let data = err.response ? err.response.data : {};
+
+          if (data.message == "当前登陆用户已失效，请重新登陆") {
+            this.$message.error(data.message);
+            this.$router.push("/login");
+          } else {
+            this.$message.error("网络错误请联系管理员");
+          }
         });
     },
     download() {
@@ -978,13 +935,23 @@ export default {
             };
             this.dialogVisible2 = false;
             this.dialogVisible1 = false;
+          } else if (data.code == 500) {
+            this.$message.error(data.msg);
+            this.$router.push("/login");
           } else {
             this.$message.error(data.msg);
           }
           this.init(this.npage, this.pagesize);
         })
         .catch(err => {
-          this.$message.error("网络错误请联系管理员");
+          let data = err.response ? err.response.data : {};
+
+          if (data.message == "当前登陆用户已失效，请重新登陆") {
+            this.$message.error(data.message);
+            this.$router.push("/login");
+          } else {
+            this.$message.error("网络错误请联系管理员");
+          }
         });
     },
     init(pageNumber, pageSize, keywords, startDate, endDate) {
@@ -996,13 +963,23 @@ export default {
           if (data.code == 200) {
             _this.tableData = data.data.list;
             _this.total = data.data.total;
+          } else if (data.code == 500) {
+            this.$message.error(data.msg);
+            this.$router.push("/login");
           } else {
             _this.$message.error(data.msg);
           }
           _this.loading = false;
         })
         .catch(err => {
-          _this.$message.error("网络错误");
+          let data = err.response ? err.response.data : {};
+
+          if (data.message == "当前登陆用户已失效，请重新登陆") {
+            this.$message.error(data.message);
+            this.$router.push("/login");
+          } else {
+            this.$message.error("网络错误请联系管理员");
+          }
         });
     },
     submitUpload() {
@@ -1060,13 +1037,23 @@ export default {
               message: data.msg,
               type: "success"
             });
+          } else if (data.code == 500) {
+            this.$message.error(data.msg);
+            this.$router.push("/login");
           } else {
             this.$message.error(data.msg);
           }
           this.init(this.npage, this.pagesize);
         })
         .catch(err => {
-          this.$message.error("上传失败或网络错误请联系管理员");
+          let data = err.response ? err.response.data : {};
+
+          if (data.message == "当前登陆用户已失效，请重新登陆") {
+            this.$message.error(data.message);
+            this.$router.push("/login");
+          } else {
+            this.$message.error("网络错误请联系管理员");
+          }
         });
       return isJPG && isLt2M;
     },
@@ -1110,6 +1097,7 @@ export default {
     },
     //提交更新修改
     onSubmit(formName) {
+      this.hasUser();
       if (formName == "ruleForm3") {
         this._httpSmsPeriodicMessage(
           this.ruleForm3.receiverName,
@@ -1125,12 +1113,10 @@ export default {
           this.ruleForm3.time[0]
         );
       }
-      this.dialogVisible1 = false;
-      this.init(this.npage, this.pagesize);
-
       // this.resetForm("ruleForm3");
     },
     handleDelete(index, row) {
+      this.hasUser();
       let id = row.id;
       let _this = this;
       this.$confirm("此操作将永久删除该短信, 是否继续?", "提示", {
@@ -1186,6 +1172,7 @@ export default {
   },
   mounted() {
     this.init(this.npage, this.pagesize);
+    console.log(this.userInfo);
   }
 };
 </script>
@@ -1216,6 +1203,10 @@ export default {
   display: inline-block;
 
   width: 200px;
+}
+.flex {
+  display: flex;
+  justify-content: space-between;
 }
 </style>
 

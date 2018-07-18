@@ -69,6 +69,7 @@
 </template>
 
 <script>
+import { mapState, mapMutations } from "vuex";
 import { httpLogList } from "../../../service/http";
 export default {
   data() {
@@ -86,17 +87,48 @@ export default {
       multipleSelection: [] //全部选中嘛
     };
   },
+  computed: {
+    ...mapState(["userInfo"])
+  },
   methods: {
+    hasUser() {
+      if (
+        this.userInfo == "" &&
+        this.userInfo == null &&
+        this.userInfo == "undefined"
+      ) {
+        this.$message.error("当前登陆用户已失效，请重新登陆");
+        this.$router.push("/login");
+        return;
+      }
+    },
     getData(pageNum, pageSize) {
+      this.hasUser();
       let _this = this;
       httpLogList(pageNum, pageSize)
         .then(res => {
           let data = res.data;
-          _this.tableData = data.rows;
-          _this.total = data.total;
-          _this.loading = false;
+          if (data.code == 200) {
+            _this.tableData = data.data.list;
+            _this.total = data.data.total;
+            _this.loading = false;
+          } else if (data.code == 500) {
+            this.$message.error(data.msg);
+            this.$router.push("/login");
+          } else {
+            this.$message.error(data.msg);
+          }
         })
         .catch(err => {
+          console.log(err);
+          let data = err.response ? err.response.data : {};
+
+          if (data.message == "当前登陆用户已失效，请重新登陆") {
+            this.$message.error(data.message);
+            this.$router.push("/login");
+          } else {
+            this.$message.error("网络错误请联系管理员");
+          }
           _this.tableData = [];
           _this.loading = false;
         });

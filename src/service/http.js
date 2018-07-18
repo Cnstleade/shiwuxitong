@@ -437,7 +437,7 @@ export function httpLogList(pageNum,
     pageSize
   };
   return axios({
-    url: "/log/list",
+    url: "/log/logList",
     method: "post",
     headers: {
       'Content-type': 'application/x-www-form-urlencoded'
@@ -731,3 +731,54 @@ export function httpUpdateAffair(id, name, commissionUser, commissionUserId, com
 //     data: qs.stringify(data)
 //   })
 // }
+//事务信息管理 / 更新事务
+
+export function httpSendMarketMsg(oprator, sendDate, number, messageContent) {
+  let data = {
+    oprator,
+    sendDate,
+    number,
+    messageContent
+  };
+  return axios({
+    url: "/sms/sendMarketMsg",
+    method: "post",
+    headers: {
+      'Content-type': 'application/x-www-form-urlencoded'
+    },
+    data: qs.stringify(data)
+  })
+}
+
+//事务信息管理 / 得到用户角色
+
+export function httpUserRoleList(userId) {
+  let data = {
+    userId
+  };
+  return axios({
+    url: "/userRole/list",
+    method: "post",
+    headers: {
+      'Content-type': 'application/x-www-form-urlencoded'
+    },
+    data: qs.stringify(data)
+  })
+}
+
+//事务信息管理 / 得到用户角色
+
+export function httpUpdatePassword(oldpassword, newPassword) {
+  let data = {
+    oldpassword,
+    newPassword
+  };
+  return axios({
+    url: "/user/updatePassword",
+    method: "post",
+    headers: {
+      'Content-type': 'application/x-www-form-urlencoded'
+    },
+    data: qs.stringify(data)
+  })
+}

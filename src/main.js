@@ -8,6 +8,7 @@ import 'element-ui/lib/theme-chalk/index.css';
 import axios from 'axios';
 import Element from 'element-ui';
 import jQuery from 'jquery'
+import store from './store/'
 Vue.config.productionTip = false
 Vue.use(Element, {
   size: 'small',
@@ -16,9 +17,26 @@ Vue.use(Element, {
 Vue.prototype.$axios = axios;
 Vue.prototype.$jQuery = jQuery;
 /* eslint-disable no-new */
+router.beforeEach((to, from, next) => {
+  //NProgress.start();
+  if (to.path == '/login') {
+    sessionStorage.removeItem('hsjr_username');
+  }
+  let user = sessionStorage.getItem('hsjr_username');
+  if (!user && to.path != '/login') {
+    next({
+      path: '/login'
+    })
+  } else {
+    next()
+  }
+})
 new Vue({
   el: '#app',
   router,
-  components: { App },
+  store,
+  components: {
+    App
+  },
   template: '<App/>'
 })

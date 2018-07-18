@@ -55,6 +55,13 @@ export default new Router({
           }
         }, 
         {
+          path: '/passwordManagement',
+          component: resolve => require(['../components/page/systemManagement/passwordManagement.vue'], resolve),
+          meta: {
+            title: '密码修改'
+          }
+        },         
+        {
           path: '/role',
           component: resolve => require(['../components/page/systemManagement/authorityManagement.vue'], resolve),
           meta: {

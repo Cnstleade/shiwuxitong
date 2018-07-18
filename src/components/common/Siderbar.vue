@@ -93,9 +93,8 @@ export default {
   data() {
     return {
       collapse: false,
-      items: [
-      ],
-      arr:['url1','url2','affair']
+      items: [],
+      arr: ["url1", "url2", "affair"]
     };
   },
   computed: {
@@ -105,31 +104,42 @@ export default {
   },
   methods: {
     init() {
-      let username = localStorage.getItem("hsjr_username");
+      let username = sessionStorage.getItem("hsjr_username");
       let _this = this;
       httpGetUserMenu(username)
         .then(res => {
           let data = res.data;
           if (data.code == 200) {
             _this.items = data.data.children;
+          }else if (data.code == 500) {
+            this.$message.error(data.msg);
+            this.$router.push("/login");
           }
           console.log(_this.items);
         })
-        .catch();
+        .catch(err => {
+          let data = err.response ? err.response.data : {};
+
+          if (data.message == "当前登陆用户已失效，请重新登陆") {
+            this.$message.error(data.message);
+            this.$router.push("/login");
+          } else {
+            this.$message.error("网络错误请联系管理员");
+          }
+        });
     },
     getHttpGetCreditMenuList() {
       let _this = this;
     },
-      handleOpen(key, keyPath) {
-        console.log(key, keyPath);
-      },
-      handleClose(key, keyPath) {
-        console.log(key, keyPath);
-      }    
+    handleOpen(key, keyPath) {
+      console.log(key, keyPath);
+    },
+    handleClose(key, keyPath) {
+      console.log(key, keyPath);
+    }
   },
   mounted() {
     // this.getHttpGetCreditMenuList();
-    
   },
   created() {
     // 通过 Event Bus 进行组件间通信，来折叠侧边栏
@@ -154,8 +164,8 @@ export default {
   padding-left: 20px;
   min-width: 160px;
 }
-#sidebar .el-menu-item-group__title{
-  display:none;
+#sidebar .el-menu-item-group__title {
+  display: none;
 }
 #sidebar .el-upload--text {
   height: 36px;

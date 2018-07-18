@@ -123,6 +123,7 @@ import {
   httpMenuList,
   httpRoleMenu
 } from "../../../service/http";
+import { mapState, mapMutations } from "vuex";
 export default {
   data() {
     return {
@@ -164,27 +165,54 @@ export default {
       rolesCheck: []
     };
   },
+  computed: {
+    ...mapState(["userInfo"])
+  },
   methods: {
+    hasUser() {
+      if (
+        this.userInfo == "" &&
+        this.userInfo == null &&
+        this.userInfo == "undefined"
+      ) {
+        this.$message.error("当前登陆用户已失效，请重新登陆");
+        this.$router.push("/login");
+        return;
+      }
+    },
     _httpRoleDeletet(ids) {
+      this.hasUser();
       let _this = this;
       httpRoleDeletet(ids)
         .then(res => {
           let data = res.data;
-          if (data.code==200) {
+          if (data.code == 200) {
             _this.$message({
               message: data.msg,
               type: "success"
             });
+          } else if (data.code == 500) {
+            this.$message.error(data.msg);
+            this.$router.push("/login");
           } else {
             _this.$message.error(data.msg);
           }
           _this.getData(this.npage, this.pagesize);
         })
         .catch(err => {
-          _this.$message.error("网络错误");
+          let data = err.response ? err.response.data : {};
+
+          if (data.message == "当前登陆用户已失效，请重新登陆") {
+            this.$message.error(data.message);
+            this.$router.push("/login");
+          } else {
+            console.log(err);
+            this.$message.error("网络错误请联系管理员");
+          }
         });
     },
     _httpRoleMenu(id) {
+      this.hasUser();
       let _this = this;
       this.roles.length = 0;
       httpRoleMenu(id)
@@ -199,27 +227,74 @@ export default {
           }
           _this.dialogVisible2 = true;
         })
-        .catch();
+        .catch(err => {
+          let data = err.response ? err.response.data : {};
+
+          if (data.message == "当前登陆用户已失效，请重新登陆") {
+            this.$message.error(data.message);
+            this.$router.push("/login");
+          } else {
+            console.log(err);
+            this.$message.error("网络错误请联系管理员");
+          }
+        });
     },
     _httpMenuList() {
+      this.hasUser();
       let _this = this;
       httpMenuList()
         .then(res => {
           let data = res.data;
-          _this.MenuList = data;
+          if (data.code == 200) {
+            _this.MenuList = data.data.rows;
+          } else if (data.code == 500) {
+            this.$message.error(data.msg);
+            this.$router.push("/login");
+          } else {
+            this.$message.error(data.msg);
+          }
         })
-        .catch();
+
+        .catch(err => {
+          let data = err.response ? err.response.data : {};
+
+          if (data.message == "当前登陆用户已失效，请重新登陆") {
+            this.$message.error(data.message);
+            this.$router.push("/login");
+          } else {
+            console.log(err);
+            this.$message.error("网络错误请联系管理员");
+          }
+        });
     },
     getData(pageNum, pageSize) {
+      this.hasUser();
       let _this = this;
       httpRoleList(pageNum, pageSize)
         .then(res => {
           let data = res.data;
-          _this.tableData = data.rows;
-          _this.total = data.total;
-          _this.loading = false;
+          if (data.code == 200) {
+            _this.tableData = data.data.rows;
+            _this.total = data.data.total;
+            _this.loading = false;
+          } else if (data.code == 500) {
+            this.$message.error(data.msg);
+            this.$router.push("/login");
+          } else {
+            this.$message.error(data.msg);
+          }
+           this.getData(this.npage, this.pagesize);
         })
         .catch(err => {
+          let data = err.response ? err.response.data : {};
+
+          if (data.message == "当前登陆用户已失效，请重新登陆") {
+            this.$message.error(data.message);
+            this.$router.push("/login");
+          } else {
+            console.log(err);
+            this.$message.error("网络错误请联系管理员");
+          }
           _this.tableData = [];
           _this.loading = false;
         });
@@ -268,6 +343,9 @@ export default {
               });
               _this.dialogVisible1 = false;
               _this.getData(this.npage, this.pagesize);
+            } else if (data.code == 500) {
+              _this.$message.error(data.msg);
+              _this.$router.push("/login");
             } else {
               _this.$message.error(data.msg);
             }
@@ -297,6 +375,9 @@ export default {
                 type: "success"
               });
               _this.dialogVisible2 = false;
+            } else if (data.code == 500) {
+              this.$message.error(data.msg);
+              this.$router.push("/login");
             } else {
               _this.$message.error(data.msg);
             }
@@ -310,6 +391,7 @@ export default {
       }
     },
     handleDlete(index, row) {
+      this.hasUser();
       let id = row.roleId;
       let _this = this;
       this.$confirm("此操作将永久删除该角色, 是否继续?", "提示", {

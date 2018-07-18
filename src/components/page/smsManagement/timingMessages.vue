@@ -524,6 +524,7 @@
 
 <script>
 import axios from "axios";
+import { mapState, mapMutations } from "vuex";
 import { timeFormat } from "../../../config/time";
 import {
   httpSelectTable,
@@ -536,14 +537,15 @@ import {
 export default {
   computed: {
     username() {
-      let username = localStorage.getItem("hsjr_username");
+      let username = sessionStorage.getItem("hsjr_username");
       if (username != "" && username != null && username != "undefined") {
         this.name = username ? username : "";
         return username ? username : "";
       } else {
         this.$router.push("/login");
       }
-    }
+    },
+    ...mapState(["userInfo"])
   },
   data() {
     var validateUsername = (rule, value, callback) => {
@@ -703,8 +705,19 @@ export default {
     };
   },
   methods: {
+    hasUser() {
+      if (
+        this.userInfo == "" &&
+        this.userInfo == null &&
+        this.userInfo == "undefined"
+      ) {
+        this.$message.error("当前登陆用户已失效，请重新登陆");
+        this.$router.push("/login");
+        return;
+      }
+    },
     _getName() {
-      let username = localStorage.getItem("hsjr_username");
+      let username = sessionStorage.getItem("hsjr_username");
       if (username != "" && username != null && username != "undefined") {
         return username ? username : "";
       } else {
@@ -717,7 +730,14 @@ export default {
           console.log(res);
         })
         .catch(err => {
-          this.$message.error("网络错误请联系管理员");
+          let data = err.response ? err.response.data : {};
+
+          if (data.message == "当前登陆用户已失效，请重新登陆") {
+            this.$message.error(data.message);
+            this.$router.push("/login");
+          } else {
+            this.$message.error("网络错误请联系管理员");
+          }
         });
     },
     //得到短信详情
@@ -731,7 +751,14 @@ export default {
           this.dialogVisible3 = true;
         })
         .catch(err => {
-          this.$message.error("网络错误请联系管理员");
+          let data = err.response ? err.response.data : {};
+
+          if (data.message == "当前登陆用户已失效，请重新登陆") {
+            this.$message.error(data.message);
+            this.$router.push("/login");
+          } else {
+            this.$message.error("网络错误请联系管理员");
+          }
         });
     },
     //新增修改用户
@@ -750,7 +777,7 @@ export default {
       messageType,
       signature
     ) {
-      console.log("+++++++++++++");
+      this.hasUser();
       httpUpdateMessageAll(
         Id,
         senddatetime,
@@ -781,8 +808,14 @@ export default {
           }
         })
         .catch(err => {
-          console.log(err);
-          this.$message.error("网络错误请联系管理员");
+          let data = err.response ? err.response.data : {};
+
+          if (data.message == "当前登陆用户已失效，请重新登陆") {
+            this.$message.error(data.message);
+            this.$router.push("/login");
+          } else {
+            this.$message.error("网络错误请联系管理员");
+          }
         });
     },
     init(
@@ -793,6 +826,7 @@ export default {
       messageContent,
       sendPlatform
     ) {
+      this.hasUser();
       let _this = this;
       this.loading = true;
       httpSelectTable(
@@ -805,14 +839,27 @@ export default {
       )
         .then(res => {
           let data = res.data;
+          if (data.code == 200) {
+            _this.tableData = data.data.rows;
+            _this.total = data.data.total;
 
-          _this.tableData = data.rows;
-          _this.total = data.total;
-
-          _this.loading = false;
+            _this.loading = false;
+          } else if (data.code == 500) {
+            this.$message.error(data.msg);
+            this.$router.push("/login");
+          } else {
+            this.$message.error(data.msg);
+          }
         })
         .catch(err => {
-          _this.$message.error("网络错误");
+          let data = err.response ? err.response.data : {};
+
+          if (data.message == "当前登陆用户已失效，请重新登陆") {
+            this.$message.error(data.message);
+            this.$router.push("/login");
+          } else {
+            this.$message.error("网络错误请联系管理员");
+          }
           _this.loading = false;
         });
     },
@@ -864,11 +911,15 @@ export default {
       axios
         .post("/readExcel", fd, {})
         .then(res => {
+          let data = res.data;
           if (data.code == 200) {
             this.$message({
               message: data.msg,
               type: "success"
             });
+          } else if (data.code == 500) {
+            this.$message.error(data.msg);
+            this.$router.push("/login");
           } else {
             this.$message.error("上传文件有误请先下载模板");
           }
@@ -912,6 +963,7 @@ export default {
     },
     //提交更新修改
     onSubmit(formName) {
+      this.hasUser();
       if (formName == "ruleForm3") {
         if (this.ruleForm3.now) {
           this._httpUpdateMessageAll(
@@ -1042,7 +1094,14 @@ export default {
           _this.init(this.npage, this.pagesize);
         })
         .catch(err => {
-          _this.$message.error("网络错误");
+          let data = err.response ? err.response.data : {};
+
+          if (data.message == "当前登陆用户已失效，请重新登陆") {
+            this.$message.error(data.message);
+            this.$router.push("/login");
+          } else {
+            this.$message.error("网络错误请联系管理员");
+          }
         });
     },
     //批量选择

@@ -556,6 +556,7 @@
 </template>
 
 <script>
+import { mapState, mapMutations } from "vuex";
 import axios from "axios";
 import {
   httpSelectAffairTable,
@@ -678,7 +679,7 @@ export default {
         money: "",
         desc: ""
       },
-      reportData: [{ affairName: 1 }],
+      reportData: [],
       reporNpage: 0,
       reporPageSize: 5,
       reportTotal: 0,
@@ -733,7 +734,29 @@ export default {
       }
     };
   },
+  watch: {
+    userInfo(val, oldVal) {
+      console.log(val, oldVal);
+    }
+  },
+  computed: {
+    ...mapState(["userInfo"]),
+    getUserIcons() {
+      return this.$store.state.userInfo;
+    }
+  },
   methods: {
+    hasUser() {
+      if (
+        this.userInfo == "" &&
+        this.userInfo == null &&
+        this.userInfo == "undefined"
+      ) {
+        this.$message.error("当前登陆用户已失效，请重新登陆");
+        this.$router.push("/login");
+        return;
+      }
+    },
     //事务完成
     _httpInsertAffairLogging(
       affairId,
@@ -743,6 +766,7 @@ export default {
       money,
       discription
     ) {
+      this.hasUser();
       httpInsertAffairLogging(
         affairId,
         transatorId,
@@ -758,18 +782,26 @@ export default {
               message: data.msg,
               type: "success"
             });
-            console.log(data);
+        
             this.resetForm("ruleForm4");
-            this.dialogVisible2 = false;
-            this.dialogVisible1 = false;
+            this.dialogVisible4 = false;
             this.init(this.npage, this.pagesize);
+          } else if (data.code == 500) {
+            this.$message.error(data.msg);
+            this.$router.push("/login");
           } else {
             this.$message.error(data.msg);
           }
         })
         .catch(err => {
-          console.log(err);
-          this.$message.error("网络错误请联系管理员");
+          let data = err.response ? err.response.data : {};
+
+          if (data.message == "当前登陆用户已失效，请重新登陆") {
+            this.$message.error(data.message);
+            this.$router.push("/login");
+          } else {
+            this.$message.error("网络错误请联系管理员");
+          }
         });
     },
     //新增修改用户
@@ -784,6 +816,7 @@ export default {
       commissionAddres,
       mobile
     ) {
+      this.hasUser();
       httpInsertAffair(
         name,
         commissionUser,
@@ -806,13 +839,22 @@ export default {
             this.dialogVisible2 = false;
             this.dialogVisible1 = false;
             this.init(this.npage, this.pagesize);
+          } else if (data.code == 500) {
+            this.$message.error(data.msg);
+            this.$router.push("/login");
           } else {
             this.$message.error(data.msg);
           }
         })
         .catch(err => {
-          console.log(err);
-          this.$message.error("网络错误请联系管理员");
+          let data = err.response ? err.response.data : {};
+
+          if (data.message == "当前登陆用户已失效，请重新登陆") {
+            this.$message.error(data.message);
+            this.$router.push("/login");
+          } else {
+            this.$message.error("网络错误请联系管理员");
+          }
         });
     },
     //新增修改用户
@@ -828,7 +870,7 @@ export default {
       commissionAddres,
       mobile
     ) {
-      console.log("+++++++++++++");
+      this.hasUser();
       httpUpdateAffair(
         id,
         name,
@@ -843,9 +885,9 @@ export default {
       )
         .then(res => {
           let data = res.data;
-          if (data.status == 200) {
+          if (data.code == 200) {
             this.$message({
-              message: data.messager,
+              message: data.msg,
               type: "success"
             });
             console.log(data);
@@ -853,18 +895,28 @@ export default {
             this.dialogVisible2 = false;
             this.dialogVisible1 = false;
             this.init(this.npage, this.pagesize);
+          } else if (data.code == 500) {
+            this.$message.error(data.msg);
+            this.$router.push("/login");
           } else {
-            this.$message.error(data.messager);
+            this.$message.error(data.msg);
           }
         })
         .catch(err => {
-          console.log(err);
-          this.$message.error("网络错误请联系管理员");
+          let data = err.response ? err.response.data : {};
+
+          if (data.message == "当前登陆用户已失效，请重新登陆") {
+            this.$message.error(data.message);
+            this.$router.push("/login");
+          } else {
+            this.$message.error("网络错误请联系管理员");
+          }
         });
     },
     init(pageNum, pageSize, name, type, createTime, commissionTime) {
       let _this = this;
       this.loading = true;
+      this.hasUser();
       httpSelectAffairTable(
         pageNum,
         pageSize,
@@ -875,26 +927,55 @@ export default {
       )
         .then(res => {
           let data = res.data;
-          _this.tableData = data.rows;
-          for (let a = 0; a < _this.tableData.length; a++) {
-            _this.tableData[a].commissionName = data.commissionName[a];
-            _this.tableData[a].creatName = data.creatName[a];
-          }
 
-          _this.total = data.total;
-          _this.loading = false;
+          if (data.code == 200) {
+            _this.tableData = data.data.rows;
+            for (let a = 0; a < _this.tableData.length; a++) {
+              _this.tableData[a].commissionName = data.data.commissionName[a];
+              _this.tableData[a].creatName = data.data.creatName[a];
+            }
+            console.log(_this.tableData);
+            _this.total = data.data.total;
+            _this.loading = false;
+          } else if (data.code == 500) {
+            this.$message.error(data.msg);
+            this.$router.push("/login");
+          } else {
+            _this.loading = false;
+            this.$message.error(data.msg);
+          }
         })
-        .catch();
+        .catch(err => {
+          let data = err.response ? err.response.data : {};
+
+          if (data.message == "当前登陆用户已失效，请重新登陆") {
+            this.$message.error(data.message);
+            this.$router.push("/login");
+          } else {
+            this.$message.error("网络错误请联系管理员");
+          }
+        });
     },
     //得到代办人
     _httpUserNamelist() {
       let _this = this;
+      this.hasUser();
       httpUserNamelist()
         .then(res => {
           let data = res.data;
+          _this.tableData = data.rows;
           _this.jbr = data;
         })
-        .catch();
+        .catch(err => {
+          let data = err.response ? err.response.data : {};
+
+          if (data.message == "当前登陆用户已失效，请重新登陆") {
+            this.$message.error(data.message);
+            this.$router.push("/login");
+          } else {
+            this.$message.error("网络错误请联系管理员");
+          }
+        });
     },
     submitUpload() {
       this.$refs.upload.submit();
@@ -919,6 +1000,7 @@ export default {
       );
     },
     onSubmit3() {
+      this.hasUser();
       let _this = this;
       this.$refs["ruleForm4"].validate(valid => {
         if (valid) {
@@ -936,6 +1018,7 @@ export default {
       });
     },
     onSubmit1() {
+      this.hasUser();
       let _this = this;
       let jbrId;
       console.log(this.jbr);
@@ -967,6 +1050,7 @@ export default {
       });
     },
     onSubmit2() {
+      this.hasUser();
       let _this = this;
       let jbrId;
       console.log(this.jbr);
@@ -1015,6 +1099,7 @@ export default {
       this.multipleSelection = val;
     },
     handleEdit(index, row) {
+      this.hasUser();
       console.log(JSON.stringify(row));
 
       // this.ruleForm3 = JSON.parse(JSON.stringify(row));
@@ -1052,13 +1137,31 @@ export default {
       httpSelectAffairLogging(affairId, pageNum, pageSize)
         .then(res => {
           let data = res.data;
-          _this.reportData = data.rows;
-          _this.reportTotal = data.total;
+          if (data.code == 200) {
+            //  _this.tableData = data.data.rows;
+            _this.reportData = data.data.rows;
+            _this.reportTotal = data.total;
+          } else if (data.code == 500) {
+            this.$message.error(data.msg);
+            this.$router.push("/login");
+          } else {
+            this.$message.error(data.msg);
+          }
         })
-        .catch();
+        .catch(err => {
+          let data = err.response ? err.response.data : {};
+
+          if (data.message == "当前登陆用户已失效，请重新登陆") {
+            this.$message.error(data.message);
+            this.$router.push("/login");
+          } else {
+            this.$message.error("网络错误请联系管理员");
+          }
+        });
     },
     //展示日志
     handleShow(index, row) {
+      this.hasUser();
       let affairId = row.id;
       this._httpSelectAffairLogging(
         row.id,
@@ -1069,6 +1172,7 @@ export default {
     },
     //完成事务
     handleTrue(index, row) {
+      this.hasUser();
       console.log(JSON.stringify(row));
       this.dialogVisible4 = true;
       this.ruleForm4 = {
