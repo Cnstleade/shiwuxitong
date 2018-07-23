@@ -7,16 +7,18 @@
               type="info">
             </el-alert>           
         </el-row>   
-        <el-row class="m20" >
-            <el-col :span="2">
-                    <el-button  icon="el-icon-plus" type="primary" @click="dialogVisible1=true,resetForm" >新增</el-button>
-            </el-col>
-            <el-col :span="2" >
-                  <el-button  type="danger" @click="download">下载模板</el-button>
-            </el-col> 
-            <el-col :span="4" >                            
+        <el-row class="m20 col-flex-end"  >
+                  <div style="flex-grow:1" class="l20">
+                    <el-button   icon="el-icon-plus" type="primary" @click="dialogVisible1=true,resetForm" >新增</el-button>
+
+                  </div>
+        
+
+                  <el-button  class="l20 " type="danger" @click="download">下载模板</el-button>
+      
+            <div class="l20">                            
                   <el-upload
-                    class="upload-demo"
+                    class="upload-demo flex"
                     ref="upload"
                     action="123"
                     :before-upload="beforeAvatarUpload"
@@ -28,9 +30,10 @@
                     <el-button style="margin-left: 10px;" size="small" type="success" @click="submitUpload">上传到服务器</el-button>
                     <!-- <div slot="tip" class="el-upload__tip">上传格式为"txt"或"xsl"文件</div> -->
                   </el-upload>                
-            </el-col>             
-            <el-col :span="16"   class="col-flex-end">
-                    <el-button  type="primary" @click="reset">重置</el-button>
+            </div>   
+               
+         
+                    <el-button  class="l20" type="primary" style="margin-left:10px" @click="reset">重置</el-button>
                     <div class="l20">
                         <el-input
                         style="padding:0px 10px 0px 0px"
@@ -64,7 +67,7 @@
                       </el-option>
                     </el-select>                                                                            
                     <el-button @click="handleSearch" class="l20" style="margin-left:20px" icon="el-icon-search"  type="success" circle></el-button>                                                                  
-            </el-col>             
+            
         </el-row>
         <el-table
             :data="tableData"  
@@ -109,14 +112,26 @@
             </el-table-column>
             <el-table-column prop="reciverName" label="接收人姓名" align="center" width="100" ></el-table-column>
             <!-- <el-table-column prop="senderName" label="创建人" align="center" width="100" ></el-table-column> -->
-          <el-table-column prop="messageContent" label="消息内容" align="center" min-width='300' ></el-table-column>            
-            <el-table-column prop="remarks" label="备注" align="center" width='200' ></el-table-column>
+          <el-table-column prop="messageContent" label="消息内容" align="center" min-width='300' >
+                          <template slot-scope="scope">
+                          <el-tooltip class="item" effect="dark" :content="scope.row.messageContent" placement="top">
+                              <span>{{scope.row.messageContent}}</span>
+                          </el-tooltip>
+                    </template> 
+          </el-table-column>            
+            <el-table-column prop="remarks" label="备注" align="center" width='200' >
+                         <template slot-scope="scope">
+                          <el-tooltip class="item" effect="dark" :content="scope.row.remarks" placement="top">
+                              <span>{{scope.row.remarks}}</span>
+                          </el-tooltip>
+                    </template> 
+            </el-table-column>
             <!-- <el-table-column prop="sendPlatform" label="发送平台" align="center"  width="100" 
-             :filters="[{ text: '华信', value: '1' }, { text: '创南', value: '2' }]" :filter-method="filterSendPlatform" filter-placement="bottom-end"
+             :filters="[{ text: '华信', value: '1' }, { text: '创蓝', value: '2' }]" :filter-method="filterSendPlatform" filter-placement="bottom-end"
                     >
                     <template slot-scope="scope">
                         <el-tag style="margin-left: 10px" :type="scope.row.sendPlatform ===1?'success':'danger'">
-                          {{ scope.row.sendPlatform ===1?'华信':'创南' }}
+                          {{ scope.row.sendPlatform ===1?'华信':'创蓝' }}
                         </el-tag>
                     </template> 
 
@@ -401,11 +416,11 @@
           <el-table-column prop="sendTimes" label="发送次数" align="center" width='80'></el-table-column>                    
             <!-- <el-table-column prop="senderName" label="备注" align="center" ></el-table-column> -->
             <el-table-column prop="sendPlatform" label="发送平台" align="center"   
-             :filters="[{ text: '华信', value: '1' }, { text: '创南', value: '2' }]" :filter-method="filterSendPlatform" filter-placement="bottom-end"
+             :filters="[{ text: '华信', value: '1' }, { text: '创蓝', value: '2' }]" :filter-method="filterSendPlatform" filter-placement="bottom-end"
                     >
                     <template slot-scope="scope">
                         <el-tag style="margin-left: 10px" :type="scope.row.sendPlatform ===1?'success':'danger'">
-                          {{ scope.row.sendPlatform ===1?'华信':'创南' }}
+                          {{ scope.row.sendPlatform ===1?'华信':'创蓝' }}
                         </el-tag>
                     </template> 
 
@@ -455,7 +470,7 @@
                  <strong style="display:inline-block;width:80px;margin-right:20px">消息内容:</strong> <i>{{DetailtableData[0].messageContent}}</i> 
             </el-card> 
             <el-card shadow="hover" class="m20" v-if="DetailtableData[0]">
-                 <strong style="display:inline-block;width:80px;margin-right:20px">备注:</strong><i>{{DetailtableData[0].senderName}}</i> 
+                 <strong style="display:inline-block;width:80px;margin-right:20px">备注:</strong><i>{{DetailtableData[0].remarks}}</i> 
             </el-card>               
             <!-- <el-card shadow="hover" class="m20">
                  <strong style="margin-right:20px">备注:</strong> {{DetailtableData[0].messageContent}}
@@ -493,11 +508,11 @@
               
             </el-table-column>           -->
             <!-- <el-table-column prop="sendPlatform" label="发送平台" align="center"  
-             :filters="[{ text: '华信', value: '1' }, { text: '创南', value: '2' }]" :filter-method="filterSendPlatform" filter-placement="bottom-end"
+             :filters="[{ text: '华信', value: '1' }, { text: '创蓝', value: '2' }]" :filter-method="filterSendPlatform" filter-placement="bottom-end"
                     >
                     <template slot-scope="scope">
                         <el-tag style="margin-left: 10px" :type="scope.row.sendStatus ===1?'success':'danger'">
-                          {{ scope.row.sendPlatform ===1?'华信':'创南' }}
+                          {{ scope.row.sendPlatform ===1?'华信':'创蓝' }}
                         </el-tag>
                     </template> 
 
@@ -628,7 +643,7 @@ export default {
         { label: "失败重发中", value: 4 },
         { label: "撤销", value: 5 }
       ],
-      sendPlatform: [{ label: "华信", value: 1 }, { label: "创南", value: 2 }],
+      sendPlatform: [{ label: "华信", value: 1 }, { label: "创蓝", value: 2 }],
       messageType: [
         { label: "下款", value: 1 },
         { label: "还款", value: 2 },
@@ -746,8 +761,8 @@ export default {
       httpFindMessageRecording(this.showNpage, this.showPageSize, id)
         .then(res => {
           let data = res.data;
-          this.showTotal = data.total;
-          this.showData = data.rows;
+          this.showTotal = data.data.total;
+          this.showData = data.data.rows;
           this.dialogVisible3 = true;
         })
         .catch(err => {
@@ -1126,7 +1141,7 @@ export default {
         .catch(() => {
           this.$message({
             type: "info",
-            message: "网络错误已取消删除"
+            message: "已取消删除"
           });
         });
     },
@@ -1150,7 +1165,7 @@ export default {
     },
     //download
     download() {
-      window.open("http://paxfivrd0.bkt.clouddn.com/AperiodiMessage.xls");
+      window.open("http://paxfivrd0.bkt.clouddn.com/EXCEL20180720154813186.xls");
     },
     handleShow(index, row) {
       this.currentId = "";

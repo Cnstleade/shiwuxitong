@@ -137,7 +137,7 @@ export default {
       //   })
       //   .catch();
       let _this = this;
-      this.$jQuery.get("http://localhost:8088/gifCode", function(result) {
+      this.$jQuery.get("http://47.88.171.117:8088/gifCode", function(result) {
         _this.gifCode = result;
       });
     },

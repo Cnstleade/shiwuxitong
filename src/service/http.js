@@ -4,9 +4,9 @@ var qs = require('qs');
 
 //axios 配置
 axios.defaults.timeout = 5000;
-axios.defaults.baseURL = 'http://localhost:8088'; //本地服务器
+// axios.defaults.baseURL = 'http://localhost:8088'; //本地服务器
 //axios.defaults.baseURL = 'http://192.168.2.103:8088'; //本地服务器
-//axios.defaults.baseURL = 'http://47.88.171.117:8088'; //本地服务器
+axios.defaults.baseURL = 'http://47.88.171.117:8088'; //本地服务器
 
 //   /*密码修改*/
 //   modifyPassword: '/user/updatePassword',
@@ -430,10 +430,10 @@ export function httpApmsgDeleteData(ids) {
 
 // 日志管理
 
-export function httpLogList(pageNum,
+export function httpLogList(pageNumber,
   pageSize) {
   let data = {
-    pageNum,
+    pageNumber,
     pageSize
   };
   return axios({
@@ -653,7 +653,7 @@ export function httpSmsDelete(id) {
 
 //事务信息管理 / 更新事务
 
-export function httpInsertAffair(name, commissionUser, commissionUserId, commissionTime, sendTime, type, stop, commissionAddres, mobile) {
+export function httpInsertAffair(name, commissionUser, commissionUserId, commissionTime, sendTime, type, stop, commissionAddres, mobile, endDate, startDate) {
   let data = {
     name,
     commissionUser,
@@ -663,7 +663,9 @@ export function httpInsertAffair(name, commissionUser, commissionUserId, commiss
     type,
     stop,
     commissionAddres,
-    mobile
+    mobile,
+    endDate,
+    startDate
   };
   return axios({
     url: "/insertAffair",
@@ -688,7 +690,7 @@ export function httpInsertAffair(name, commissionUser, commissionUserId, commiss
 
 //事务信息管理 / 更新事务
 
-export function httpUpdateAffair(id, name, commissionUser, commissionUserId, commissionTime, sendTime, type, stop, commissionAddres, mobile) {
+export function httpUpdateAffair(id, name, commissionUser, commissionUserId, commissionTime, sendTime, type, stop, commissionAddres, mobile, endDate, startDate) {
   let data = {
     id,
     name,
@@ -699,7 +701,9 @@ export function httpUpdateAffair(id, name, commissionUser, commissionUserId, com
     type,
     stop,
     commissionAddres,
-    mobile
+    mobile,
+    endDate,
+    startDate
   };
   return axios({
     url: "/updateAffair",

@@ -5,7 +5,9 @@ import Router from 'vue-router'
 Vue.use(Router)
 
 export default new Router({
-  routes: [{
+  // mode:'history',
+  routes: [
+    {
       path: '/',
       redirect: '/login'
     },
@@ -95,6 +97,18 @@ export default new Router({
       path: '/login',
       component: resolve => require(['../components/page/Login.vue'], resolve)
     },
+    {
+      path: '/404',
+      component: resolve => require(['../components/page/404.vue'], resolve)
+    },
+    {
+      path: '/403',
+      component: resolve => require(['../components/page/403.vue'], resolve)
+    },
+    {
+      path: '*',
+      redirect: '/404'
+    }    
   ]
 
 })

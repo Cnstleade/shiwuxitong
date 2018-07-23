@@ -21,16 +21,25 @@
             class="m20"
             @selection-change="handleSelectionChange"
             v-loading="loading"
-            id="eleTable"
+            id="text"
           >
+                   <el-table-column
+              type="index"
+              align="center"
+              width="55">
+            </el-table-column>    
             <el-table-column prop="roleName" label="角色名称" align="center" width="180"  >
    
             </el-table-column>
-            <el-table-column prop="createTime" label="创建时间" align="center" width="220" sortable>
+            <el-table-column prop="createTime" label="创建时间" align="center" width="160" sortable>
    
             </el-table-column>               
-            <el-table-column prop="remark" label="描述" align="center"  >
-   
+            <el-table-column prop="remark" label="描述" align="center" min-width="200" >
+                      <template slot-scope="scope">
+                          <el-tooltip class="item" effect="dark" :content="scope.row.remark" placement="top">
+                              <span>{{scope.row.remark}}</span>
+                          </el-tooltip>
+                    </template> 
             </el-table-column>
                 <el-table-column prop="cz"  align="center" label="操作"   width="260">
                     <template slot-scope="scope">
@@ -127,7 +136,7 @@ import { mapState, mapMutations } from "vuex";
 export default {
   data() {
     return {
-      title: "日志列表",
+      title: "权限管理",
       search: {
         input: "",
         time: ""
@@ -283,7 +292,6 @@ export default {
           } else {
             this.$message.error(data.msg);
           }
-           this.getData(this.npage, this.pagesize);
         })
         .catch(err => {
           let data = err.response ? err.response.data : {};
@@ -327,7 +335,9 @@ export default {
       if (formName == "ruleForm") {
         this.$jQuery.ajax({
           type: "post",
-          url: "http://localhost:8088/role/add",
+        //  url: "http://localhost:8088/role/add",
+           url: "http://47.88.171.117:8088/role/add",
+
           data: {
             roleName: this.ruleForm.username,
             remark: this.ruleForm.description,
@@ -359,7 +369,8 @@ export default {
       } else {
         this.$jQuery.ajax({
           type: "post",
-          url: "http://localhost:8088/role/update",
+        //  url: "http://localhost:8088/role/update",
+           url: "http://47.88.171.117:8088/role/update",
           data: {
             roleId: this.ruleForm2.roleId,
             roleName: this.ruleForm2.roleName,
@@ -406,7 +417,7 @@ export default {
         .catch(() => {
           this.$message({
             type: "info",
-            message: "网络错误已取消删除"
+            message: "已取消删除"
           });
         });
     },
@@ -434,5 +445,10 @@ export default {
 <style>
 #xzjs .el-checkbox-group label {
   margin-left: 20px;
+}
+#text .cell {
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  overflow: hidden;
 }
 </style>

@@ -7,10 +7,13 @@
               type="info">
             </el-alert>           
         </el-row>  
-        <el-row class="m20" >
-            <el-col :span="4" >                            
+        <el-row class="m20  col-flex-end" >
+          
+
+        
+            <div >                            
                   <el-upload
-                    class="upload-demo"
+                    class="upload-demo flex"
                     ref="upload"
                     action="123"
                     :before-upload="beforeAvatarUpload"
@@ -22,11 +25,11 @@
                     <el-button style="margin-left: 10px;" size="small" type="success" @click="submitUpload">上传到服务器</el-button>
                     <!-- <div slot="tip" class="el-upload__tip">上传格式为"txt"或"xsl"文件</div> -->
                   </el-upload>                
-            </el-col>   
-            <el-col :span="4">
-                    <el-button style="margin-left: 10px;" size="small" type="success" @click="dialogVisible1=true">批量发送短信</el-button>
-            </el-col>        
-            <el-col :span="16"  class="col-flex-end">
+            </div>   
+           
+              <el-button style="margin-left: 10px;" size="small" type="success" @click="dialogVisible1=true">批量发送短信</el-button>
+            
+            
                     <!-- <el-button-group>
                       <el-button :type="execeedtimeType==0?'info':''" @click="changeExeceedtimeType(0)">重置</el-button>
                       <el-button :type="execeedtimeType==1?'primary':''" @click="changeExeceedtimeType(1)">M1</el-button>
@@ -77,7 +80,7 @@
       placeholder="选择日期">
     </el-date-picker>                    
                     <el-button @click="handleSearch" class="l20" style="margin-left:20px" icon="el-icon-search"  type="success" circle></el-button>                                                                  
-            </el-col>             
+                    
         </el-row> 
         <el-table
             :data="tableData"  
@@ -93,11 +96,11 @@
  <el-table-column prop="id" label="编号" align="center" sortable></el-table-column>
             <el-table-column prop="messageContent" label="发送内容" align="center" ></el-table-column>
             <el-table-column prop="sendPlatform" label="发送平台" align="center" 
-             :filters="[{ text: '华信', value: '1' }, { text: '创南', value: '2' }]" :filter-method="filterSendPlatform" filter-placement="bottom-end"
+             :filters="[{ text: '华信', value: '1' }, { text: '创蓝', value: '2' }]" :filter-method="filterSendPlatform" filter-placement="bottom-end"
                     >
                     <template slot-scope="scope">
                         <el-tag style="margin-left: 10px" :type="scope.row.sendStatus ===1?'success':'danger'">
-                          {{ scope.row.sendPlatform ===1?'华信':'创南' }}
+                          {{ scope.row.sendPlatform ===1?'华信':'创蓝' }}
                         </el-tag>
                     </template> 
 
@@ -209,7 +212,7 @@ export default {
       ruleForm: {},
       tableData: [],
       fileList: [],
-      sendPlatform: [{ label: "华信", value: 2 }, { label: "创南", value: 1 }],
+      sendPlatform: [{ label: "华信", value: 2 }, { label: "创蓝", value: 1 }],
       loading: true,
       npage: 1,
       pagesize: 10,

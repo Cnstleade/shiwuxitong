@@ -66,6 +66,11 @@
             v-loading="loading"
             id="eleTable"
           >
+                   <el-table-column
+              type="index"
+              align="center"
+              width="55">
+            </el-table-column>    
             <el-table-column prop="username" label="用户名" align="center" width="180" >
             </el-table-column>
             <el-table-column prop="staffName" label="真实姓名" align="center" width="180" >
@@ -301,7 +306,7 @@ export default {
 
     var validateMobile = (rule, value, callback) => {
       if (value != null && value != "") {
-        var reg = /^1(3|4|5|7|8)\d{9}$/;
+        var reg = /^(13[0-9]|14[5|7]|15[0|1|2|3|5|6|7|8|9]|18[0|1|2|3|5|6|7|8|9]|19[0|1|2|3|5|6|7|8|9])\d{8}$/;
         if (!reg.test(value)) {
           return callback(new Error("请输入正确手机号码！"));
         } else {
@@ -429,6 +434,7 @@ export default {
           }
         })
         .catch(err => {
+          console.log(err);
           let data = err.response ? err.response.data : {};
 
           if (data.message == "当前登陆用户已失效，请重新登陆") {
@@ -447,9 +453,7 @@ export default {
         .then(res => {
           let data = res.data;
           if (data.code == 200) {
-     
-          _this.MenuList = data.data.rows;
-
+            _this.MenuList = data.data.rows;
           } else if (data.code == 500) {
             this.$message.error(data.msg);
             this.$router.push("/login");
@@ -457,12 +461,13 @@ export default {
             this.$message.error(data.msg);
           }
           this.init(this.npage, this.pagesize);
-        })      
-        .then(res => {
-          let data = res.data;
-          _this.MenuList = data.rows;
         })
+        // .then(res => {
+        //   let data = res.data;
+        //   _this.MenuList = data.rows;
+        // })
         .catch(err => {
+          console.log(err);
           let data = err.response ? err.response.data : {};
 
           if (data.message == "当前登陆用户已失效，请重新登陆") {
@@ -495,6 +500,7 @@ export default {
           }
         })
         .catch(err => {
+          console.log(err);
           let data = err.response ? err.response.data : {};
 
           if (data.message == "当前登陆用户已失效，请重新登陆") {
@@ -514,9 +520,17 @@ export default {
       httpDeptNameList()
         .then(res => {
           let data = res.data;
-          _this.DeptNameList = data;
+          if (data.code == 200) {
+            _this.DeptNameList = data.data;
+          } else if (data.code == 500) {
+            this.$message.error(data.msg);
+            this.$router.push("/login");
+          } else {
+            this.$message.error(data.msg);
+          }
         })
         .catch(err => {
+          console.log(err);
           let data = err.response ? err.response.data : {};
 
           if (data.message == "当前登陆用户已失效，请重新登陆") {
@@ -562,7 +576,8 @@ export default {
       if (formName == "ruleForm2") {
         this.$jQuery.ajax({
           type: "post",
-          url: "http://localhost:8088/user/add",
+        //  url: "http://localhost:8088/user/add",
+           url: "http://47.88.171.117:8088/user/add",
           data: {
             username: _this.ruleForm2.username,
             password: _this.ruleForm2.password,
@@ -584,6 +599,7 @@ export default {
                 type: "success"
               });
               _this.dialogVisible1 = false;
+              _this.init(this.npage, this.pagesize);
             } else if (data.code == 500) {
               this.$message.error(data.msg);
               this.$router.push("/login");
@@ -608,7 +624,8 @@ export default {
       } else {
         this.$jQuery.ajax({
           type: "post",
-          url: "http://localhost:8088/user/update",
+        //  url: "http://localhost:8088/user/update",
+           url: "http://47.88.171.117:8088/user/update",
           data: {
             id: _this.ruleForm3.id,
             username: _this.ruleForm3.username,
@@ -714,6 +731,7 @@ export default {
           }
         })
         .catch(err => {
+          console.log(err);
           let data = err.response ? err.response.data : {};
 
           if (data.message == "当前登陆用户已失效，请重新登陆") {

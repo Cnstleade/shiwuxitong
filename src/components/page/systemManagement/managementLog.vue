@@ -16,7 +16,7 @@
             class="m20"
             @selection-change="handleSelectionChange"
             v-loading="loading"
-            id="eleTable"
+            id="text"
           >
                  <el-table-column prop="id" label="编号" align="center" width="80" sortable>
    
@@ -24,14 +24,22 @@
             <el-table-column prop="username" label="操作用户" align="center" width="160"  sortable>
    
             </el-table-column>
-            <el-table-column prop="operation" label="描述" align="center"  >
-   
+            <el-table-column prop="operation" label="描述" align="center"  min-width="150">
+                    <template slot-scope="scope">
+                          <el-tooltip class="item" effect="dark" :content="scope.row.operation" placement="top">
+                              <span>{{scope.row.operation}}</span>
+                          </el-tooltip>
+                    </template> 
             </el-table-column>
             <el-table-column prop="time" label="耗时（毫秒）" align="center" width="120" sortable>
    
             </el-table-column>
-            <el-table-column prop="method" label="操作方法" align="center"  width="400">
-   
+            <el-table-column prop="method" label="操作方法" align="center"  min-width="400">
+                     <template slot-scope="scope">
+                          <el-tooltip class="item" effect="dark" :content="scope.row.method" placement="top">
+                              <span>{{scope.row.method}}</span>
+                          </el-tooltip>
+                    </template> 
             </el-table-column>
             <el-table-column prop="ip" label="登陆IP地址" align="center" width="140"  >
    
@@ -147,7 +155,7 @@ export default {
     },
     reset() {
       this.search = null;
-      this.getData();
+      this.getData(this.npage, this.pagesize);
     },
     handleSelectionChange(val) {
       this.multipleSelection = val;
@@ -155,9 +163,15 @@ export default {
   },
   mounted() {
     this.getData(this.npage, this.pagesize);
+    console.log(1);
   }
 };
 </script>
 
 <style>
+#text .cell {
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  overflow: hidden;
+}
 </style>

@@ -65,6 +65,7 @@
             class="m20"
               v-loading="loading"
             @selection-change="handleSelectionChange"
+            id="text"
           >
             <el-table-column
               type="index"
@@ -74,13 +75,25 @@
         
             <el-table-column prop="creatName" label="创建人" align="center"   ></el-table-column>
             <el-table-column prop="commissionName" label="待办人" align="center"   ></el-table-column>
-            <el-table-column prop="name" label="事务名称" align="center"   ></el-table-column>
-            <el-table-column prop="commissionAddres" label="待办地址" align="center"   ></el-table-column>
-            <el-table-column prop="mobile" label="提醒人号码" align="center"   ></el-table-column>
+            <el-table-column prop="name" label="事务名称" align="center"  min-width="100" >
+                             <template slot-scope="scope">
+                          <el-tooltip class="item" effect="dark" :content="scope.row.name" placement="top">
+                              <span>{{scope.row.name}}</span>
+                          </el-tooltip>
+                    </template> 
+            </el-table-column>
+            <el-table-column prop="commissionAddres" label="待办备注" align="center"  min-width="200" >
+                          <template slot-scope="scope">
+                          <el-tooltip class="item" effect="dark" :content="scope.row.commissionAddres" placement="top">
+                              <span>{{scope.row.commissionAddres}}</span>
+                          </el-tooltip>
+                    </template> 
+            </el-table-column>
+            <el-table-column prop="mobile" label="提醒人号码" align="center" width="120"  ></el-table-column>
             <el-table-column prop="commissionTime" label="待办时间" align="center"  width="140"  ></el-table-column>
             <el-table-column prop="createTime" label="创建时间" align="center"   width="140" ></el-table-column> 
             <el-table-column prop="sendTime" label="事务提醒时间" align="center"  width="140"  ></el-table-column> 
-            <el-table-column prop="status" label="状态" align="center" width="100" 
+            <el-table-column prop="status" label="状态" align="center" width="130" 
              :filters="[{ text: '新建', value: '1' }, { text: '未完成', value: '2' }, { text: '已完成', value: '3' }, { text: '过期未完成', value: '4' }]" :filter-method="filterStatus" filter-placement="bottom-end"
                     >
                     <template slot-scope="scope">
@@ -95,8 +108,8 @@
             
                     >
                     <template slot-scope="scope">
-                        <el-tag style="margin-left: 10px" :type="scope.row.status=='true' ?'succes':'danger'">
-                          {{ scope.row.status=='true'  ?'是':'否' }}
+                        <el-tag style="margin-left: 10px" :type="scope.row.stop=='true' ?'succes':'danger'">
+                          {{ scope.row.stop=='true'  ?'是':'否' }}
                         </el-tag>
                     </template> 
               
@@ -125,6 +138,7 @@
                 <el-button
                     size="mini"
                     type="danger"
+                    :disabled=" scope.row.stop=='true'  ?true:false "
                     @click="handleTrue(scope.$index, scope.row)"
                    >完成</el-button>                                      
                 </template> 
@@ -264,7 +278,17 @@
                       <el-radio-button label="31">31</el-radio-button>
                     </el-row>
                   </el-radio-group>                  
-              </el-form-item>     
+              </el-form-item>    
+              <el-form-item label="启始区间" prop="time">
+                 <el-date-picker
+                   v-model="ruleForm2.time"
+                   value-format="yyyy-MM-dd hh:mm:ss"
+                   type="daterange"
+                   range-separator="至"
+                   start-placeholder="开始日期"
+                   end-placeholder="结束日期">
+                 </el-date-picker>                
+              </el-form-item>               
               </template>         
              <!-- <el-form-item>
                 
@@ -319,7 +343,14 @@
                       placeholder="提醒时间">
                     </el-time-picker>                    
                 </el-col>
-              </el-form-item>              
+              </el-form-item>   
+               <el-form-item label="是否结束">
+                 <el-switch
+                  v-model="ruleForm3.stop"
+                  active-text="是"
+                  inactive-text="否">
+                </el-switch>
+              </el-form-item>                          
               <!-- <el-form-item label="提醒人电话">
                 <el-input v-model="ruleForm2.phone"></el-input>
               </el-form-item> -->
@@ -406,7 +437,17 @@
                       <el-radio-button label="31">31</el-radio-button>
                     </el-row>
                   </el-radio-group>                  
-              </el-form-item>     
+              </el-form-item>   
+              <el-form-item label="启始区间" prop="time">
+                 <el-date-picker
+                   v-model="ruleForm3.time"
+                   value-format="yyyy-MM-dd hh:mm:ss"
+                   type="daterange"
+                   range-separator="至"
+                   start-placeholder="开始日期"
+                   end-placeholder="结束日期">
+                 </el-date-picker>                
+              </el-form-item>                  
               </template>         
              <!-- <el-form-item>
                 
@@ -782,7 +823,7 @@ export default {
               message: data.msg,
               type: "success"
             });
-        
+
             this.resetForm("ruleForm4");
             this.dialogVisible4 = false;
             this.init(this.npage, this.pagesize);
@@ -814,7 +855,9 @@ export default {
       type,
       stop,
       commissionAddres,
-      mobile
+      mobile,
+      endDate,
+      startDate
     ) {
       this.hasUser();
       httpInsertAffair(
@@ -826,7 +869,9 @@ export default {
         type,
         stop,
         commissionAddres,
-        mobile
+        mobile,
+        endDate,
+        startDate
       )
         .then(res => {
           let data = res.data;
@@ -868,7 +913,9 @@ export default {
       type,
       stop,
       commissionAddres,
-      mobile
+      mobile,
+      endDate,
+      startDate
     ) {
       this.hasUser();
       httpUpdateAffair(
@@ -881,7 +928,9 @@ export default {
         type,
         stop,
         commissionAddres,
-        mobile
+        mobile,
+        endDate,
+        startDate
       )
         .then(res => {
           let data = res.data;
@@ -1042,7 +1091,9 @@ export default {
             _this.ruleForm2.huodong ? (_this.ruleForm2.now ? 2 : 1) : 3,
             0,
             _this.ruleForm2.desc,
-            _this.ruleForm2.mobile
+            _this.ruleForm2.mobile,
+            _this.ruleForm2.time ? _this.ruleForm2.time[1] : "",
+            _this.ruleForm2.time ? _this.ruleForm2.time[0] : ""
           );
         } else {
           return false;
@@ -1074,9 +1125,11 @@ export default {
               : this.ruleForm3.data,
             sFormat(_this.ruleForm3.date2),
             _this.ruleForm3.huodong ? (_this.ruleForm3.now ? 2 : 1) : 3,
-            "false",
+            _this.ruleForm3.stop ? "true" : "false",
             _this.ruleForm3.desc,
-            _this.ruleForm3.mobile
+            _this.ruleForm3.mobile,
+            _this.ruleForm3.time ? _this.ruleForm3.time[1] : "",
+            _this.ruleForm3.time ? _this.ruleForm3.time[0] : ""
           );
         } else {
           return false;
@@ -1112,7 +1165,7 @@ export default {
         mobile: row.mobile,
         type: "",
         desc: "",
-        stop: false,
+        stop: row.stop == "true" ? true : false,
         huodong: row.type == 3 ? false : true,
         now: row.type == 1 ? false : true,
         sendDate:
@@ -1126,7 +1179,8 @@ export default {
           row.sendTime.split(":")[1],
           row.sendTime.split(":")[2]
         ),
-        desc: row.commissionAddres
+        desc: row.commissionAddres,
+        time: [row.startDate, row.endDate]
       };
       this.id = row.id;
       this.dialogVisible2 = true;

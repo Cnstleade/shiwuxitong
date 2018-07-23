@@ -7,11 +7,12 @@
               type="info">
             </el-alert>           
         </el-row>   
-        <el-row class="m20 " >
-            <el-col :span="8" class="flex" >
+        <el-row class="m20 col-flex-end" >
+            
+              <div style="flex-grow:1" class="l20">
                     <el-button  icon="el-icon-plus" type="primary" size="small" @click="dialogVisible1=true" >新增</el-button>
-     
-                  <el-button  type="danger" @click="download" size="small" >下载模板</el-button>
+           </div>
+                  <el-button class="l20 " type="danger" @click="download" size="small" >下载模板</el-button>
                   <div class="l20 " >
                     <el-upload
               
@@ -26,14 +27,14 @@
 
                       <el-button class="l20" slot="trigger" size="small" type="primary">选取文件</el-button>
 
-                      <el-button class="l20" size="small" type="success" @click="submitUpload">上传到服务器</el-button>
+                      <el-button class="l20" style="margin-left: 10px;" size="small" type="success" @click="submitUpload">上传到服务器</el-button>
                       <!-- <div slot="tip" class="el-upload__tip">上传格式为"txt"或"xsl"文件</div> -->
                     </el-upload> 
                   </div>
                
-            </el-col>
-            <el-col :span="16"   class="col-flex-end">
-                    <el-button  type="primary" @click="reset">重置</el-button>
+    
+         
+                    <el-button class="l20" type="primary" @click="reset" style="margin-left: 10px;">重置</el-button>
                     <div class="l20">
                         <el-input
                         style="padding:0px 10px 0px 0px"
@@ -53,7 +54,7 @@
                       end-placeholder="结束日期">
                     </el-date-picker>                
                     <el-button @click="handleSearch" class="l20" style="margin-left:20px" icon="el-icon-search"  type="success" circle></el-button>                                                                  
-            </el-col>             
+                    
         </el-row>
         <el-table
             :data="tableData"  
@@ -66,7 +67,7 @@
                 id="text"
           >
             <el-table-column prop="id" label="序号" align="center" width="70"  sortable></el-table-column>
-             <el-table-column prop="createTime" label="创建时间" align="center" width="100" ></el-table-column>
+             <el-table-column prop="createTime" label="创建时间" align="center" width="160" ></el-table-column>
             <el-table-column prop="sendTime" label="发送时间" align="center" width="100" ></el-table-column>
             <el-table-column prop="sendDate" label="发送日期" align="center" width="70" ></el-table-column>
             <el-table-column prop="beginDate" label="开始日期" align="center" width="120" ></el-table-column>
@@ -83,26 +84,33 @@
             <!-- <el-table-column prop="uploader" label="上传人" align="center" width="100" ></el-table-column> -->
             <!-- <el-table-column prop="senderName" label="备注" align="center" ></el-table-column> -->
             <!-- <el-table-column prop="sendPlatform" label="发送平台" align="center"  width="100" 
-             :filters="[{ text: '华信', value: '1' }, { text: '创南', value: '2' }]" :filter-method="filterSendPlatform" filter-placement="bottom-end"
+             :filters="[{ text: '华信', value: '1' }, { text: '创蓝', value: '2' }]" :filter-method="filterSendPlatform" filter-placement="bottom-end"
                     >
                     <template slot-scope="scope">
                         <el-tag style="margin-left: 10px" :type="scope.row.sendStatus ===1?'success':'danger'">
-                          {{ scope.row.sendPlatform ===1?'华信':'创南' }}
+                          {{ scope.row.sendPlatform ===1?'华信':'创蓝' }}
                         </el-tag>
                     </template> 
 
             </el-table-column> -->
             <!-- <el-table-column prop="sendPlatform" label="签名" align="center"  width="100" 
-             :filters="[{ text: '华信', value: '1' }, { text: '创南', value: '2' }]" :filter-method="filterSendPlatform" filter-placement="bottom-end"
+             :filters="[{ text: '华信', value: '1' }, { text: '创蓝', value: '2' }]" :filter-method="filterSendPlatform" filter-placement="bottom-end"
                     >
                     <template slot-scope="scope">
                         <el-tag style="margin-left: 10px" :type="scope.row.sendStatus ===1?'success':'danger'">
-                          {{ scope.row.sendPlatform ===1?'华信':'创南' }}
+                          {{ scope.row.sendPlatform ===1?'华信':'创蓝' }}
                         </el-tag>
                     </template> 
 
             </el-table-column>            -->
-            <el-table-column prop="messageContent" label="消息内容" align="center"  width="240"></el-table-column>
+            <el-table-column prop="messageContent" label="消息内容" align="center"  width="200">
+                  
+                    <template slot-scope="scope">
+                          <el-tooltip class="item" effect="dark" :content="scope.row.messageContent" placement="top">
+                              <span>{{scope.row.messageContent}}</span>
+                          </el-tooltip>
+                    </template> 
+            </el-table-column>
             <el-table-column prop="messageTypeStr" label="短信类型" align="center" width="100"
                     >
                     <!-- <template slot-scope="scope">
@@ -333,21 +341,21 @@
             <!-- <el-table-column prop="uploader" label="上传人" align="center" width="100" ></el-table-column> -->
             <!-- <el-table-column prop="senderName" label="备注" align="center" ></el-table-column> -->
             <!-- <el-table-column prop="sendPlatform" label="发送平台" align="center"  width="100" 
-             :filters="[{ text: '华信', value: '1' }, { text: '创南', value: '2' }]" :filter-method="filterSendPlatform" filter-placement="bottom-end"
+             :filters="[{ text: '华信', value: '1' }, { text: '创蓝', value: '2' }]" :filter-method="filterSendPlatform" filter-placement="bottom-end"
                     >
                     <template slot-scope="scope">
                         <el-tag style="margin-left: 10px" :type="scope.row.sendStatus ===1?'success':'danger'">
-                          {{ scope.row.sendPlatform ===1?'华信':'创南' }}
+                          {{ scope.row.sendPlatform ===1?'华信':'创蓝' }}
                         </el-tag>
                     </template> 
 
             </el-table-column> -->
             <!-- <el-table-column prop="sendPlatform" label="签名" align="center"  width="100" 
-             :filters="[{ text: '华信', value: '1' }, { text: '创南', value: '2' }]" :filter-method="filterSendPlatform" filter-placement="bottom-end"
+             :filters="[{ text: '华信', value: '1' }, { text: '创蓝', value: '2' }]" :filter-method="filterSendPlatform" filter-placement="bottom-end"
                     >
                     <template slot-scope="scope">
                         <el-tag style="margin-left: 10px" :type="scope.row.sendStatus ===1?'success':'danger'">
-                          {{ scope.row.sendPlatform ===1?'华信':'创南' }}
+                          {{ scope.row.sendPlatform ===1?'华信':'创蓝' }}
                         </el-tag>
                     </template> 
 
@@ -1204,9 +1212,6 @@ export default {
 
   width: 200px;
 }
-.flex {
-  display: flex;
-  justify-content: space-between;
-}
+
 </style>
 

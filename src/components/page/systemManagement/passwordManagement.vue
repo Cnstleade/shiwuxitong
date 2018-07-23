@@ -1,6 +1,13 @@
 <template>
     <div class="container" >
-        <el-row>
+              <el-row>
+            <el-alert
+              title="密码修改"
+              :closable="false"
+              type="info">
+            </el-alert>           
+        </el-row>  
+        <el-row class="m20">
             <el-col :span="8" :offset="5">
                 <el-form :model="ruleForm2" status-icon :rules="rules2" ref="ruleForm2" label-width="100px" class="demo-ruleForm">
                   <el-form-item label="旧密码" >
