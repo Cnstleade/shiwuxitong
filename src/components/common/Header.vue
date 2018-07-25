@@ -96,8 +96,16 @@ export default {
     // 用户名下拉菜单选择事件
     handleCommand(command) {
       if (command == "loginout") {
-        this.OUT_LOGIN();
-        this.$router.push("/login");
+         this.OUT_LOGIN();
+        this.$store
+          .dispatch("Logout")
+          .then(() => {
+            // this.$router.push({ path: "/login" });
+          })
+          .catch(err => {
+            this.$message.error(err);
+          });
+        // this.$router.push("/login");
       } else {
         this.$router.push("/" + command);
       }

@@ -577,7 +577,8 @@ export default {
         this.$jQuery.ajax({
           type: "post",
         //  url: "http://localhost:8088/user/add",
-           url: "http://47.88.171.117:8088/user/add",
+          //  url: "http://47.88.171.117:8088/user/add",
+  url: "http://101.132.171.38:8088/user/add",             
           data: {
             username: _this.ruleForm2.username,
             password: _this.ruleForm2.password,
@@ -625,7 +626,8 @@ export default {
         this.$jQuery.ajax({
           type: "post",
         //  url: "http://localhost:8088/user/update",
-           url: "http://47.88.171.117:8088/user/update",
+        //   url: "http://47.88.171.117:8088/user/update",
+             url: "http://101.132.171.38:8088/user/update",   
           data: {
             id: _this.ruleForm3.id,
             username: _this.ruleForm3.username,

@@ -92,7 +92,7 @@
 </template>
 
 <script>
-import { mapState,mapMutations } from "vuex";
+import { mapState, mapMutations } from "vuex";
 import { httpLogin, httpUserRegister } from "../../service/http";
 // import {config} from "../../util/config";
 import { Message } from "element-ui";
@@ -146,19 +146,46 @@ export default {
         .then(res => {
           let data = res.data;
           if (data.code == 200) {
+            let info = {
+              username,
+              password,
+              role: data.data
+              // role: [
+              //   "url1",
+              //   "affair",
+              //   "url2",
+              //   "role",
+              //   "url2",
+              //   "message",
+              //   "user",
+              //   "logging",
+              //   "acyclicMessage",
+              //   "passwordManagement"
+              // ]
+            };
+            this.$store
+              .dispatch("Logins", info)
+              .then(re => {
+                console.log("成功看");
+              })
+              .catch(err => {
+                console.log("++++++++++++++++++++++++++++++" + err);
+              });
+            console.log(1111);
             this.$message({
               message: data.msg,
               type: "success"
             });
-            let userInfo =  username
-            this.RECORD_USERINFO(userInfo);
+            let userInfo = username;
+           this.RECORD_USERINFO(userInfo);
             // sessionStorage.setItem("hsjr_username", username);
             this.resetForm("ruleForm");
-            this.$router.push("/message");
+            this.$router.push("/admin");
+            // this.$router.push({ path: "/" });
           } else if (data.code == 500) {
             this.$message.error(data.msg);
             this.$router.push("/login");
-          }else {
+          } else {
             this.$message.error(data.msg);
           }
         })
@@ -169,7 +196,7 @@ export default {
             this.$message.error(data.message);
             this.$router.push("/login");
           } else {
-            console.log(err)
+            console.log(err);
             this.$message.error("网络错误请联系管理员");
           }
         });
@@ -187,7 +214,7 @@ export default {
           } else if (data.code == 500) {
             this.$message.error(data.msg);
             this.$router.push("/login");
-          }else {
+          } else {
             this.$message.error(data.msg);
           }
         })

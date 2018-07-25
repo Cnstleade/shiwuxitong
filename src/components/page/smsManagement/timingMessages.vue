@@ -212,7 +212,7 @@
                 <el-date-picker
                   v-model="ruleForm3.sendTime"
                   type="datetime"
-                  value-format="yyyy-MM-dd hh:mm:ss"
+                  value-format="yyyy-MM-dd HH:mm:ss"
                   placeholder="选择日期时间">
                 </el-date-picker>                
               </el-form-item>  
@@ -294,7 +294,7 @@
               <el-form-item label="发送时间" v-if="!ruleForm2.now">
                 <el-date-picker
                   v-model="ruleForm2.senddatetime"
-                  value-format="yyyy-MM-dd hh:mm:ss"
+                  value-format="yyyy-MM-dd HH:mm:ss"
                   type="datetime"
                   placeholder="选择日期时间">
                 </el-date-picker>                

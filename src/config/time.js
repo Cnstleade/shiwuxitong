@@ -1,5 +1,5 @@
 //毫秒数转换成2017-01-01
-export function timeFormat(value, number = 0) {
+export function timeFormat(value, number = 0, boolean = true) {
   var ms = number * 86400000;
   var d = new Date(new Date(value).getTime() + ms);
   var year = d.getFullYear();
@@ -11,19 +11,29 @@ export function timeFormat(value, number = 0) {
   minutes = minutes > 9 ? minutes : "0" + minutes;
   var seconds = d.getSeconds();
   seconds = seconds > 9 ? seconds : "0" + seconds;
-  return (
-    year +
-    "-" +
-    month +
-    "-" +
-    day +
-    " " +
-    hour +
-    ':' +
-    minutes +
-    ':' +
-    seconds
-  );
+  if(boolean){
+    return (
+      year +
+      "-" +
+      month +
+      "-" +
+      day +
+      " " +
+      hour +
+      ':' +
+      minutes +
+      ':' +
+      seconds
+    );
+  }else{
+    return (
+
+        day+
+      "/" +
+       +month+'/'+year
+    );
+  }
+
 }
 
 

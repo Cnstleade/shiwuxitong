@@ -282,7 +282,7 @@
               <el-form-item label="启始区间" prop="time">
                  <el-date-picker
                    v-model="ruleForm2.time"
-                   value-format="yyyy-MM-dd hh:mm:ss"
+                   value-format="yyyy-MM-dd HH:mm:ss"
                    type="daterange"
                    range-separator="至"
                    start-placeholder="开始日期"
@@ -441,7 +441,7 @@
               <el-form-item label="启始区间" prop="time">
                  <el-date-picker
                    v-model="ruleForm3.time"
-                   value-format="yyyy-MM-dd hh:mm:ss"
+                   value-format="yyyy-MM-dd HH:mm:ss"
                    type="daterange"
                    range-separator="至"
                    start-placeholder="开始日期"
@@ -574,7 +574,7 @@
                 <el-col :span="11">
     <el-date-picker
       v-model="ruleForm4.date1"
-      value-format="yyyy-MM-dd hh:mm:ss"
+      value-format="yyyy-MM-dd HH:mm:ss"
       type="datetime"
       placeholder="选择日期时间">
     </el-date-picker>                  
