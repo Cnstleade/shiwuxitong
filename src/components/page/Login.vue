@@ -149,19 +149,20 @@ export default {
             let info = {
               username,
               password,
-              role: data.data
-              // role: [
-              //   "url1",
-              //   "affair",
-              //   "url2",
-              //   "role",
-              //   "url2",
-              //   "message",
-              //   "user",
-              //   "logging",
-              //   "acyclicMessage",
-              //   "passwordManagement"
-              // ]
+//              role: data.data
+              role: [
+                "url1",
+                "affair",
+                "url2",
+                "role",
+                "url2",
+                "message",
+                "user",
+                "logging",
+                "acyclicMessage",
+                "passwordManagement",
+                'h5'
+              ]
             };
             this.$store
               .dispatch("Logins", info)
@@ -171,9 +172,8 @@ export default {
               .catch(err => {
                 console.log("++++++++++++++++++++++++++++++" + err);
               });
-            console.log(1111);
             this.$message({
-              message: data.msg,
+              message: '登录成功',
               type: "success"
             });
             let userInfo = username;

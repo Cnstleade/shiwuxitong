@@ -136,13 +136,23 @@
                     </template> 
 
             </el-table-column> -->
-  
-            <el-table-column prop="messageType" label="短信类型" align="center" width="100"
-             :filters="[{ text: '下款', value: '1' }, { text: '还款', value: '2' }, { text: '还本', value: '3' }]" :filter-method="filterMessageType" filter-placement="bottom-end"
+           <el-table-column prop="signature" label="签名" align="center"  width="100" 
+             :filters="[{ text: '恒舜金融', value: '1' }, { text: '恒舜普惠', value: '2' }, { text: '恒舜财富', value: '3' }]" :filter-method="filterSingnature" filter-placement="bottom-end"
                     >
                     <template slot-scope="scope">
-                        <el-tag style="margin-left: 10px" :type="scope.row.messageType ===1?'success':scope.row.messageType===2?'info':'danger'">
-                          {{ scope.row.messageType ===1?'下款':scope.row.messageType ===2?'还款':'还本' }}
+                        <el-tag style="margin-left: 10px" :type="scope.row.signature ===1?'success':scope.row.signature ===2?'danger':''">
+                          {{ scope.row.signature===1?'恒舜金融':scope.row.signature===2?'恒舜普惠':'恒舜财富' }}
+                        </el-tag>
+                    </template> 
+
+            </el-table-column>          
+  
+            <el-table-column prop="messageType" label="短信类型" align="center" width="100"
+             :filters="[{ text: '下款', value: '1' }, { text: '还款', value: '2' }, { text: '还本', value: '3' },{ text: '付息提醒', value: '4' },{ text: '付本提醒', value: '5' },{ text: '其他', value: '6' }]" :filter-method="filterMessageType" filter-placement="bottom-end"
+                    >
+                    <template slot-scope="scope">
+                        <el-tag style="margin-left: 10px" :type=" scope.row.messageType ===1?'':scope.row.messageType ===2?'success':scope.row.messageType ===3?'info':scope.row.messageType ===4?'warning':scope.row.messageType ===5?'danger':'' ">
+                          {{ scope.row.messageType ===1?'下款':scope.row.messageType ===2?'还款':scope.row.messageType ===3?'还本':scope.row.messageType ===4?'付息提醒':scope.row.messageType ===5?'付本提醒':'其他' }}
                         </el-tag>
                     </template> 
               
@@ -427,13 +437,14 @@
             </el-table-column>
   
             <el-table-column prop="messageType" label="短信类型" align="center" width="100"
-             :filters="[{ text: '下款', value: '1' }, { text: '还款', value: '2' }, { text: '还本', value: '3' }]" :filter-method="filterMessageType" filter-placement="bottom-end"
+             :filters="[{ text: '下款', value: '1' }, { text: '还款', value: '2' }, { text: '还本', value: '3' },{ text: '付息提醒', value: '4' },{ text: '付本提醒', value: '5' },{ text: '其他', value: '6' }]" :filter-method="filterMessageType" filter-placement="bottom-end"
                     >
+  
                     <template slot-scope="scope">
-                        <el-tag style="margin-left: 10px" :type="scope.row.messageType ===1?'success':scope.row.messageType===2?'info':'danger'">
-                          {{ scope.row.messageType ===1?'下款':scope.row.messageType ===2?'还款':'还本' }}
+                        <el-tag style="margin-left: 10px" :type=" scope.row.messageType ===1?'':scope.row.messageType ===2?'success':scope.row.messageType ===3?'info':scope.row.messageType ===4?'warning':scope.row.messageType ===5?'danger':'' ">
+                          {{ scope.row.messageType ===1?'下款':scope.row.messageType ===2?'还款':scope.row.messageType ===3?'还本':scope.row.messageType ===4?'付息提醒':scope.row.messageType ===5?'付本提醒':'其他' }}
                         </el-tag>
-                    </template> 
+                    </template>                     
               
             </el-table-column>
             <!-- <el-table-column prop="sendStatus" label="发送状态" align="center" width="100" 
@@ -626,7 +637,7 @@ export default {
       url: "",
       signatureType: [
         { label: "恒舜金融", value: 1 },
-        { label: "恒舜普融", value: 2 },
+        { label: "恒舜普惠", value: 2 },
         { label: "恒舜财富", value: 3 }
       ],
       DetailtableData: [],
@@ -647,7 +658,10 @@ export default {
       messageType: [
         { label: "下款", value: 1 },
         { label: "还款", value: 2 },
-        { label: "还本", value: 3 }
+        { label: "还本", value: 3 },
+        { label: "付息提醒", value: 4 },
+        { label: "付本提醒", value: 5 },
+        { label: "其他", value: 6 }
       ],
       dialogVisible1: false,
       dialogVisible3: false,
@@ -792,6 +806,14 @@ export default {
       messageType,
       signature
     ) {
+      if (
+        senddatetime == null ||
+        senddatetime == undefined ||
+        senddatetime == ""
+      ) {
+        this.$message.error("请选择发送时间");
+        return;
+      }
       this.hasUser();
       httpUpdateMessageAll(
         Id,
@@ -820,6 +842,7 @@ export default {
             this.init(this.npage, this.pagesize);
           } else {
             this.$message.error(data.messager);
+            this.$router.push("/login");
           }
         })
         .catch(err => {
@@ -1105,6 +1128,7 @@ export default {
             });
           } else {
             _this.$message.error(data.messager);
+            _this.$router.push("/login");
           }
           _this.init(this.npage, this.pagesize);
         })
@@ -1163,9 +1187,14 @@ export default {
     filterRecordStatus(value, row, column) {
       return row.recordStatus == value;
     },
+    filterSingnature(value, row, column) {
+      return row.signature == value;
+    },
     //download
     download() {
-      window.open("http://paxfivrd0.bkt.clouddn.com/EXCEL20180720154813186.xls");
+      window.open(
+        "http://paxfivrd0.bkt.clouddn.com/EXCEL20180731104737325.xls"
+      );
     },
     handleShow(index, row) {
       this.currentId = "";

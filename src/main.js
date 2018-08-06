@@ -8,6 +8,7 @@ import {
 } from './router';
 import ElementUI from 'element-ui';
 import 'element-ui/lib/theme-chalk/index.css';
+
 import axios from 'axios';
 import Element from 'element-ui';
 import jQuery from 'jquery'
@@ -19,6 +20,8 @@ Vue.use(Element, {
 });
 Vue.prototype.$axios = axios;
 Vue.prototype.$jQuery = jQuery;
+
+
 /* eslint-disable no-new */
 // router.beforeEach((to, from, next) => {
 //   //NProgress.start();
@@ -34,13 +37,16 @@ Vue.prototype.$jQuery = jQuery;
 //     next()
 //   }
 // })
+// 消除点击延迟
+const FastClick = require('fastclick')
+FastClick.attach(document.body)
 router.beforeEach((to, from, next) => {
   console.log(store.getters.role);
   if (store.getters.role) { //判断role 是否存在
     let arr = Array.isArray(store.getters.role) ? store.getters.role : store.getters.role.split(',');
-    
+
     if (store.getters.newrouter.length !== 0) {
-      let ar = arr.concat(['admin','404','403','login'])
+      let ar = arr.concat(['admin', '404', '403', 'login'])
       next();
       if (ar.some(v => {
           return to.fullPath.slice(1) == v

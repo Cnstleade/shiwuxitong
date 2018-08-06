@@ -121,6 +121,14 @@ export default new Router({
           title: '个人主页'
         },
       }]
+    },
+    {
+      path: '/h5',
+      component: resolve => require(['../components/H5/Home.vue'], resolve),
+      meta: {
+        title: '自述文件'
+      },
+      children: []
     }
   ]
 

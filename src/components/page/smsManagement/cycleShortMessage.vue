@@ -709,11 +709,14 @@ export default {
       messageType: [
         { label: "下款", value: 1 },
         { label: "还款", value: 2 },
-        { label: "还本", value: 3 }
+        { label: "还本", value: 3 },
+        { label: "付息提醒", value: 4 },
+        { label: "付本提醒", value: 5 },
+        { label: "其他", value: 6 }
       ],
       signatureType: [
         { label: "恒舜金融", value: 1 },
-        { label: "恒舜普融", value: 2 },
+        { label: "恒舜普惠", value: 2 },
         { label: "恒舜财富", value: 3 }
       ],
       rules: {
@@ -902,7 +905,7 @@ export default {
         });
     },
     download() {
-      window.open("http://paxfivrd0.bkt.clouddn.com/PeriodicMessage.xls");
+      window.open("http://paxfivrd0.bkt.clouddn.com/EXCEL20180731105752611.xls");
     },
     _httpSmsPeriodicMessage(
       receiverName,
@@ -1212,6 +1215,5 @@ export default {
 
   width: 200px;
 }
-
 </style>
 

@@ -335,7 +335,7 @@ export default {
       if (formName == "ruleForm") {
         this.$jQuery.ajax({
           type: "post",
-        //  url: "http://localhost:8088/role/add",
+      //  url: "http://localhost:8088/role/add",
           //  url: "http://47.88.171.117:8088/role/add",
   url: "http://101.132.171.38:8088/role/add",  
           data: {
@@ -369,9 +369,9 @@ export default {
       } else {
         this.$jQuery.ajax({
           type: "post",
-        //  url: "http://localhost:8088/role/update",
+        //url: "http://localhost:8088/role/update",
           //  url: "http://47.88.171.117:8088/role/update",
-           url: "http://101.132.171.38:8088/role/update",           
+         url: "http://101.132.171.38:8088/role/update",           
           data: {
             roleId: this.ruleForm2.roleId,
             roleName: this.ruleForm2.roleName,
