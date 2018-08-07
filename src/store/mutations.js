@@ -245,7 +245,8 @@
 import {
   RECORD_USERINFO,
   GET_USERINFO,
-  OUT_LOGIN
+  OUT_LOGIN,
+  UPDATE_DIRECTION
 } from './mutation-types.js'
 
 import {
@@ -288,5 +289,8 @@ export default {
     removeStore('hsjr_username');
     clearInterval(state.timer);
   },
+  [UPDATE_DIRECTION](state, route) {
+    state.route = route;
+  }
   //修改用户名
 }

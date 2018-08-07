@@ -6,8 +6,8 @@ var qs = require('qs');
 axios.defaults.timeout = 600000;
  //axios.defaults.baseURL = 'http://localhost:8088'; //本地服务器
 //axios.defaults.baseURL = 'http://192.168.2.103:8088'; //本地服务器
-axios.defaults.baseURL = 'http://47.88.171.117:8088'; //本地服务器
-//axios.defaults.baseURL = 'http://101.132.171.38:8088'; //本地服务器
+//axios.defaults.baseURL = 'http://47.88.171.117:8088'; //本地服务器
+axios.defaults.baseURL = 'http://101.132.171.38:8088'; //本地服务器
 
 //   /*密码修改*/
 //   modifyPassword: '/user/updatePassword',

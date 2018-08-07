@@ -6,9 +6,7 @@
   </div>
   
   <div class="home-box" style="height:100%">
-    <div >    
-      <p v-for="i in 100">{{i}}</p>
-    </div>  
+      <router-view></router-view>
   </div>
 
     <tabbar>
@@ -33,6 +31,7 @@
 
 
 <script>
+import { mapState } from "vuex";
 import {
   ViewBox,
   XHeader,
@@ -85,10 +84,13 @@ export default {
     //通过路由判断页面
     title() {
       if (this.route.path === "/h5") return "主页";
+      if (this.route.path === "/h5/cycleShortMessage") return "周期短信";
       if (this.route.path === "/project/donate") return "Donate";
       if (this.route.path === "/demo") return "Demo list";
       return this.componentName ? `Demo/${this.componentName}` : "Demo/~~";
-    }
+    },
+
+    ...mapState(["route"])
   },
   methods: {
     scrollTop() {
@@ -97,6 +99,9 @@ export default {
     click(key) {
       console.log(key);
     }
+  },
+  mounted() {
+    console.log(this.route);
   }
 };
 </script>

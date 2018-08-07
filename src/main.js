@@ -40,6 +40,7 @@ Vue.prototype.$jQuery = jQuery;
 // 消除点击延迟
 const FastClick = require('fastclick')
 FastClick.attach(document.body)
+const commit = store.commit || store.dispatch
 router.beforeEach((to, from, next) => {
   console.log(store.getters.role);
   if (store.getters.role) { //判断role 是否存在
@@ -96,6 +97,7 @@ router.beforeEach((to, from, next) => {
       next('/login')
     }
   }
+  commit('UPDATE_DIRECTION', to)
 })
 new Vue({
   el: '#app',

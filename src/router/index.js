@@ -128,7 +128,18 @@ export default new Router({
       meta: {
         title: '自述文件'
       },
-      children: []
+      children: [
+        {
+          path: '/',
+          redirect: 'cycleShortMessage'
+        },
+        {
+        path: 'cycleShortMessage',
+        component: resolve => require(['../components/H5/smsManagement/cycleShortMessage'], resolve),
+        meta: {
+          title: '周期短信'
+        },
+      }]
     }
   ]
 

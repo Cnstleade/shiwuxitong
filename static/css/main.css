@@ -67,7 +67,14 @@ li {
   text-overflow: ellipsis;
   overflow: hidden;
 }
+
 .flex {
   display: flex;
   justify-content: space-between;
+}
+
+.textcontent {
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  overflow: hidden;
 }

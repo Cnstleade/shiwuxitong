@@ -161,7 +161,8 @@ export default {
                 "logging",
                 "acyclicMessage",
                 "passwordManagement",
-                'h5'
+                'h5',
+                  'h5/cycleShortMessage'
               ]
             };
             this.$store
