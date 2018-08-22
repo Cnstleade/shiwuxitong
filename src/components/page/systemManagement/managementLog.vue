@@ -44,7 +44,7 @@
             <el-table-column prop="ip" label="登陆IP地址" align="center" width="140"  >
    
             </el-table-column>   
-            <el-table-column prop="createTime" label="操作时间" align="center" width="180" sortable>
+            <el-table-column prop="createTimeStr" label="操作时间" align="center" width="180" sortable>
    
             </el-table-column>                                                            
             
@@ -106,7 +106,7 @@ export default {
         this.userInfo == "undefined"
       ) {
         this.$message.error("当前登陆用户已失效，请重新登陆");
-        this.$router.push("/login");
+    //    this.$router.push("/login");
         return;
       }
     },
@@ -127,19 +127,19 @@ export default {
             this.$message.error(data.msg);
           }
         })
-        .catch(err => {
-          console.log(err);
-          let data = err.response ? err.response.data : {};
+        // .catch(err => {
+        //   console.log(err);
+        //   let data = err.response ? err.response.data : {};
 
-          if (data.message == "当前登陆用户已失效，请重新登陆") {
-            this.$message.error(data.message);
-            this.$router.push("/login");
-          } else {
-            this.$message.error("网络错误请联系管理员");
-          }
-          _this.tableData = [];
-          _this.loading = false;
-        });
+        //   if (data.message == "当前登陆用户已失效，请重新登陆") {
+        //     this.$message.error(data.message);
+        //   //  this.$router.push("/login");
+        //   } else {
+        //     this.$message.error("网络错误请联系管理员");
+        //   }
+        //   _this.tableData = [];
+        //   _this.loading = false;
+        // });
     },
     handleSearch() {
       this.getData(this.npage, this.pagesize);
@@ -154,6 +154,8 @@ export default {
       this.handleSearch();
     },
     reset() {
+      this.npage = 1;
+      this.pagesize = 10;
       this.search = null;
       this.getData(this.npage, this.pagesize);
     },
@@ -163,7 +165,6 @@ export default {
   },
   mounted() {
     this.getData(this.npage, this.pagesize);
-    console.log(1);
   }
 };
 </script>

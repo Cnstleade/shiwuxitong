@@ -32,7 +32,9 @@
    
             </el-table-column>
             <el-table-column prop="createTime" label="创建时间" align="center" width="160" sortable>
-   
+                 <template slot-scope="scope">
+                    {{scope.row.createTime|dateServer}}
+                </template>     
             </el-table-column>               
             <el-table-column prop="remark" label="描述" align="center" min-width="200" >
                       <template slot-scope="scope">
@@ -185,7 +187,7 @@ export default {
         this.userInfo == "undefined"
       ) {
         this.$message.error("当前登陆用户已失效，请重新登陆");
-        this.$router.push("/login");
+    //    this.$router.push("/login");
         return;
       }
     },
@@ -208,17 +210,17 @@ export default {
           }
           _this.getData(this.npage, this.pagesize);
         })
-        .catch(err => {
-          let data = err.response ? err.response.data : {};
+        // .catch(err => {
+        //   let data = err.response ? err.response.data : {};
 
-          if (data.message == "当前登陆用户已失效，请重新登陆") {
-            this.$message.error(data.message);
-            this.$router.push("/login");
-          } else {
-            console.log(err);
-            this.$message.error("网络错误请联系管理员");
-          }
-        });
+        //   if (data.message == "当前登陆用户已失效，请重新登陆") {
+        //     this.$message.error(data.message);
+        //  //   this.$router.push("/login");
+        //   } else {
+        //     console.log(err);
+        //     this.$message.error("网络错误请联系管理员");
+        //   }
+        // });
     },
     _httpRoleMenu(id) {
       this.hasUser();
@@ -236,17 +238,17 @@ export default {
           }
           _this.dialogVisible2 = true;
         })
-        .catch(err => {
-          let data = err.response ? err.response.data : {};
+        // .catch(err => {
+        //   let data = err.response ? err.response.data : {};
 
-          if (data.message == "当前登陆用户已失效，请重新登陆") {
-            this.$message.error(data.message);
-            this.$router.push("/login");
-          } else {
-            console.log(err);
-            this.$message.error("网络错误请联系管理员");
-          }
-        });
+        //   if (data.message == "当前登陆用户已失效，请重新登陆") {
+        //     this.$message.error(data.message);
+        //  //   this.$router.push("/login");
+        //   } else {
+        //     console.log(err);
+        //     this.$message.error("网络错误请联系管理员");
+        //   }
+        // });
     },
     _httpMenuList() {
       this.hasUser();
@@ -264,17 +266,17 @@ export default {
           }
         })
 
-        .catch(err => {
-          let data = err.response ? err.response.data : {};
+        // .catch(err => {
+        //   let data = err.response ? err.response.data : {};
 
-          if (data.message == "当前登陆用户已失效，请重新登陆") {
-            this.$message.error(data.message);
-            this.$router.push("/login");
-          } else {
-            console.log(err);
-            this.$message.error("网络错误请联系管理员");
-          }
-        });
+        //   if (data.message == "当前登陆用户已失效，请重新登陆") {
+        //     this.$message.error(data.message);
+        // //    this.$router.push("/login");
+        //   } else {
+        //     console.log(err);
+        //     this.$message.error("网络错误请联系管理员");
+        //   }
+        // });
     },
     getData(pageNum, pageSize) {
       this.hasUser();
@@ -293,19 +295,19 @@ export default {
             this.$message.error(data.msg);
           }
         })
-        .catch(err => {
-          let data = err.response ? err.response.data : {};
+        // .catch(err => {
+        //   let data = err.response ? err.response.data : {};
 
-          if (data.message == "当前登陆用户已失效，请重新登陆") {
-            this.$message.error(data.message);
-            this.$router.push("/login");
-          } else {
-            console.log(err);
-            this.$message.error("网络错误请联系管理员");
-          }
-          _this.tableData = [];
-          _this.loading = false;
-        });
+        //   if (data.message == "当前登陆用户已失效，请重新登陆") {
+        //     this.$message.error(data.message);
+        //    // this.$router.push("/login");
+        //   } else {
+        //     console.log(err);
+        //     this.$message.error("网络错误请联系管理员");
+        //   }
+        //   _this.tableData = [];
+        //   _this.loading = false;
+        // });
     },
     handleSearch() {
       this.getData(this.npage, this.pagesize);
@@ -335,7 +337,7 @@ export default {
       if (formName == "ruleForm") {
         this.$jQuery.ajax({
           type: "post",
-      //  url: "http://localhost:8088/role/add",
+      // url: "http://localhost:8088/role/add",
           //  url: "http://47.88.171.117:8088/role/add",
   url: "http://101.132.171.38:8088/role/add",  
           data: {
@@ -371,7 +373,7 @@ export default {
           type: "post",
         //url: "http://localhost:8088/role/update",
           //  url: "http://47.88.171.117:8088/role/update",
-         url: "http://101.132.171.38:8088/role/update",           
+           url: "http://101.132.171.38:8088/role/update",           
           data: {
             roleId: this.ruleForm2.roleId,
             roleName: this.ruleForm2.roleName,
@@ -406,7 +408,7 @@ export default {
       this.hasUser();
       let id = row.roleId;
       let _this = this;
-      this.$confirm("此操作将永久删除该角色, 是否继续?", "提示", {
+      this.$confirm("此操作将永久撤销该角色, 是否继续?", "提示", {
         confirmButtonText: "确定",
         cancelButtonText: "取消",
         type: "warning"
@@ -418,7 +420,7 @@ export default {
         .catch(() => {
           this.$message({
             type: "info",
-            message: "已取消删除"
+            message: "已取消撤销"
           });
         });
     },

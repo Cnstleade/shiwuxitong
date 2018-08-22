@@ -134,16 +134,16 @@ export default {
             this.$message.error(data.msg);
           }
         })
-        .catch(err => {
-          let data = err.response ? err.response.data : {};
+      //   .catch(err => {
+      //     let data = err.response ? err.response.data : {};
 
-          if (data.message == "当前登陆用户已失效，请重新登陆") {
-            this.$message.error(data.message);
-            this.$router.push("/login");
-          } else {
-            this.$message.error("网络错误请联系管理员");
-          }
-        });
+      //     if (data.message == "当前登陆用户已失效，请重新登陆") {
+      //       this.$message.error(data.message);
+      // //      this.$router.push("/login");
+      //     } else {
+      //       this.$message.error("网络错误请联系管理员");
+      //     }
+      //   });
     },
     submitForm(formName) {
       let _this = this;

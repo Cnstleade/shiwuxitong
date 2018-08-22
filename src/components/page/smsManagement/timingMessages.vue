@@ -88,7 +88,12 @@
         
             <el-table-column prop="id" label="序号" align="center" width="70"  sortable></el-table-column>
 
-            <el-table-column prop="senddatetime" label="发送时间" align="center" width="140" ></el-table-column>
+            <el-table-column prop="senddatetime" label="发送时间" align="center" width="140" >
+                <template slot-scope="scope">
+                    {{scope.row.senddatetime|dateServer}}
+                </template>              
+                        
+            </el-table-column>
             <el-table-column prop="mobilePhone" label="电话" align="center" width="120" ></el-table-column>
             <!-- <el-table-column prop="recordStatus" label="短信状态" align="center" width="100" 
              :filters="[{ text: '正常', value: '1' }, { text: '更新', value: '2' }, { text: '撤销', value: '3' }]" :filter-method="filterRecordStatus" filter-placement="bottom-end"
@@ -181,7 +186,8 @@
                    >编辑</el-button>
                 <el-button
                     size="mini"
-                    type="danger"
+                    :type="scope.row.sendStatus==5?'info':'danger'"
+                    :disabled="scope.row.sendStatus==5"
                     @click="handleDelete(scope.$index, scope.row)"
                    >撤销</el-button>                   
                 </template> 
@@ -398,7 +404,11 @@
         
             <el-table-column prop="id" label="序号" align="center" width="70"  sortable></el-table-column>
 
-            <el-table-column prop="senddatetime" label="发送时间" align="center" width="140" ></el-table-column>
+            <el-table-column prop="senddatetime" label="发送时间" align="center" width="140" >
+                <template slot-scope="scope">
+                    {{scope.row.senddatetime|dateServer}}
+                </template>              
+            </el-table-column>
             <el-table-column prop="mobilePhone" label="电话" align="center" width="120" ></el-table-column>
             <!-- <el-table-column prop="recordStatus" label="短信状态" align="center" width="100" 
              :filters="[{ text: '正常', value: '1' }, { text: '更新', value: '2' }, { text: '撤销', value: '3' }]" :filter-method="filterRecordStatus" filter-placement="bottom-end"
@@ -507,7 +517,13 @@
                     </template> 
               
             </el-table-column>           
-            <el-table-column prop="sendTime" label="发送时间" align="center"  ></el-table-column>            
+            <el-table-column prop="sendTime" label="发送时间" align="center"  >
+              <template slot-scope="scope">
+                <template v-if="scope.row.sendTime">
+                    {{scope.row.sendTime|dateServer}}
+                </template>
+                </template>                  
+            </el-table-column>            
             <!-- <el-table-column prop="type" label="短信类型" align="center" width="100"
              :filters="[{ text: '周期短信', value: '1' }, { text: '定时短信', value: '2' }]" :filter-method="filterType" filter-placement="bottom-end"
                     >
@@ -741,7 +757,7 @@ export default {
         this.userInfo == "undefined"
       ) {
         this.$message.error("当前登陆用户已失效，请重新登陆");
-        this.$router.push("/login");
+    //    this.$router.push("/login");
         return;
       }
     },
@@ -758,16 +774,16 @@ export default {
         .then(res => {
           console.log(res);
         })
-        .catch(err => {
-          let data = err.response ? err.response.data : {};
+        // .catch(err => {
+        //   let data = err.response ? err.response.data : {};
 
-          if (data.message == "当前登陆用户已失效，请重新登陆") {
-            this.$message.error(data.message);
-            this.$router.push("/login");
-          } else {
-            this.$message.error("网络错误请联系管理员");
-          }
-        });
+        //   if (data.message == "当前登陆用户已失效，请重新登陆") {
+        //     this.$message.error(data.message);
+        // //    this.$router.push("/login");
+        //   } else {
+        //     this.$message.error("网络错误请联系管理员");
+        //   }
+        // });
     },
     //得到短信详情
     _httpFindMessageRecording(id) {
@@ -779,16 +795,16 @@ export default {
           this.showData = data.data.rows;
           this.dialogVisible3 = true;
         })
-        .catch(err => {
-          let data = err.response ? err.response.data : {};
+      //   .catch(err => {
+      //     let data = err.response ? err.response.data : {};
 
-          if (data.message == "当前登陆用户已失效，请重新登陆") {
-            this.$message.error(data.message);
-            this.$router.push("/login");
-          } else {
-            this.$message.error("网络错误请联系管理员");
-          }
-        });
+      //     if (data.message == "当前登陆用户已失效，请重新登陆") {
+      //       this.$message.error(data.message);
+      //  //     this.$router.push("/login");
+      //     } else {
+      //       this.$message.error("网络错误请联系管理员");
+      //     }
+      //   });
     },
     //新增修改用户
     _httpUpdateMessageAll(
@@ -845,16 +861,16 @@ export default {
             this.$router.push("/login");
           }
         })
-        .catch(err => {
-          let data = err.response ? err.response.data : {};
+        // .catch(err => {
+        //   let data = err.response ? err.response.data : {};
 
-          if (data.message == "当前登陆用户已失效，请重新登陆") {
-            this.$message.error(data.message);
-            this.$router.push("/login");
-          } else {
-            this.$message.error("网络错误请联系管理员");
-          }
-        });
+        //   if (data.message == "当前登陆用户已失效，请重新登陆") {
+        //     this.$message.error(data.message);
+        // //    this.$router.push("/login");
+        //   } else {
+        //     this.$message.error("网络错误请联系管理员");
+        //   }
+        // });
     },
     init(
       pageNumber,
@@ -889,17 +905,17 @@ export default {
             this.$message.error(data.msg);
           }
         })
-        .catch(err => {
-          let data = err.response ? err.response.data : {};
+      //   .catch(err => {
+      //     let data = err.response ? err.response.data : {};
 
-          if (data.message == "当前登陆用户已失效，请重新登陆") {
-            this.$message.error(data.message);
-            this.$router.push("/login");
-          } else {
-            this.$message.error("网络错误请联系管理员");
-          }
-          _this.loading = false;
-        });
+      //     if (data.message == "当前登陆用户已失效，请重新登陆") {
+      //       this.$message.error(data.message);
+      //  //     this.$router.push("/login");
+      //     } else {
+      //       this.$message.error("网络错误请联系管理员");
+      //     }
+      //     _this.loading = false;
+      //   });
     },
     submitUpload() {
       this.$refs.upload.submit();
@@ -970,7 +986,8 @@ export default {
     },
     reset() {
       this.search = {};
-
+      this.npage = 1;
+      this.pagesize = 10;
       this.init(this.npage, this.pagesize);
     },
     handleSearch() {
@@ -1132,16 +1149,16 @@ export default {
           }
           _this.init(this.npage, this.pagesize);
         })
-        .catch(err => {
-          let data = err.response ? err.response.data : {};
+        // .catch(err => {
+        //   let data = err.response ? err.response.data : {};
 
-          if (data.message == "当前登陆用户已失效，请重新登陆") {
-            this.$message.error(data.message);
-            this.$router.push("/login");
-          } else {
-            this.$message.error("网络错误请联系管理员");
-          }
-        });
+        //   if (data.message == "当前登陆用户已失效，请重新登陆") {
+        //     this.$message.error(data.message);
+        //  //   this.$router.push("/login");
+        //   } else {
+        //     this.$message.error("网络错误请联系管理员");
+        //   }
+        // });
     },
     //批量选择
     handleSelectionChange(val) {
@@ -1153,7 +1170,7 @@ export default {
       for (let a = 0; a < this.multipleSelection.length; a++) {
         ids.push(this.multipleSelection[a].id);
       }
-      this.$confirm("此操作将永久删除该短信, 是否继续?", "提示", {
+      this.$confirm("此操作将永久撤销该短信, 是否继续?", "提示", {
         confirmButtonText: "确定",
         cancelButtonText: "取消",
         type: "warning"
@@ -1165,7 +1182,7 @@ export default {
         .catch(() => {
           this.$message({
             type: "info",
-            message: "已取消删除"
+            message: "已取消撤销"
           });
         });
     },

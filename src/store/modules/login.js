@@ -11,6 +11,7 @@ const login = {
     newrouter: [],
     userInfo: '',
     timer: null,
+    router: null
   },
   mutations: {
     SET_USERNAME: (state, username) => {
@@ -31,17 +32,30 @@ const login = {
         removeStore('hsjr_username');
         state.userInfo = null;
         clearInterval(state.timer);
-    }, 3600000)
-        // }, 20000)
+      }, 3600000000000000)
+      // }, 20000)
     },
     OUT_LOGIN: (state) => {
       state.userInfo = null;
       state.login = false;
       removeStore('hsjr_username');
       clearInterval(state.timer);
+    },
+    UPDATE_DIRECTION: (state, router) => {
+      state.router = router;
     }
   },
   actions: {
+    GetRouter({
+      commit
+    }, router) {
+      return new Promise((resolve, reject) => {
+        commit('UPDATE_DIRECTION', router); //存储最新路由
+        resolve(router);
+      }).catch(error => {
+        reject(error);
+      });
+    },
     Logins({
       commit
     }, info) {
@@ -63,7 +77,6 @@ const login = {
         if (info.username || info.role) {
           commit('SET_USERNAME', info.username); //将username和role进行存储
           sessionStorage.setItem('USERNAME', info.username); //存入 session 
-          console.log(info.role);
           commit('SET_ROLE', info.role);
           sessionStorage.setItem('ROLE', info.role);
           return data = {

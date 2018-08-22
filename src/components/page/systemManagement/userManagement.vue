@@ -80,6 +80,9 @@
             <el-table-column prop="mobile" label="手机号" align="center" width="180" >
             </el-table-column>
             <el-table-column prop="crateTime" label="添加时间" align="center" width="180" sortable>
+              <template slot-scope="scope">
+                    {{scope.row.crateTime|dateServer}}
+                </template>                  
             </el-table-column>
             <el-table-column prop="ssex" label="用户性别" align="center" width="180" >
                 <template slot-scope="scope">
@@ -405,7 +408,7 @@ export default {
         this.userInfo == "undefined"
       ) {
         this.$message.error("当前登陆用户已失效，请重新登陆");
-        this.$router.push("/login");
+      //  this.$router.push("/login");
         return;
       }
     },
@@ -433,17 +436,17 @@ export default {
             this.$router.push("/login");
           }
         })
-        .catch(err => {
-          console.log(err);
-          let data = err.response ? err.response.data : {};
+        // .catch(err => {
+        //   console.log(err);
+        //   let data = err.response ? err.response.data : {};
 
-          if (data.message == "当前登陆用户已失效，请重新登陆") {
-            this.$message.error(data.message);
-            this.$router.push("/login");
-          } else {
-            this.$message.error("网络错误请联系管理员");
-          }
-        });
+        //   if (data.message == "当前登陆用户已失效，请重新登陆") {
+        //     this.$message.error(data.message);
+        //   //  this.$router.push("/login");
+        //   } else {
+        //     this.$message.error("网络错误请联系管理员");
+        //   }
+        // });
     },
     //可选角色
     _httpMenuList() {
@@ -466,19 +469,19 @@ export default {
         //   let data = res.data;
         //   _this.MenuList = data.rows;
         // })
-        .catch(err => {
-          console.log(err);
-          let data = err.response ? err.response.data : {};
+      //   .catch(err => {
+      //     console.log(err);
+      //     let data = err.response ? err.response.data : {};
 
-          if (data.message == "当前登陆用户已失效，请重新登陆") {
-            this.$message.error(data.message);
-            this.$router.push("/login");
-          } else {
-            this.$message.error("网络错误请联系管理员");
-          }
-          _this.tableData = [];
-          _this.loading = false;
-        });
+      //     if (data.message == "当前登陆用户已失效，请重新登陆") {
+      //       this.$message.error(data.message);
+      // //      this.$router.push("/login");
+      //     } else {
+      //       this.$message.error("网络错误请联系管理员");
+      //     }
+      //     _this.tableData = [];
+      //     _this.loading = false;
+      //   });
     },
     init(pageNum, pageSize, Username, ssex, mobile, deptId) {
       this.hasUser();
@@ -499,19 +502,19 @@ export default {
             this.$message.error(data.msg);
           }
         })
-        .catch(err => {
-          console.log(err);
-          let data = err.response ? err.response.data : {};
+      //   .catch(err => {
+      //     console.log(err);
+      //     let data = err.response ? err.response.data : {};
 
-          if (data.message == "当前登陆用户已失效，请重新登陆") {
-            this.$message.error(data.message);
-            this.$router.push("/login");
-          } else {
-            this.$message.error("网络错误请联系管理员");
-          }
-          _this.tableData = [];
-          _this.loading = false;
-        });
+      //     if (data.message == "当前登陆用户已失效，请重新登陆") {
+      //       this.$message.error(data.message);
+      //  //     this.$router.push("/login");
+      //     } else {
+      //       this.$message.error("网络错误请联系管理员");
+      //     }
+      //     _this.tableData = [];
+      //     _this.loading = false;
+      //   });
     },
     //得到部门列表
     _httpDeptNameList() {
@@ -529,17 +532,17 @@ export default {
             this.$message.error(data.msg);
           }
         })
-        .catch(err => {
-          console.log(err);
-          let data = err.response ? err.response.data : {};
+      //   .catch(err => {
+      //     console.log(err);
+      //     let data = err.response ? err.response.data : {};
 
-          if (data.message == "当前登陆用户已失效，请重新登陆") {
-            this.$message.error(data.message);
-            this.$router.push("/login");
-          } else {
-            this.$message.error("网络错误请联系管理员");
-          }
-        });
+      //     if (data.message == "当前登陆用户已失效，请重新登陆") {
+      //       this.$message.error(data.message);
+      //  //     this.$router.push("/login");
+      //     } else {
+      //       this.$message.error("网络错误请联系管理员");
+      //     }
+      //   });
     },
     handleSearch() {
       this.init(
@@ -561,8 +564,10 @@ export default {
       this.handleSearch();
     },
     reset() {
+      this.npage = 1;
+      this.pagesize = 10;
       this.search = {};
-      this.init();
+        this.init(this.npage, this.pagesize);
     },
     handleSelectionChange(val) {
       this.multipleSelection = val;
@@ -576,9 +581,9 @@ export default {
       if (formName == "ruleForm2") {
         this.$jQuery.ajax({
           type: "post",
-    // url: "http://localhost:8088/user/add",
+          //url: "http://localhost:8088/user/add",
           //  url: "http://47.88.171.117:8088/user/add",
-  url: "http://101.132.171.38:8088/user/add",             
+          url: "http://101.132.171.38:8088/user/add",
           data: {
             username: _this.ruleForm2.username,
             password: _this.ruleForm2.password,
@@ -613,7 +618,7 @@ export default {
             console.log(JSON.stringify(response));
             if (data.message == "当前登陆用户已失效，请重新登陆") {
               _this.$message.error(data.message);
-              _this.$router.push("/login");
+      //        _this.$router.push("/login");
             } else {
               _this.$message.error("网络错误请联系管理员");
             }
@@ -625,9 +630,9 @@ export default {
       } else {
         this.$jQuery.ajax({
           type: "post",
-        // url: "http://localhost:8088/user/update",
-        //   url: "http://47.88.171.117:8088/user/update",
-            url: "http://101.132.171.38:8088/user/update",   
+          //url: "http://localhost:8088/user/update",
+          //   url: "http://47.88.171.117:8088/user/update",
+           url: "http://101.132.171.38:8088/user/update",
           data: {
             id: _this.ruleForm3.id,
             username: _this.ruleForm3.username,
@@ -662,7 +667,7 @@ export default {
             console.log(JSON.stringify(response));
             if (data.message == "当前登陆用户已失效，请重新登陆") {
               _this.$message.error(data.message);
-              _this.$router.push("/login");
+         //     _this.$router.push("/login");
             } else {
               _this.$message.error("网络错误请联系管理员");
             }
@@ -732,17 +737,17 @@ export default {
             _this.$message.error(data.msg);
           }
         })
-        .catch(err => {
-          console.log(err);
-          let data = err.response ? err.response.data : {};
+        // .catch(err => {
+        //   console.log(err);
+        //   let data = err.response ? err.response.data : {};
 
-          if (data.message == "当前登陆用户已失效，请重新登陆") {
-            this.$message.error(data.message);
-            this.$router.push("/login");
-          } else {
-            this.$message.error("网络错误请联系管理员");
-          }
-        });
+        //   if (data.message == "当前登陆用户已失效，请重新登陆") {
+        //     this.$message.error(data.message);
+        //  //   this.$router.push("/login");
+        //   } else {
+        //     this.$message.error("网络错误请联系管理员");
+        //   }
+        // });
     }
   },
   mounted() {

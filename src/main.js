@@ -8,7 +8,7 @@ import {
 } from './router';
 import ElementUI from 'element-ui';
 import 'element-ui/lib/theme-chalk/index.css';
-
+import * as custom from './config/dateFilter';
 import axios from 'axios';
 import Element from 'element-ui';
 import jQuery from 'jquery'
@@ -20,7 +20,9 @@ Vue.use(Element, {
 });
 Vue.prototype.$axios = axios;
 Vue.prototype.$jQuery = jQuery;
-
+Object.keys(custom).forEach(key => {
+  Vue.filter(key, custom[key])
+})
 
 /* eslint-disable no-new */
 // router.beforeEach((to, from, next) => {
@@ -40,9 +42,8 @@ Vue.prototype.$jQuery = jQuery;
 // 消除点击延迟
 const FastClick = require('fastclick')
 FastClick.attach(document.body)
-const commit = store.commit || store.dispatch
+
 router.beforeEach((to, from, next) => {
-  console.log(store.getters.role);
   if (store.getters.role) { //判断role 是否存在
     let arr = Array.isArray(store.getters.role) ? store.getters.role : store.getters.role.split(',');
 
@@ -54,13 +55,16 @@ router.beforeEach((to, from, next) => {
         })) {
         next();
       } else {
-        next('/403')
+        if (/h5/.test(to.fullPath.slice(1))) {
+          next();
+        } else {
+          next('/403')
+        }
       }
 
     } else {
       let newrouter, roles = [];
       arr.forEach(role => {
-        console.log(role);
         if (powerRouter[0].children.filter(route => {
             if (route.meta) {
               return route.meta.role == role
@@ -97,7 +101,12 @@ router.beforeEach((to, from, next) => {
       next('/login')
     }
   }
-  commit('UPDATE_DIRECTION', to)
+  // commit('UPDATE_DIRECTION', to)
+  store.dispatch('GetRouter', to).then(res => {
+
+  }).catch(() => {
+
+  })
 })
 new Vue({
   el: '#app',

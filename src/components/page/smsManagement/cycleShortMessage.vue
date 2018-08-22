@@ -28,7 +28,6 @@
                       <el-button class="l20" slot="trigger" size="small" type="primary">选取文件</el-button>
 
                       <el-button class="l20" style="margin-left: 10px;" size="small" type="success" @click="submitUpload">上传到服务器</el-button>
-                      <!-- <div slot="tip" class="el-upload__tip">上传格式为"txt"或"xsl"文件</div> -->
                     </el-upload> 
                   </div>
                
@@ -67,11 +66,15 @@
                 id="text"
           >
             <el-table-column prop="id" label="序号" align="center" width="70"  sortable></el-table-column>
-             <el-table-column prop="createTime" label="创建时间" align="center" width="160" ></el-table-column>
-            <el-table-column prop="sendTime" label="发送时间" align="center" width="100" ></el-table-column>
-            <el-table-column prop="sendDate" label="发送日期" align="center" width="70" ></el-table-column>
-            <el-table-column prop="beginDate" label="开始日期" align="center" width="120" ></el-table-column>
-              <el-table-column prop="endDate" label="结束日期" align="center" width="120" ></el-table-column>            
+             <el-table-column prop="createTimeStr" label="创建时间" align="center" width="160" ></el-table-column>
+            <el-table-column prop="sendTimeStr" label="发送时间" align="center" width="100" ></el-table-column>
+            <el-table-column prop="sendDate" label="发送日期" align="center" width="100" >
+                    <template slot-scope="scope">
+                        {{isNaN(scope.row.sendDate)?'每'+scope.row.sendDate:'每月'+scope.row.sendDate+'日'}}
+                    </template> 
+            </el-table-column>
+            <el-table-column prop="beginDateStr" label="开始日期" align="center" width="120" ></el-table-column>
+              <el-table-column prop="endDateStr" label="结束日期" align="center" width="120" ></el-table-column>            
             <el-table-column prop="mobilePhone" label="手机" align="center" width="120" ></el-table-column>
               <el-table-column prop="cycleTypeStr" label="周期" align="center" width="60" ></el-table-column>            
             <el-table-column prop="sendStatusStr" label="状态" align="center" width="100" 
@@ -104,7 +107,6 @@
 
             </el-table-column>            -->
             <el-table-column prop="messageContent" label="消息内容" align="center"  width="200">
-                  
                     <template slot-scope="scope">
                           <el-tooltip class="item" effect="dark" :content="scope.row.messageContent" placement="top">
                               <span>{{scope.row.messageContent}}</span>
@@ -325,10 +327,16 @@
                 v-loading="loading"
           >
   <el-table-column prop="id" label="序号" align="center" width="70"  sortable></el-table-column>
-            <el-table-column prop="sendTime" label="发送时间" align="center" width="100" ></el-table-column>
-            <el-table-column prop="sendDate" label="发送日期" align="center" width="70" ></el-table-column>
-            <el-table-column prop="beginDate" label="开始日期" align="center" width="120" ></el-table-column>
-              <el-table-column prop="endDate" label="结束日期" align="center" width="120" ></el-table-column>            
+            <el-table-column prop="sendTimeStr" label="发送时间" align="center" width="100" >
+
+            </el-table-column>
+            <el-table-column prop="sendDate" label="发送日期" align="center" width="100" >
+                    <template slot-scope="scope">
+                        {{isNaN(scope.row.sendDate)?'每'+scope.row.sendDate:'每月'+scope.row.sendDate+'日'}}
+                    </template>               
+            </el-table-column>
+            <el-table-column prop="beginDateStr" label="开始日期" align="center" width="120" ></el-table-column>
+              <el-table-column prop="endDateStr" label="结束日期" align="center" width="120" ></el-table-column>            
             <el-table-column prop="mobilePhone" label="手机" align="center" width="120" ></el-table-column>
               <el-table-column prop="cycleTypeStr" label="周期" align="center" width="60" ></el-table-column>            
             <el-table-column prop="sendStatusStr" label="状态" align="center" width="100" 
@@ -409,8 +417,18 @@
            <!-- <el-table-column prop="uploader" label="创建人" align="center"  ></el-table-column> -->
            <!-- <el-table-column prop="createTime" label="创建时间" align="center"   width="140"></el-table-column> -->
            <!-- <el-table-column prop="signatureTypeStr" label="签名类型" align="center"  ></el-table-column> -->
-           <el-table-column prop="planSendTime" label="计划发送时间" align="center"  width="140" ></el-table-column>
-           <el-table-column prop="actualSendTime" label="实际发送时间" align="center"  width="140" ></el-table-column>
+           <el-table-column prop="planSendTime" label="计划发送时间" align="center"  width="140" >
+              <template slot-scope="scope">
+                    {{scope.row.planSendTime|dateServer}}
+                </template>  
+           </el-table-column>
+           <el-table-column prop="actualSendTime" label="实际发送时间" align="center"  width="140" >
+              <template slot-scope="scope">
+                <template v-if="scope.row.actualSendTime">
+                    {{scope.row.actualSendTime|dateServer}}
+                </template>
+                </template>  
+           </el-table-column>
            <!-- <el-table-column prop="signatureTypeStr" label="短信类型" align="center"   ></el-table-column> -->
            <el-table-column prop="sendStatusStr" label="发送状态" align="center"  width="100" ></el-table-column>
            <el-table-column prop="sendTimes" label="发送次数" align="center"  width="100" ></el-table-column>
@@ -820,92 +838,82 @@ export default {
         this.userInfo == "undefined"
       ) {
         this.$message.error("当前登陆用户已失效，请重新登陆");
-        this.$router.push("/login");
+        //    this.$router.push("/login");
         return;
       }
     },
     //撤销短信
     _httpSmsDelete(id) {
       let _this = this;
-      httpSmsDelete(id)
-        .then(res => {
-          let data = res.data;
-          if (data.code == 200) {
-            this.$message({
-              message: data.msg,
-              type: "success"
-            });
-          } else if (data.code == 500) {
-            this.$message.error(data.msg);
-            this.$router.push("/login");
-          } else {
-            this.$message.error(data.msg);
-          }
-          this.init(this.npage, this.pagesize);
-        })
-        .catch(err => {
-          let data = err.response ? err.response.data : {};
-
-          if (data.message == "当前登陆用户已失效，请重新登陆") {
-            this.$message.error(data.message);
-            this.$router.push("/login");
-          } else {
-            this.$message.error("网络错误请联系管理员");
-          }
-        });
+      httpSmsDelete(id).then(res => {
+        let data = res.data;
+        if (data.code == 200) {
+          this.$message({
+            message: data.msg,
+            type: "success"
+          });
+        } else if (data.code == 500) {
+          this.$message.error(data.msg);
+          this.$router.push("/login");
+        } else {
+          this.$message.error(data.msg);
+        }
+        this.init(this.npage, this.pagesize);
+      });
     },
     //获取短信详情接口
     _httpSmsDetails(id) {
-      httpSmsDetails(id)
-        .then(res => {
-          let data = res.data;
-          if (data.code == 200) {
-            // this.$message({
-            //   message: data.msg,
-            //   type: "success"
-            // });
-            this.ruleForm = data.data;
+      httpSmsDetails(id).then(res => {
+        let data = res.data;
+        if (data.code == 200) {
+          // this.$message({
+          //   message: data.msg,
+          //   type: "success"
+          // });
+          this.ruleForm = data.data;
 
-            // this.ruleForm = {};
-            // this.ruleForm = {
-            //   receiverName: data.receiverName,
-            //   mobilePhone: data.mobilePhone,
-            //   sendTime: data.sendTime,
-            //   sendStatusStr: data.sendStatusStr,
-            //   messageContent: data.messageContent,
-            //   uploader: data.uploader,
-            //   createTime: data.createTime,
-            //   remarks: data.remarks,
-            //   signatureTypeStr: data.signatureTypeStr,
-            //   recordStatusStr: data.recordStatusStr,
-            //   messageTypeStr: data.messageTypeStr,
-            //   sendTimes: data.sendTimes,
-            //   SMSsendstatus: data.messagerRecordings.messagerRecordings,
-            //   SMSsendTime: data.messagerRecordings.sendTime,
-            //   SMSsendPlatform: data.messagerRecordings.sendPlatform,
-            //   SMSmessage: data.messagerRecordings.message
-            // };
-            this.dialogVisible2 = true;
-          } else if (data.code == 500) {
-            this.$message.error(data.msg);
-            this.$router.push("/login");
-          } else {
-            this.$message.error(data.msg);
-          }
-        })
-        .catch(err => {
-          let data = err.response ? err.response.data : {};
+          // this.ruleForm = {};
+          // this.ruleForm = {
+          //   receiverName: data.receiverName,
+          //   mobilePhone: data.mobilePhone,
+          //   sendTime: data.sendTime,
+          //   sendStatusStr: data.sendStatusStr,
+          //   messageContent: data.messageContent,
+          //   uploader: data.uploader,
+          //   createTime: data.createTime,
+          //   remarks: data.remarks,
+          //   signatureTypeStr: data.signatureTypeStr,
+          //   recordStatusStr: data.recordStatusStr,
+          //   messageTypeStr: data.messageTypeStr,
+          //   sendTimes: data.sendTimes,
+          //   SMSsendstatus: data.messagerRecordings.messagerRecordings,
+          //   SMSsendTime: data.messagerRecordings.sendTime,
+          //   SMSsendPlatform: data.messagerRecordings.sendPlatform,
+          //   SMSmessage: data.messagerRecordings.message
+          // };
+          this.dialogVisible2 = true;
+        } else if (data.code == 500) {
+          this.$message.error(data.msg);
+          this.$router.push("/login");
+        } else {
+          this.$message.error(data.msg);
+        }
+      });
+      //   .catch(err => {
+      //     let data = err.response ? err.response.data : {};
 
-          if (data.message == "当前登陆用户已失效，请重新登陆") {
-            this.$message.error(data.message);
-            this.$router.push("/login");
-          } else {
-            this.$message.error("网络错误请联系管理员");
-          }
-        });
+      //     if (data.message == "当前登陆用户已失效，请重新登陆") {
+      //       this.$message.error(data.message);
+      //  //     this.$router.push("/login");
+      //     } else {
+      //       this.$message.error("网络错误请联系管理员");
+      //     }
+      //   });
     },
     download() {
-      window.open("http://paxfivrd0.bkt.clouddn.com/EXCEL20180731105752611.xls");
+      window.open(
+        "http://paxfivrd0.bkt.clouddn.com/EXCEL20180731105752611.xls"
+      );
     },
     _httpSmsPeriodicMessage(
       receiverName,
@@ -932,66 +940,72 @@ export default {
         remarks,
         cycleType,
         beginDate
-      )
-        .then(res => {
-          let data = res.data;
-          if (data.code == 200) {
-            this.$message({
-              message: data.msg,
-              type: "success"
-            });
-            this.resetForm("ruleForm3");
-            this.ruleForm3 = {
-              signatureType: 1
-            };
-            this.dialogVisible2 = false;
-            this.dialogVisible1 = false;
-          } else if (data.code == 500) {
-            this.$message.error(data.msg);
-            this.$router.push("/login");
-          } else {
-            this.$message.error(data.msg);
-          }
-          this.init(this.npage, this.pagesize);
-        })
-        .catch(err => {
-          let data = err.response ? err.response.data : {};
+      ).then(res => {
+        let data = res.data;
+        if (data.code == 200) {
+          this.$message({
+            message: data.msg,
+            type: "success"
+          });
+          this.resetForm("ruleForm3");
+          this.ruleForm3 = {
+            signatureType: 1
+          };
+          this.dialogVisible2 = false;
+          this.dialogVisible1 = false;
+        } else if (data.code == 500) {
+          this.$message.error(data.msg);
+          this.$router.push("/login");
+        } else {
+          this.$message.error(data.msg);
+        }
+        this.init(this.npage, this.pagesize);
+      });
+      // .catch(err => {
+      //   let data = err.response ? err.response.data : {};
 
-          if (data.message == "当前登陆用户已失效，请重新登陆") {
-            this.$message.error(data.message);
-            this.$router.push("/login");
-          } else {
-            this.$message.error("网络错误请联系管理员");
-          }
-        });
+      //   if (data.message == "当前登陆用户已失效，请重新登陆") {
+      //     this.$message.error(data.message);
+      //  //   this.$router.push("/login");
+      //   } else {
+      //     this.$message.error("网络错误请联系管理员");
+      //   }
+      // });
     },
     init(pageNumber, pageSize, keywords, startDate, endDate) {
       let _this = this;
       this.loading = true;
-      httpGetPeriodicMessage(pageNumber, pageSize, keywords, startDate, endDate)
-        .then(res => {
-          let data = res.data;
-          if (data.code == 200) {
-            _this.tableData = data.data.list;
-            _this.total = data.data.total;
-          } else if (data.code == 500) {
-            this.$message.error(data.msg);
-            this.$router.push("/login");
-          } else {
-            _this.$message.error(data.msg);
-          }
-          _this.loading = false;
-        })
-        .catch(err => {
-          let data = err.response ? err.response.data : {};
+      httpGetPeriodicMessage(
+        pageNumber,
+        pageSize,
+        keywords,
+        startDate,
+        endDate
+      ).then(res => {
+        // console.log(res);
 
-          if (data.message == "当前登陆用户已失效，请重新登陆") {
-            this.$message.error(data.message);
-            this.$router.push("/login");
-          } else {
-            this.$message.error("网络错误请联系管理员");
-          }
-        });
+        let data = res.data;
+        if (data.code == 200) {
+          _this.tableData = data.data.list;
+          _this.total = data.data.total;
+        } else if (data.code == 500) {
+          this.$message.error(data.msg);
+          this.$router.push("/login");
+        } else {
+          _this.$message.error(data.msg);
+        }
+        _this.loading = false;
+      });
+      // .catch(err => {
+      //   let data = err.response ? err.response.data : {};
+
+      //   if (data.message == "当前登陆用户已失效，请重新登陆") {
+      //     this.$message.error(data.message);
+      // //    this.$router.push("/login");
+      //   } else {
+      //     this.$message.error("网络错误请联系管理员");
+      //   }
+      // });
     },
     submitUpload() {
       this.$refs.upload.submit();
@@ -1023,10 +1037,8 @@ export default {
       //   this.$message.error("上传头像图片大小不能超过 4MB!");
       // }
       // return isJPG && isLt2M;
-      console.log(file);
       var re = /\w+\.(txt|xlsx)/;
       const isJPG = re.test(file.name);
-      console.log(isJPG);
       const isLt2M = file.size / 1024 / 1024 < 4;
 
       // if (!isJPG) {
@@ -1039,38 +1051,38 @@ export default {
         return this.$message.error("请上传文本");
       }
 
-      axios
-        .post("/sms/uploadExcel", fd, {})
-        .then(res => {
-          let data = res.data;
-          if (data.code == 200) {
-            this.$message({
-              message: data.msg,
-              type: "success"
-            });
-          } else if (data.code == 500) {
-            this.$message.error(data.msg);
-            this.$router.push("/login");
-          } else {
-            this.$message.error(data.msg);
-          }
-          this.init(this.npage, this.pagesize);
-        })
-        .catch(err => {
-          let data = err.response ? err.response.data : {};
+      axios.post("/sms/uploadExcel", fd, {}).then(res => {
+        let data = res.data;
+        if (data.code == 200) {
+          this.$message({
+            message: data.msg,
+            type: "success"
+          });
+        } else if (data.code == 500) {
+          this.$message.error(data.msg);
+          this.$router.push("/login");
+        } else {
+          this.$message.error(data.msg);
+        }
+        this.init(this.npage, this.pagesize);
+      });
+      // .catch(err => {
+      //   let data = err.response ? err.response.data : {};
 
-          if (data.message == "当前登陆用户已失效，请重新登陆") {
-            this.$message.error(data.message);
-            this.$router.push("/login");
-          } else {
-            this.$message.error("网络错误请联系管理员");
-          }
-        });
+      //   if (data.message == "当前登陆用户已失效，请重新登陆") {
+      //     this.$message.error(data.message);
+      // //    this.$router.push("/login");
+      //   } else {
+      //     this.$message.error("网络错误请联系管理员");
+      //   }
+      // });
       return isJPG && isLt2M;
     },
     reset() {
       this.search = {};
-      this.init();
+      this.npage = 1;
+      this.pagesize = 10;
+      this.init(this.npage, this.pagesize);
     },
     handleSearch() {
       if (this.search.time && this.search.time.length) {
@@ -1130,7 +1142,7 @@ export default {
       this.hasUser();
       let id = row.id;
       let _this = this;
-      this.$confirm("此操作将永久删除该短信, 是否继续?", "提示", {
+      this.$confirm("此操作将撤销该短信, 是否继续?", "提示", {
         confirmButtonText: "确定",
         cancelButtonText: "取消",
         type: "warning"
@@ -1142,7 +1154,7 @@ export default {
         .catch(() => {
           this.$message({
             type: "info",
-            message: "已取消删除"
+            message: "已取消撤销"
           });
         });
     },
@@ -1183,7 +1195,6 @@ export default {
   },
   mounted() {
     this.init(this.npage, this.pagesize);
-    console.log(this.userInfo);
   }
 };
 </script>

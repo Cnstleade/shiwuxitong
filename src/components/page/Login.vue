@@ -149,21 +149,21 @@ export default {
             let info = {
               username,
               password,
-//              role: data.data
-              role: [
-                "url1",
-                "affair",
-                "url2",
-                "role",
-                "url2",
-                "message",
-                "user",
-                "logging",
-                "acyclicMessage",
-                "passwordManagement",
-                'h5',
-                  'h5/cycleShortMessage'
-              ]
+             role: data.data
+              // role: [
+              //   "url1",
+              //   "affair",
+              //   "url2",
+              //   "role",
+              //   "url2",
+              //   "message",
+              //   "user",
+              //   "logging",
+              //   "acyclicMessage",
+              //   "passwordManagement",
+              //   'h5',
+              //   'h5/cycleShortMessage'
+              // ]
             };
             this.$store
               .dispatch("Logins", info)
@@ -174,11 +174,11 @@ export default {
                 console.log("++++++++++++++++++++++++++++++" + err);
               });
             this.$message({
-              message: '登录成功',
+              message: "登录成功",
               type: "success"
             });
             let userInfo = username;
-           this.RECORD_USERINFO(userInfo);
+            this.RECORD_USERINFO(userInfo);
             // sessionStorage.setItem("hsjr_username", username);
             this.resetForm("ruleForm");
             this.$router.push("/admin");
@@ -195,7 +195,7 @@ export default {
 
           if (data.message == "当前登陆用户已失效，请重新登陆") {
             this.$message.error(data.message);
-            this.$router.push("/login");
+          //  this.$router.push("/login");
           } else {
             console.log(err);
             this.$message.error("网络错误请联系管理员");
@@ -219,16 +219,16 @@ export default {
             this.$message.error(data.msg);
           }
         })
-        .catch(err => {
-          let data = err.response ? err.response.data : {};
+        // .catch(err => {
+        //   let data = err.response ? err.response.data : {};
 
-          if (data.message == "当前登陆用户已失效，请重新登陆") {
-            this.$message.error(data.message);
-            this.$router.push("/login");
-          } else {
-            this.$message.error("网络错误请联系管理员");
-          }
-        });
+        //   if (data.message == "当前登陆用户已失效，请重新登陆") {
+        //     this.$message.error(data.message);
+        //    // this.$router.push("/login");
+        //   } else {
+        //     this.$message.error("网络错误请联系管理员");
+        //   }
+        // });
     },
     //清空数据
     resetForm(formName) {

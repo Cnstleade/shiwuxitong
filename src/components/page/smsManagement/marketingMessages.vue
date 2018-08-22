@@ -261,12 +261,12 @@ export default {
   methods: {
     hasUser() {
       if (
-      this.userInfo == "" &&
+        this.userInfo == "" &&
         this.userInfo == null &&
         this.userInfo == "undefined"
       ) {
         this.$message.error("当前登陆用户已失效，请重新登陆");
-        this.$router.push("/login");
+        //   this.$router.push("/login");
         return;
       }
     },
@@ -283,20 +283,20 @@ export default {
           } else if (data.code == 500) {
             this.$message.error(data.msg);
             this.$router.push("/login");
-          }else {
+          } else {
             this.$message.error(data.msg);
           }
         })
-        .catch(err => {
-          let data = err.response ? err.response.data : {};
+        // .catch(err => {
+        //   let data = err.response ? err.response.data : {};
 
-          if (data.message == "当前登陆用户已失效，请重新登陆") {
-            this.$message.error(data.message);
-            this.$router.push("/login");
-          } else {
-            this.$message.error("网络错误请联系管理员");
-          }
-        });
+        //   if (data.message == "当前登陆用户已失效，请重新登陆") {
+        //     this.$message.error(data.message);
+        //     //      this.$router.push("/login");
+        //   } else {
+        //     this.$message.error("网络错误请联系管理员");
+        //   }
+        // });
     },
     getData(sendDate, pageNumber, pageSize, keywords) {
       this.hasUser();
@@ -316,20 +316,20 @@ export default {
           } else if (data.code == 500) {
             this.$message.error(data.msg);
             this.$router.push("/login");
-          }else {
+          } else {
             this.$message.error(data.msg);
           }
         })
-        .catch(err => {
-          let data = err.response ? err.response.data : {};
+        // .catch(err => {
+        //   let data = err.response ? err.response.data : {};
 
-          if (data.message == "当前登陆用户已失效，请重新登陆") {
-            this.$message.error(data.message);
-            this.$router.push("/login");
-          } else {
-            this.$message.error("网络错误请联系管理员");
-          }
-        });
+        //   if (data.message == "当前登陆用户已失效，请重新登陆") {
+        //     this.$message.error(data.message);
+        //     //      this.$router.push("/login");
+        //   } else {
+        //     this.$message.error("网络错误请联系管理员");
+        //   }
+        // });
     },
 
     handleSearch() {
@@ -351,6 +351,8 @@ export default {
       this.handleSearch();
     },
     reset() {
+      this.npage = 1;
+      this.pagesize = 10;
       this.search = {
         input: "",
         sendPlatform: "",
@@ -418,7 +420,7 @@ export default {
               message: data.msg,
               type: "success"
             });
-          }else if (data.code == 500) {
+          } else if (data.code == 500) {
             this.$message.error(data.msg);
             this.$router.push("/login");
           } else {
@@ -426,16 +428,17 @@ export default {
           }
           this.getData("", this.npage, this.pagesize);
         })
-        .catch(err => {
-          let data = err.response ? err.response.data : {};
-
-          if (data.message == "当前登陆用户已失效，请重新登陆") {
-            this.$message.error(data.message);
-            this.$router.push("/login");
-          } else {
-            this.$message.error("网络错误请联系管理员");
-          }
-        });
+        // .catch(err => {
+        //   let data = err.response ? err.response.data : {};
+        //   if (err.response) {
+        //     if (data.message == "当前登陆用户已失效，请重新登陆") {
+        //       this.$message.error(data.message);
+        //       //    this.$router.push("/login");
+        //     } else {
+        //       this.$message.error("网络错误请联系管理员");
+        //     }
+        //   }
+        // });
       return;
     },
     handleRemove(file, fileList) {},

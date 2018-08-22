@@ -6,7 +6,10 @@
   </div>
   
   <div class="home-box" style="height:100%">
-      <router-view></router-view>
+    <keep-alive>
+     <router-view></router-view>
+    </keep-alive>
+     
   </div>
 
     <tabbar>
@@ -61,7 +64,8 @@ export default {
         menu2: "退出"
       },
       isTabbarDemo: false,
-      componentName: ""
+      componentName: "",
+      router: { path: "/h5" }
     };
   },
   computed: {
@@ -90,7 +94,7 @@ export default {
       return this.componentName ? `Demo/${this.componentName}` : "Demo/~~";
     },
 
-    ...mapState(["route"])
+    // ...mapState(["route"])
   },
   methods: {
     scrollTop() {
@@ -101,7 +105,7 @@ export default {
     }
   },
   mounted() {
-    console.log(this.route);
+
   }
 };
 </script>

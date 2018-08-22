@@ -1,13 +1,49 @@
 import axios from 'axios';
+import Vue from 'vue';
+import router from '../router'
+import {
+  Message
+} from 'element-ui';
 // import HzInterface from './config';
 var qs = require('qs');
-
+Vue.prototype.$message = Message;
 //axios 配置
 axios.defaults.timeout = 600000;
- //axios.defaults.baseURL = 'http://localhost:8088'; //本地服务器
+//axios.defaults.baseURL = 'http://localhost:8088'; //本地服务器
 //axios.defaults.baseURL = 'http://192.168.2.103:8088'; //本地服务器
 //axios.defaults.baseURL = 'http://47.88.171.117:8088'; //本地服务器
 axios.defaults.baseURL = 'http://101.132.171.38:8088'; //本地服务器
+// http response 拦截器
+axios.interceptors.response.use(
+  response => {
+
+    if (response.status == 302) {
+      router.push("/login");
+    }
+    return response;
+  },
+  error => {
+    if (error.response) {
+      if (error.response.data) {
+        if (error.response.data.message == "当前登陆用户已失效，请重新登陆") {
+          Message({
+            message: '当前登陆用户已失效，请重新登陆',
+            type: 'error',
+            center: true
+          });
+          router.push("/login");
+          return;
+        } else {
+          Message({
+            message: '网络错误请联系管理员',
+            type: 'error',
+            center: true
+          });
+        }
+      }
+    }
+    return Promise.reject(error.response ? error.response.data : error)
+  });
 
 //   /*密码修改*/
 //   modifyPassword: '/user/updatePassword',
@@ -785,5 +821,20 @@ export function httpUpdatePassword(oldpassword, newPassword) {
       'Content-type': 'application/x-www-form-urlencoded'
     },
     data: qs.stringify(data)
+  })
+}
+
+
+//事务信息管理 / 得到用户角色
+
+export function httpUserDetail() {
+
+  return axios({
+    url: "/userDetail",
+    method: "post",
+    headers: {
+      'Content-type': 'application/x-www-form-urlencoded'
+    },
+
   })
 }

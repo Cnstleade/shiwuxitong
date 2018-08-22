@@ -9,10 +9,10 @@
                                 <img src="static/img/img.jpg" class="user-avator" alt="">
                                 <div class="user-info-cont">
                                     <div class="user-info-name">{{username}}</div>
-                                    <div>{{userInfo.role}}</div>
+                                    <div>{{userI.staffName}}</div>
                                 </div>
                             </div>
-                            <div class="user-info-list">上次登录时间：<span>{{userInfo.prevLoginTime}}</span></div>
+                            <div class="user-info-list">上次登录时间：<span>{{userI.lastLoginTime|dateServer}}</span></div>
                             <div class="user-info-list">上次登录IP：<span>{{userInfo.prevLoginIp}}</span></div>
                             <div class="user-info-list" style="color:rgba(30, 144, 255, 1)"> 如非您本人操作，请及时更改密码</div>
                         </el-card>
@@ -38,7 +38,7 @@
                             <div class="grid-content grid-con-1">
                                 <i class="el-icon-view grid-con-icon"></i>
                                 <div class="grid-cont-right">
-                                    <div class="grid-num">{{userInfo.LoginCount}}</div>
+                                    <div class="grid-num">{{userI.loginTimes}}</div>
                                     <div>访问次数</div>
                                 </div>
                             </div>
@@ -114,7 +114,8 @@
 import {
   httpUserList,
   httpRoleList,
-  httpUserRoleList
+  httpUserRoleList,
+  httpUserDetail
 } from "../../service/http";
 import { timeFormat, sFormat } from "../../config/time";
 export default {
@@ -128,8 +129,10 @@ export default {
         prevLoginIp: "127.0.0.1",
         LoginCount: 80
       },
-      number:null,
-      currentDate: timeFormat(new Date(),0,false),
+      //
+      userI: {},
+      number: null,
+      currentDate: timeFormat(new Date(), 0, false),
       name: localStorage.getItem("fk_username"),
       webImformation: [
         {
@@ -214,6 +217,16 @@ export default {
     }
   },
   methods: {
+    _httpUserDetail() {
+      httpUserDetail()
+        .then(res => {
+          let data = res.data;
+          if (data.code == 200) {
+            this.userI = data.data;
+          }
+        })
+     
+    },
     init(pageNum, pageSize, Username, ssex, mobile, deptId) {
       let _this = this;
       this.loading = true;
@@ -222,7 +235,7 @@ export default {
           let data = res.data;
           if (data.code == 200) {
             _this.number = data.data.rows.length;
-            console.log(data.data.rows.length)
+            console.log(data.data.rows.length);
             data.data.rows.forEach(row => {
               if (row.username == this.username) {
                 httpUserRoleList(row.id)
@@ -230,8 +243,7 @@ export default {
                     let data = res.data;
                     if (data.code == 200) {
                       let list = data.rows;
-                 
-                     
+
                       let roles = list.filter((v, i, a) => {
                         return v.checked;
                       });
@@ -239,24 +251,29 @@ export default {
                       roles.forEach((v, i, a) => {
                         roleList.push(v.roleName);
                       });
-                      this.userInfo.role = roleList.join(' ')
+                      this.userInfo.role = roleList.join(" ");
                       console.log(roleList);
                     } else if (data.code == 500) {
                       this.$message.error(data.msg);
                       this.$router.push("/login");
                     }
                   })
-                  .catch(err => {
-                    console.log(err);
-                    let data = err.response ? err.response.data : {};
+                //   .catch(err => {
+                //     console.log(err);
+                //     if (err.response.status) {
+                //       if (err.response.status == 302) {
+                //         this.$router.push("/login");
+                //       }
+                //     }
+                //     let data = err.response ? err.response.data : {};
 
-                    if (data.message == "当前登陆用户已失效，请重新登陆") {
-                      this.$message.error(data.message);
-                      this.$router.push("/login");
-                    } else {
-                      this.$message.error("网络错误请联系管理员");
-                    }
-                  });
+                //     if (data.message == "当前登陆用户已失效，请重新登陆") {
+                //       this.$message.error(data.message);
+                //  //     this.$router.push("/login");
+                //     } else {
+                //       this.$message.error("网络错误请联系管理员");
+                //     }
+                //   });
               }
             });
           } else if (data.code == 500) {
@@ -267,23 +284,28 @@ export default {
             this.$message.error(data.msg);
           }
         })
-        .catch(err => {
-          console.log(err);
-          let data = err.response ? err.response.data : {};
+      //   .catch(err => {
+      //     if (err.response.status) {
+      //       if (err.response.status == 302) {
+      //         this.$router.push("/login");
+      //       }
+      //     }
+      //     let data = err.response ? err.response.data : {};
 
-          if (data.message == "当前登陆用户已失效，请重新登陆") {
-            this.$message.error(data.message);
-            this.$router.push("/login");
-          } else {
-            this.$message.error("网络错误请联系管理员");
-          }
-          _this.tableData = [];
-          _this.loading = false;
-        });
+      //     if (data.message == "当前登陆用户已失效，请重新登陆") {
+      //       this.$message.error(data.message);
+      //  //     this.$router.push("/login");
+      //     } else {
+      //       this.$message.error("网络错误请联系管理员");
+      //     }
+      //     _this.tableData = [];
+      //     _this.loading = false;
+      //   });
     }
   },
   mounted: function() {
-    this.init(1, 10000);
+   // this.init(1, 10000);
+    this._httpUserDetail() ;
   }
 };
 </script>
